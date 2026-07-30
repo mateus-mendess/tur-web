@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import styles from './Hero.module.css';
+import { SignUpModal } from '../Auth/SignUpModal';
 
 interface HeroProps {
   videoSrc?: string;
@@ -9,6 +11,8 @@ export function Hero({
   videoSrc = "/assets/videos/hero-video.mp4",
   posterSrc = "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2021&auto=format&fit=crop"
 }: HeroProps) {
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+
   return (
     <div className={styles.heroPage}>
       <div className={styles.heroContainer}>
@@ -37,8 +41,22 @@ export function Hero({
           </div>
           
           <div className={styles.heroNavRight}>
-            <a href="#" className={styles.navLogin}>Entrar</a>
-            <a href="#" className={styles.navSignup}>Cadastrar-se</a>
+            <button 
+              type="button" 
+              className={styles.navLogin}
+              onClick={() => setIsSignUpOpen(true)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', font: 'inherit' }}
+            >
+              Entrar
+            </button>
+            <button 
+              type="button" 
+              className={styles.navSignup}
+              onClick={() => setIsSignUpOpen(true)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', font: 'inherit' }}
+            >
+              Cadastrar-se
+            </button>
           </div>
         </header>
 
@@ -57,7 +75,21 @@ export function Hero({
           </div>
         </footer>
       </div>
+
+      {/* Sign-Up Modal */}
+      <SignUpModal
+        isOpen={isSignUpOpen}
+        onClose={() => setIsSignUpOpen(false)}
+        onSwitchToLogin={() => {
+          // Placeholder action when switching to login
+          alert('Redirecionando para o login...');
+        }}
+        onSignUpSuccess={(data) => {
+          alert(`Conta criada com sucesso para ${data.nome} (${data.email})!`);
+        }}
+      />
     </div>
   );
 }
+
 

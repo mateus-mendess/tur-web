@@ -1,0 +1,401 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+/* Modal Backdrop Overlay (Shadow only, no backdrop blur) */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+/* Modal Wrapper Container */
+.modalContainer {
+  position: relative;
+  width: 100%;
+  max-width: 920px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  min-height: 560px;
+  animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Close Button (X) */
+.closeButton {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 20;
+  background: transparent;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #71717A;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background-color: #F4F4F5;
+  color: #111111;
+}
+
+.closeButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ----------------------------------------------------
+   LEFT COLUMN: WELCOME & BRAND DECORATIVE PANEL
+---------------------------------------------------- */
+.leftColumn {
+  position: relative;
+  background-color: #F3F1EB;
+  padding: 44px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: 1px solid rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.leftColumnBgImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  padding: 18px 8px;
+  z-index: 1;
+  transition: transform 0.3s ease;
+}
+
+.leftOverlayGradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg,
+      rgba(243, 241, 235, 0.6) 0%,
+      rgba(243, 241, 235, 0) 35%,
+      rgba(243, 241, 235, 0) 65%,
+      rgba(243, 241, 235, 0.7) 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.leftHeader {
+  z-index: 3;
+  position: relative;
+}
+
+.welcomeBadge {
+  font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-size: 21px;
+  font-weight: 400;
+  color: #111111;
+  letter-spacing: -0.3px;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.leftFooter {
+  z-index: 3;
+  position: relative;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #52525B;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.loginLink {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  color: #111111;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+  display: inline;
+}
+
+.loginLink:hover {
+  color: #DF4927;
+}
+
+/* ----------------------------------------------------
+   RIGHT COLUMN: SIGN UP FORM
+---------------------------------------------------- */
+.rightColumn {
+  background-color: #ffffff;
+  padding: 44px 44px 36px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.formHeader {
+  margin-bottom: 24px;
+}
+
+.formTitle {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #111111;
+  letter-spacing: -0.5px;
+  margin: 0 0 6px 0;
+}
+
+.formSubtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #71717A;
+  margin: 0;
+}
+
+.formBody {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inputLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #71717A;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.requiredStar {
+  color: #DF4927;
+  margin-left: 2px;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.textInput {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #111111;
+  background-color: #FFFFFF;
+  border: 1px solid #E4E4E7;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.textInput::placeholder {
+  color: #A1A1AA;
+}
+
+.textInput:focus {
+  border-color: #111111;
+  box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.08);
+}
+
+.textInputError {
+  border-color: #EF4444;
+}
+
+.textInputError:focus {
+  border-color: #EF4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+/* Grid for side-by-side passwords */
+.passwordGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Terms Checkbox */
+.termsWrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.customCheckbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #D4D4D8;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  background-color: #FFFFFF;
+}
+
+.customCheckbox:checked {
+  background-color: #111111;
+  border-color: #111111;
+}
+
+.customCheckbox:checked::after {
+  content: '';
+  width: 5px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+}
+
+.customCheckbox:focus-visible {
+  box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.2);
+}
+
+.termsLabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #52525B;
+  line-height: 1.4;
+  cursor: pointer;
+  user-select: none;
+}
+
+.termsLink {
+  color: #111111;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s ease;
+}
+
+.termsLink:hover {
+  color: #DF4927;
+}
+
+/* Primary CTA Button */
+.submitButton {
+  width: 100%;
+  height: 48px;
+  background-color: #111111;
+  color: #FFFFFF;
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s ease;
+  margin-top: 8px;
+}
+
+.submitButton:hover {
+  background-color: #27272A;
+}
+
+.submitButton:active {
+  background-color: #000000;
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.errorMessage {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  color: #EF4444;
+  margin-top: 2px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+  .modalContainer {
+    grid-template-columns: 1fr;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 16px;
+  }
+
+  .leftColumn {
+    padding: 32px 24px;
+    min-height: 200px;
+  }
+
+  .rightColumn {
+    padding: 32px 24px;
+  }
+
+  .passwordGrid {
+    grid-template-columns: 1fr;
+  }
+}
