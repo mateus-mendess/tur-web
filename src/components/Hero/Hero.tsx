@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { SignUpModal } from '../Auth/SignUpModal';
+import { LoginModal } from '../Auth/LoginModal';
 
 interface HeroProps {
   videoSrc?: string;
@@ -9,6 +10,26 @@ export function Hero({
   videoSrc = "/assets/videos/hero-video.mp4"
 }: HeroProps) {
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+
+  const handleOpenLogin = () => {
+    setIsSignUpOpen(false);
+    setIsLoginOpen(true);
+  };
+
+  const handleOpenSignUp = () => {
+    setIsLoginOpen(false);
+    setIsSignUpOpen(true);
+  };
+
+  const handleScrollDown = () => {
+    const introSection = document.getElementById('intro-section');
+    if (introSection) {
+      introSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+    }
+  };
 
   return (
     <div className="bg-tur-bg min-h-screen p-2 flex box-border">
@@ -29,7 +50,7 @@ export function Hero({
           <nav className="flex gap-8 flex-1 max-md:justify-center">
             <a href="#" className="text-white no-underline text-[15px] font-medium tracking-[0.5px] transition-opacity duration-200 hover:opacity-80">Explorar</a>
             <a href="#" className="text-white no-underline text-[15px] font-medium tracking-[0.5px] transition-opacity duration-200 hover:opacity-80">Mapa</a>
-            <a href="#" className="text-white no-underline text-[15px] font-medium tracking-[0.5px] transition-opacity duration-200 hover:opacity-80">Categoria</a>
+            <a href="#" className="text-white no-underline text-[15px] font-medium tracking-[0.5px] transition-opacity duration-200 hover:opacity-80">Comunidade</a>
           </nav>
 
           <div className="font-dm-sans text-[28px] font-bold text-white tracking-[2px] flex-1 text-center">
@@ -40,14 +61,14 @@ export function Hero({
             <button
               type="button"
               className="text-white no-underline text-[15px] font-medium transition-opacity duration-200 hover:opacity-80 bg-transparent border-none cursor-pointer font-inherit"
-              onClick={() => setIsSignUpOpen(true)}
+              onClick={handleOpenLogin}
             >
               Entrar
             </button>
             <button
               type="button"
               className="text-white no-underline text-[15px] font-medium transition-opacity duration-200 hover:opacity-80 bg-transparent border-none cursor-pointer font-inherit"
-              onClick={() => setIsSignUpOpen(true)}
+              onClick={handleOpenSignUp}
             >
               Cadastrar-se
             </button>
@@ -63,10 +84,15 @@ export function Hero({
         {/* Footer Section */}
         <footer className="flex flex-col gap-4 z-10 w-full">
           <div className="h-[1px] w-full bg-white/30" />
-          <div className="flex justify-between items-center w-full">
-            <div className="flex items-center justify-center w-8 h-8 border border-white/40 rounded-full text-base text-white animate-bounce">↓</div>
-            <span className="text-white font-inter text-sm font-medium">Scroll to explore</span>
-          </div>
+          <button
+            type="button"
+            onClick={handleScrollDown}
+            className="flex justify-between items-center w-full bg-transparent border-none cursor-pointer group text-left p-0 font-inherit"
+            aria-label="Rolar para explorar"
+          >
+            <div className="flex items-center justify-center w-8 h-8 border border-white/40 rounded-full text-base text-white animate-bounce group-hover:border-white group-hover:bg-white/10 transition-all">↓</div>
+            <span className="text-white font-inter text-sm font-medium opacity-80 group-hover:opacity-100 transition-opacity">Scroll to explore</span>
+          </button>
         </footer>
       </div>
 
@@ -74,12 +100,19 @@ export function Hero({
       <SignUpModal
         isOpen={isSignUpOpen}
         onClose={() => setIsSignUpOpen(false)}
-        onSwitchToLogin={() => {
-          // Placeholder action when switching to login
-          alert('Redirecionando para o login...');
-        }}
+        onSwitchToLogin={handleOpenLogin}
         onSignUpSuccess={(data) => {
           alert(`Conta criada com sucesso para ${data.nome} (${data.email})!`);
+        }}
+      />
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onSwitchToSignUp={handleOpenSignUp}
+        onLoginSuccess={(data) => {
+          alert(`Login efetuado com sucesso para ${data.email}!`);
         }}
       />
     </div>
