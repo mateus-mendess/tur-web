@@ -37,10 +37,10 @@ export function ScrollRevealSection({
       const rect = containerRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
 
-      // Start reveal LATER when section top reaches 40% of viewport height (centered in lower-middle screen)
-      // Complete reveal as section reaches 10% of viewport height
+      // Keep activation moment EXACTLY at 40% of viewport height (as requested by user)
       const startPoint = windowHeight * 0.40;
-      const endPoint = windowHeight * 0.10;
+      // Extend endPoint far negative to create a long, smooth, unhurried reveal distance
+      const endPoint = -windowHeight * 0.60;
       const totalRange = startPoint - endPoint;
 
       if (totalRange <= 0) return;
@@ -73,7 +73,7 @@ export function ScrollRevealSection({
     <section
       id="intro-section"
       ref={containerRef}
-      className="relative bg-tur-bg py-32 md:py-44 px-6 md:px-12 lg:px-24 flex flex-col items-center justify-center text-center select-none overflow-hidden min-h-[60vh]"
+      className="relative bg-tur-bg py-44 md:py-60 px-6 md:px-12 lg:px-24 flex flex-col items-center justify-center text-center select-none overflow-hidden min-h-[90vh]"
     >
       {/* Tagline Badge */}
       <div className="mb-8 md:mb-12 font-inter text-sm md:text-base font-medium tracking-wide text-tur-dark/80">
@@ -105,7 +105,7 @@ export function ScrollRevealSection({
               style={{
                 opacity,
                 color: '#111111',
-                transition: 'opacity 0.15s ease-out',
+                transition: 'opacity 0.2s ease-out',
                 willChange: 'opacity',
               }}
               className="inline-block mr-[0.28em]"
