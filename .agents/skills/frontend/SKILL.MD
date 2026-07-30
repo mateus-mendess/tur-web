@@ -4,6 +4,24 @@ Esta diretriz define as boas práticas de arquitetura, organização de código,
 
 O objetivo principal é garantir um código modular, escalável, legível e preparado para integrar perfeitamente com a API REST do Back-End.
 
+### 🎨 Estratégia de Estilização (CSS)
+
+* **Padrão do projeto: Tailwind CSS.** Todo componente novo deve ser estilizado
+  primariamente com classes utilitárias do Tailwind.
+* **CSS Modules (`*.module.css`) só é permitido em casos excepcionais**, quando
+  o layout exige controle muito fino que o Tailwind não cobre bem (ex: 
+  posicionamento complexo de vídeo de fundo, split de texto customizado).
+  Nesses casos, documentar o motivo em comentário no topo do arquivo `.module.css`.
+* **Design tokens do Tailwind:** as variáveis de cor/fonte (`--color-primary`,
+  `--color-bg`, `--color-text`, `--color-white`, fontes DM Sans/Inter) devem ser
+  registradas no `tailwind.config` (ou `@theme` no CSS, se Tailwind 4) como tokens
+  reutilizáveis — não hardcoded em `style={{ }}` inline.
+* **Animações:** usar utilitários do Tailwind para transições simples 
+  (`transition`, `duration-*`, `hover:*`). Para animações de entrada/saída de 
+  componentes (modais, menus) ou animações mais elaboradas, usar **Framer Motion**.
+* **Proibido:** `style={{ }}` inline para estilos reutilizáveis (resets de botão, 
+  cores, espaçamento) — sempre extrair para classe Tailwind ou token.
+
 ---
 
 ## 🏛️ 1. Arquitetura de Pastas (Feature-Driven / Modular Structure)
