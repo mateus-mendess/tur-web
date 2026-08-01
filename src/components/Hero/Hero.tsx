@@ -32,8 +32,8 @@ export function Hero({
   };
 
   return (
-    <div className="bg-tur-bg min-h-screen p-2 flex box-border">
-      <div className="flex-1 rounded-xl relative overflow-hidden flex flex-col justify-between p-[28px_40px] max-md:p-5 bg-tur-dark">
+    <>
+      <section className="relative w-full min-h-screen overflow-hidden flex flex-col justify-between p-[28px_40px] max-md:p-5 bg-tur-dark box-border">
         {/* Background Video */}
         <video
           className="absolute inset-0 w-full h-full object-cover z-0"
@@ -45,12 +45,15 @@ export function Hero({
           <source src={videoSrc} type="video/mp4" />
         </video>
 
+        {/* Dark Overlay for Text Readability */}
+        <div className="absolute inset-0 bg-black/40 pointer-events-none z-0" />
+
         {/* Navigation Header */}
         <header className="flex max-md:flex-col justify-between items-center z-10 font-inter w-full max-md:gap-4">
           <nav className="flex gap-8 flex-1 max-md:justify-center">
             <a href="#" className="text-white no-underline text-[15px] font-medium tracking-[0.5px] transition-opacity duration-200 hover:opacity-80">Explorar</a>
             <a href="#" className="text-white no-underline text-[15px] font-medium tracking-[0.5px] transition-opacity duration-200 hover:opacity-80">Mapa</a>
-            <a href="#" className="text-white no-underline text-[15px] font-medium tracking-[0.5px] transition-opacity duration-200 hover:opacity-80">Comunidade</a>
+            <a href="#" className="text-white no-underline text-[15px] font-medium tracking-[0.5px] transition-opacity duration-200 hover:opacity-80">Buscar</a>
           </nav>
 
           <div className="font-dm-sans text-[28px] font-bold text-white tracking-[2px] flex-1 text-center">
@@ -90,11 +93,11 @@ export function Hero({
             className="flex justify-between items-center w-full bg-transparent border-none cursor-pointer group text-left p-0 font-inherit"
             aria-label="Rolar para explorar"
           >
-            <div className="flex items-center justify-center w-8 h-8 border border-white/40 rounded-full text-base text-white animate-bounce group-hover:border-white group-hover:bg-white/10 transition-all">↓</div>
+            <div className="flex items-center justify-center w-8 h-8 border border-white/40 rounded-none text-base text-white animate-bounce group-hover:border-white group-hover:bg-white/10 transition-all">↓</div>
             <span className="text-white font-inter text-sm font-medium opacity-80 group-hover:opacity-100 transition-opacity">Scroll to explore</span>
           </button>
         </footer>
-      </div>
+      </section>
 
       {/* Sign-Up Modal */}
       <SignUpModal
@@ -115,6 +118,6 @@ export function Hero({
           alert(`Login efetuado com sucesso para ${data.email}!`);
         }}
       />
-    </div>
+    </>
   );
 }

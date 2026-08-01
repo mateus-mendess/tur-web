@@ -88,13 +88,13 @@ export function SignUpModal({
       aria-labelledby="signup-title"
     >
       <div
-        className="relative w-full max-w-[920px] bg-white rounded-2xl overflow-hidden shadow-[0_24px_48px_-12px_rgba(0,0,0,0.3),0_0_0_1px_rgba(0,0,0,0.05)] grid grid-cols-[1fr_1.15fr] max-md:grid-cols-1 min-h-[560px] max-md:max-h-[90vh] max-md:overflow-y-auto animate-scale-up"
+        className="relative w-full max-w-[920px] bg-white rounded-none overflow-hidden shadow-[0_24px_48px_-12px_rgba(0,0,0,0.3),0_0_0_1px_rgba(0,0,0,0.05)] grid grid-cols-[1fr_1.15fr] max-md:grid-cols-1 min-h-[560px] max-md:max-h-[90vh] max-md:overflow-y-auto animate-scale-up"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Icon (X) */}
         <button
           type="button"
-          className="absolute top-5 right-5 z-20 bg-transparent border-none w-9 h-9 rounded-full flex items-center justify-center cursor-pointer text-tur-gray-600 transition-all duration-200 hover:bg-tur-gray-100 hover:text-tur-dark"
+          className="absolute top-5 right-5 z-20 bg-transparent border-none w-9 h-9 rounded-none flex items-center justify-center cursor-pointer text-tur-gray-600 transition-all duration-200 hover:bg-tur-gray-100 hover:text-tur-dark"
           onClick={onClose}
           aria-label="Fechar modal"
         >
@@ -220,7 +220,7 @@ export function SignUpModal({
               <input
                 id="signup-terms"
                 type="checkbox"
-                className="appearance-none w-[18px] h-[18px] border-[1.5px] border-tur-gray-400 rounded outline-none cursor-pointer flex items-center justify-center mt-0.5 shrink-0 transition-all duration-200 bg-white checked:bg-tur-dark checked:border-tur-dark checked:after:content-[''] checked:after:w-[5px] checked:after:h-[9px] checked:after:border-solid checked:after:border-white checked:after:border-b-2 checked:after:border-r-2 checked:after:rotate-45 checked:after:mb-[2px] focus-visible:ring-[3px] focus-visible:ring-tur-dark/20"
+                className="appearance-none w-[18px] h-[18px] border-[1.5px] border-tur-gray-400 rounded-none outline-none cursor-pointer flex items-center justify-center mt-0.5 shrink-0 transition-all duration-200 bg-white checked:bg-tur-dark checked:border-tur-dark checked:after:content-[''] checked:after:w-[5px] checked:after:h-[9px] checked:after:border-solid checked:after:border-white checked:after:border-b-2 checked:after:border-r-2 checked:after:rotate-45 checked:after:mb-[2px] focus-visible:ring-[3px] focus-visible:ring-tur-dark/20"
                 checked={aceitoTermos}
                 onChange={(e) => setAceitoTermos(e.target.checked)}
               />
@@ -238,7 +238,7 @@ export function SignUpModal({
             </div>
 
             {/* BOTÃO DE AÇÃO PRINCIPAL (CTA) */}
-            <button type="submit" className="w-full h-12 bg-tur-dark text-white font-dm-sans text-[15px] font-semibold border-none rounded-lg cursor-pointer tracking-[0.2px] flex items-center justify-center gap-2 transition-colors duration-200 mt-3 hover:bg-tur-dark-hover active:bg-tur-dark-active disabled:opacity-60 disabled:cursor-not-allowed">
+            <button type="submit" className="w-full h-12 bg-tur-dark text-white font-dm-sans text-[15px] font-semibold border-none rounded-none cursor-pointer tracking-[0.2px] flex items-center justify-center gap-2 transition-colors duration-200 mt-3 hover:bg-tur-dark-hover active:bg-tur-dark-active disabled:opacity-60 disabled:cursor-not-allowed">
               Criar minha conta
             </button>
           </form>

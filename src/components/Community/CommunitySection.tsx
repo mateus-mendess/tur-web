@@ -40,7 +40,7 @@ export function CommunitySection() {
             <button
               type="button"
               aria-label="Faça parte da comunidade"
-              className="w-10 h-10 rounded-full border border-tur-dark flex items-center justify-center text-tur-dark hover:bg-tur-dark hover:text-tur-bg transition-colors duration-200 cursor-pointer"
+              className="w-10 h-10 rounded-none border border-tur-dark flex items-center justify-center text-tur-dark hover:bg-tur-dark hover:text-tur-bg transition-colors duration-200 cursor-pointer"
             >
               <span className="text-base font-medium">→</span>
             </button>

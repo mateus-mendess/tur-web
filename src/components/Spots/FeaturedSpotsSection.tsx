@@ -101,7 +101,6 @@ export function FeaturedSpotsSection() {
   const trackContentRef = useRef<HTMLDivElement>(null);
 
   const [translateX, setTranslateX] = useState(0);
-  const [savedSpotIds, setSavedSpotIds] = useState<Record<string, boolean>>({});
   const [isReducedMotion, setIsReducedMotion] = useState(false);
 
   useEffect(() => {
@@ -160,12 +159,6 @@ export function FeaturedSpotsSection() {
     };
   }, []);
 
-  const toggleSaveSpot = (id: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setSavedSpotIds((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-
   return (
     <div
       ref={sectionRef}
@@ -188,11 +181,11 @@ export function FeaturedSpotsSection() {
               ? 'none'
               : `translateX(-${translateX}px)`,
           }}
-          className={`flex items-center gap-8 md:gap-12 pl-6 md:pl-12 lg:pl-20 pr-12 md:pr-24 will-change-transform transition-transform ease-out ${isReducedMotion ? 'overflow-x-auto py-4 w-full' : ''
+          className={`flex items-center gap-2 md:gap-3 py-8 pl-6 md:pl-12 lg:pl-20 pr-12 md:pr-24 will-change-transform transition-transform ease-out ${isReducedMotion ? 'overflow-x-auto py-4 w-full' : ''
             }`}
         >
           {/* Header Title Panel (Slides horizontally together with all cards) */}
-          <div className="w-[300px] sm:w-[360px] md:w-[420px] lg:w-[460px] shrink-0 flex flex-col justify-center py-6">
+          <div className="w-[300px] sm:w-[360px] md:w-[420px] lg:w-[460px] shrink-0 flex flex-col justify-center py-6 pr-4">
             <span className="font-inter text-xs font-bold uppercase tracking-[1.5px] text-tur-accent mb-3 block">
               [ GALERIA DE DESTAQUES ]
             </span>
@@ -206,7 +199,7 @@ export function FeaturedSpotsSection() {
             {/* Interactive Scroll Prompt Indicator */}
             <div className="mt-8 flex items-center gap-3 font-inter text-xs font-bold uppercase tracking-[1.5px] text-tur-dark/70">
               <span>ROLANDO PARA EXPLORAR</span>
-              <div className="w-8 h-8 rounded-full border border-tur-dark/30 flex items-center justify-center text-sm animate-pulse">
+              <div className="w-8 h-8 rounded-none border border-tur-dark/30 flex items-center justify-center text-sm animate-pulse">
                 →
               </div>
             </div>
@@ -214,18 +207,16 @@ export function FeaturedSpotsSection() {
 
           {/* 6 Destination Cards */}
           {FEATURED_SPOTS.map((spot) => {
-            const isSaved = !!savedSpotIds[spot.id];
-
             return (
               <article
                 key={spot.id}
-                className="group shrink-0 w-[280px] sm:w-[320px] md:w-[360px] flex flex-col cursor-pointer"
+                className="group shrink-0 w-[280px] sm:w-[320px] md:w-[360px] flex flex-col cursor-pointer transition-all duration-300 ease-out hover:scale-105 hover:z-10"
                 onClick={() => {
                   alert(`Explorando o ponto: ${spot.name}`);
                 }}
               >
-                {/* Image Media Box (NO ZOOM, NO BLUR - SHADOW ON HOVER) */}
-                <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden shadow-xs group-hover:shadow-xl transition-shadow bg-tur-dark/5 mb-3">
+                {/* Card Container with Image and Overlay Content */}
+                <div className="relative aspect-[3/4] w-full rounded-none overflow-hidden shadow-xs group-hover:shadow-xl transition-shadow bg-tur-dark/5">
                   <img
                     src={spot.imageUrl}
                     alt={spot.name}
@@ -233,54 +224,19 @@ export function FeaturedSpotsSection() {
                     loading="lazy"
                   />
 
-                  {/* Hover Overlay containing ONLY: Author handle (top-left, text only), Save (top-right, icon only), Centered "Explorar ↗" (white button) */}
-                  <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 md:p-5 flex flex-col justify-between pointer-events-auto">
-                    {/* Top Bar: Author handle (left, icon-less plain text) & Save Button (right, icon-less bg) */}
-                    <div className="flex items-center justify-between w-full z-10">
-                      <div className="text-xs font-inter text-white font-medium drop-shadow-md">
-                        <span className="text-white/80 font-normal">por </span>
-                        <span className="font-semibold text-white">{spot.author.handle}</span>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={(e) => toggleSaveSpot(spot.id, e)}
-                        aria-label={isSaved ? "Remover dos salvos" : "Salvar ponto turistico"}
-                        className="text-white hover:text-tur-accent transition-colors duration-200 cursor-pointer drop-shadow-md p-1"
-                      >
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill={isSaved ? "currentColor" : "none"}
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          className="w-5 h-5"
-                        >
-                          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                        </svg>
-                      </button>
+                  {/* Gradient Overlay with Name at Top & Location at Bottom (Always Visible) */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/15 to-black/75 p-5 md:p-6 flex flex-col justify-between text-white pointer-events-none">
+                    {/* Top: Tourist Spot Name */}
+                    <div>
+                      <h3 className="font-dm-sans text-base sm:text-lg md:text-xl font-bold tracking-tight text-white leading-snug drop-shadow-md">
+                        {spot.name}
+                      </h3>
                     </div>
 
-                    {/* Centered Button in Middle of Card (White Background, Black Text) */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <span className="inline-flex items-center gap-2 bg-white text-tur-dark text-xs font-inter font-bold px-5 py-2.5 rounded-lg shadow-xl group-hover:scale-105 transition-transform duration-200">
-                        <span>Explorar</span>
-                        <span>↗</span>
-                      </span>
+                    {/* Bottom: Location */}
+                    <div className="font-inter text-xs sm:text-sm font-medium text-white/90 drop-shadow-md">
+                      <span>{spot.location}</span>
                     </div>
-                  </div>
-                </div>
-
-                {/* Info Below Card (Same line: Name + Location, fixed color) */}
-                <div className="flex items-baseline justify-between gap-2 px-1">
-                  <h3 className="font-dm-sans text-lg md:text-xl text-tur-dark line-clamp-1">
-                    {spot.name}
-                  </h3>
-                  <div className="flex items-center gap-1 font-inter text-xs font-medium text-tur-gray-600 shrink-0">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5 text-tur-accent">
-                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
-                      <circle cx="12" cy="9" r="2.5" />
-                    </svg>
-                    <span>{spot.location}</span>
                   </div>
                 </div>
               </article>
