@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { SignUpModal } from '../Auth/SignUpModal';
 import { LoginModal } from '../Auth/LoginModal';
+import { SearchOverlay } from '../Search/SearchOverlay';
 
 interface HeroProps {
   videoSrc?: string;
@@ -11,6 +12,7 @@ export function Hero({
 }: HeroProps) {
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const handleOpenLogin = () => {
     setIsSignUpOpen(false);
@@ -53,7 +55,27 @@ export function Hero({
           <nav className="flex gap-8 flex-1 max-md:justify-center">
             <a href="#" className="text-white no-underline text-[15px] font-medium tracking-[0.5px] transition-opacity duration-200 hover:opacity-80">Explorar</a>
             <a href="#" className="text-white no-underline text-[15px] font-medium tracking-[0.5px] transition-opacity duration-200 hover:opacity-80">Mapa</a>
-            <a href="#" className="text-white no-underline text-[15px] font-medium tracking-[0.5px] transition-opacity duration-200 hover:opacity-80">Buscar</a>
+            <button 
+              type="button" 
+              onClick={() => setIsSearchOpen(true)} 
+              className="text-white no-underline text-[15px] font-medium tracking-[0.5px] transition-opacity duration-200 hover:opacity-80 bg-transparent border-none cursor-pointer font-inherit p-0 flex items-center gap-1.5"
+            >
+              <span>Buscar</span>
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="14" 
+                height="14" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2.5" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+                className={`transition-transform duration-200 ${isSearchOpen ? 'rotate-180' : ''}`}
+              >
+                <path d="m6 9 6 6 6-6"/>
+              </svg>
+            </button>
           </nav>
 
           <div className="font-dm-sans text-[28px] font-bold text-white tracking-[2px] flex-1 text-center">
@@ -117,6 +139,12 @@ export function Hero({
         onLoginSuccess={(data) => {
           alert(`Login efetuado com sucesso para ${data.email}!`);
         }}
+      />
+
+      {/* Search Overlay */}
+      <SearchOverlay 
+        isOpen={isSearchOpen} 
+        onClose={() => setIsSearchOpen(false)} 
       />
     </>
   );
