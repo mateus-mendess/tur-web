@@ -1,7 +1,4 @@
-import { useState } from 'react';
-import { SignUpModal } from '../Auth/SignUpModal';
-import { LoginModal } from '../Auth/LoginModal';
-import { SearchOverlay } from '../Search/SearchOverlay';
+import { Header } from '../Header/Header';
 
 interface HeroProps {
   videoSrc?: string;
@@ -10,20 +7,6 @@ interface HeroProps {
 export function Hero({
   videoSrc = "/assets/videos/hero-video.mp4"
 }: HeroProps) {
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-
-  const handleOpenLogin = () => {
-    setIsSignUpOpen(false);
-    setIsLoginOpen(true);
-  };
-
-  const handleOpenSignUp = () => {
-    setIsLoginOpen(false);
-    setIsSignUpOpen(true);
-  };
-
   const handleScrollDown = () => {
     const introSection = document.getElementById('intro-section');
     if (introSection) {
@@ -50,55 +33,7 @@ export function Hero({
         {/* Dark Overlay for Text Readability */}
         <div className="absolute inset-0 bg-black/40 pointer-events-none z-0" />
 
-        {/* Navigation Header */}
-        <header className="flex max-md:flex-col justify-between items-center z-10 font-inter w-full max-md:gap-4">
-          <nav className="flex gap-8 flex-1 max-md:justify-center">
-            <a href="#" className="text-white no-underline text-[15px] font-medium tracking-[0.5px] transition-opacity duration-200 hover:opacity-80">Explorar</a>
-            <a href="#" className="text-white no-underline text-[15px] font-medium tracking-[0.5px] transition-opacity duration-200 hover:opacity-80">Mapa</a>
-            <button 
-              type="button" 
-              onClick={() => setIsSearchOpen(true)} 
-              className="text-white no-underline text-[15px] font-medium tracking-[0.5px] transition-opacity duration-200 hover:opacity-80 bg-transparent border-none cursor-pointer font-inherit p-0 flex items-center gap-1.5"
-            >
-              <span>Buscar</span>
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="14" 
-                height="14" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2.5" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-                className={`transition-transform duration-200 ${isSearchOpen ? 'rotate-180' : ''}`}
-              >
-                <path d="m6 9 6 6 6-6"/>
-              </svg>
-            </button>
-          </nav>
-
-          <div className="font-dm-sans text-[28px] font-bold text-white tracking-[2px] flex-1 text-center">
-            Tur<span className="text-tur-accent">.</span>
-          </div>
-
-          <div className="flex items-center justify-end max-md:justify-center gap-6 flex-1">
-            <button
-              type="button"
-              className="text-white no-underline text-[15px] font-medium transition-opacity duration-200 hover:opacity-80 bg-transparent border-none cursor-pointer font-inherit"
-              onClick={handleOpenLogin}
-            >
-              Entrar
-            </button>
-            <button
-              type="button"
-              className="text-white no-underline text-[15px] font-medium transition-opacity duration-200 hover:opacity-80 bg-transparent border-none cursor-pointer font-inherit"
-              onClick={handleOpenSignUp}
-            >
-              Cadastrar-se
-            </button>
-          </div>
-        </header>
+        <Header theme="dark" />
 
         {/* Hero Title Split (Left / Right) */}
         <div className="flex max-md:flex-col justify-between max-md:justify-center items-center flex-1 z-10 w-full max-md:gap-3">
@@ -120,32 +55,6 @@ export function Hero({
           </button>
         </footer>
       </section>
-
-      {/* Sign-Up Modal */}
-      <SignUpModal
-        isOpen={isSignUpOpen}
-        onClose={() => setIsSignUpOpen(false)}
-        onSwitchToLogin={handleOpenLogin}
-        onSignUpSuccess={(data) => {
-          alert(`Conta criada com sucesso para ${data.nome} (${data.email})!`);
-        }}
-      />
-
-      {/* Login Modal */}
-      <LoginModal
-        isOpen={isLoginOpen}
-        onClose={() => setIsLoginOpen(false)}
-        onSwitchToSignUp={handleOpenSignUp}
-        onLoginSuccess={(data) => {
-          alert(`Login efetuado com sucesso para ${data.email}!`);
-        }}
-      />
-
-      {/* Search Overlay */}
-      <SearchOverlay 
-        isOpen={isSearchOpen} 
-        onClose={() => setIsSearchOpen(false)} 
-      />
     </>
   );
 }
