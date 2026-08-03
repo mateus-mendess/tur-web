@@ -73,13 +73,13 @@ export function LoginModal({
       aria-labelledby="login-title"
     >
       <div
-        className="relative w-full max-w-[920px] bg-white rounded-none overflow-hidden shadow-[0_24px_48px_-12px_rgba(0,0,0,0.3),0_0_0_1px_rgba(0,0,0,0.05)] grid grid-cols-[1fr_1.15fr] max-md:grid-cols-1 min-h-[520px] max-md:max-h-[90vh] max-md:overflow-y-auto animate-scale-up"
+        className="relative w-full max-w-[920px] animate-scale-up"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Icon (X) */}
         <button
           type="button"
-          className="absolute top-5 right-5 z-20 bg-transparent border-none w-9 h-9 rounded-none flex items-center justify-center cursor-pointer text-tur-gray-600 transition-all duration-200 hover:bg-tur-gray-100 hover:text-tur-dark"
+          className="absolute -right-14 top-0 max-md:right-0 max-md:-top-14 bg-white w-12 h-12 flex items-center justify-center cursor-pointer text-tur-gray-600 transition-all duration-200 hover:bg-tur-gray-100 hover:text-tur-dark shadow-[0_2px_8px_rgba(0,0,0,0.1)] z-10"
           onClick={onClose}
           aria-label="Fechar modal"
         >
@@ -89,21 +89,19 @@ export function LoginModal({
           </svg>
         </button>
 
-        {/* COLUNA DA ESQUERDA (PAINEL DE BOAS-VINDAS / DECORATIVO) */}
-        <div className="relative bg-tur-bg p-[44px_36px] max-md:p-[32px_24px] max-md:min-h-[200px] flex flex-col justify-between border-r border-black/5 overflow-hidden">
-          {/* Full background image occupying entire left column */}
-          <img
-            src={leftImageSrc || "/assets/images/img-stamps.png"}
-            alt="tur. plataforma"
-            className="absolute inset-0 w-full h-full object-contain object-center p-[18px_8px] z-[1] transition-transform duration-300"
-          />
-          <div className="absolute inset-0 w-full h-full bg-[linear-gradient(180deg,rgba(243,241,235,0.6)_0%,rgba(243,241,235,0)_35%,rgba(243,241,235,0)_65%,rgba(243,241,235,0.7)_100%)] z-[2] pointer-events-none" />
+        <div className="w-full bg-white rounded-none overflow-hidden shadow-[0_24px_48px_-12px_rgba(0,0,0,0.3),0_0_0_1px_rgba(0,0,0,0.05)] grid grid-cols-[1fr_1.15fr] max-md:grid-cols-1 min-h-[520px] max-md:max-h-[80vh] max-md:overflow-y-auto">
 
-          <div className="z-[3] relative">
-            <h3 className="font-dm-sans text-[21px] font-normal text-tur-dark tracking-[-0.3px] m-0 leading-[1.2]">Bem-vindo!</h3>
+        {/* COLUNA DA ESQUERDA (TÍTULO E BOAS-VINDAS) */}
+        <div className="relative bg-white p-[50px_40px] max-md:p-[32px_24px] max-md:min-h-[200px] flex flex-col justify-start after:content-[''] after:absolute after:right-0 after:top-[15%] after:bottom-[15%] after:w-px after:bg-black/30 max-md:after:hidden">
+          <div className="z-[3] relative mb-6">
+            <h3 className="font-dm-sans text-[26px] font-normal text-tur-gray-600 tracking-[3px] uppercase m-0 leading-[1.2]">Bem-vindo</h3>
           </div>
 
-          <div className="z-[3] relative font-inter text-sm text-tur-gray-700 leading-normal font-normal">
+          <div className="z-[3] relative font-inter text-[15px] text-tur-gray-700 leading-[1.6] font-normal">
+            Preencha os dados ao lado para acessar sua conta no tur.
+          </div>
+
+          <div className="mt-auto pt-8 z-[3] relative font-inter text-sm text-tur-gray-700 leading-normal font-normal">
             Ainda não tem conta?{' '}
             <button
               type="button"
@@ -116,17 +114,18 @@ export function LoginModal({
         </div>
 
         {/* COLUNA DA DIREITA (FORMULÁRIO DE LOGIN) */}
-        <div className="bg-white p-[44px_44px_36px_44px] max-md:p-[32px_24px] flex flex-col justify-between">
-          <div className="mb-6">
+        <div className="relative bg-white p-[50px_44px_36px_44px] max-md:p-[32px_24px] flex flex-col justify-between">
+          <div className="absolute top-6 right-8 max-md:hidden">
+            <img src="/assets/images/selo-img.png" alt="Selo postal" className="w-[95px] h-auto object-contain drop-shadow-sm opacity-90 grayscale-[0.2]" />
+          </div>
+
+          <div className="mb-2 max-md:block hidden">
             <h2 id="login-title" className="font-dm-sans text-[28px] font-semibold text-tur-dark tracking-[-0.5px] m-0 mb-2">
               Entrar na sua conta
             </h2>
-            <p className="font-inter text-sm text-tur-gray-600 m-0">
-              Informe seus dados de acesso para continuar.
-            </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col justify-between flex-1 gap-5">
+          <form onSubmit={handleSubmit} className="flex flex-col justify-between flex-1 mt-[90px] max-md:mt-6 gap-5 z-10 relative">
             {errorMessage && (
               <div className="font-inter text-xs text-tur-red mt-0.5">{errorMessage}</div>
             )}
@@ -195,14 +194,17 @@ export function LoginModal({
             </div>
 
             {/* BOTÃO DE AÇÃO PRINCIPAL (CTA) */}
-            <button
-              type="submit"
-              className="w-full h-12 bg-tur-dark text-white font-dm-sans text-[15px] font-semibold border-none rounded-none cursor-pointer tracking-[0.2px] flex items-center justify-center gap-2 transition-colors duration-200 mt-4 hover:bg-tur-dark-hover active:bg-tur-dark-active disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              Entrar
-            </button>
+            <div className="flex justify-center mt-4">
+              <button
+                type="submit"
+                className="w-[180px] h-12 bg-tur-dark text-white font-dm-sans text-[15px] font-semibold border-none rounded-none cursor-pointer tracking-[0.2px] flex items-center justify-center gap-2 transition-colors duration-200 hover:bg-tur-dark-hover active:bg-tur-dark-active disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                Entrar
+              </button>
+            </div>
           </form>
         </div>
+      </div>
       </div>
     </div>
   );
