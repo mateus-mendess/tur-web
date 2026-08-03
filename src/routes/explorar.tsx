@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useState, useMemo } from 'react';
 import { FEATURED_SPOTS, type Spot } from '../data/spots';
 import { SpotCard } from '../components/Spots/SpotCard';
+import { SpotDetailModal } from '../components/Spots/SpotDetailModal';
 import { Header } from '../components/Header/Header';
 
 export const Route = createFileRoute('/explorar')({
@@ -22,6 +23,7 @@ function ExplorarPage() {
   const [isActiveFiltersMenuOpen, setIsActiveFiltersMenuOpen] = useState<boolean>(false);
   const [categorySearchQuery, setCategorySearchQuery] = useState<string>('');
   const [newCategoryInput, setNewCategoryInput] = useState<string>('');
+  const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
 
   const filteredCategoriesInMenu = useMemo(() => {
     if (!categorySearchQuery.trim()) return categoriesList;
@@ -422,7 +424,7 @@ function ExplorarPage() {
               <SpotCard 
                 key={spot.id} 
                 spot={spot} 
-                onClick={() => alert(`Explorando o ponto: ${spot.name}`)}
+                onClick={() => setSelectedSpot(spot)}
               />
             ))}
           </div>
@@ -447,6 +449,12 @@ function ExplorarPage() {
         )}
 
       </div>
+
+      <SpotDetailModal 
+        spot={selectedSpot} 
+        isOpen={!!selectedSpot} 
+        onClose={() => setSelectedSpot(null)} 
+      />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { FEATURED_SPOTS, type Spot } from '../../data/spots';
+import { SpotDetailModal } from './SpotDetailModal';
 
 export function FeaturedSpotsSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -8,6 +9,7 @@ export function FeaturedSpotsSection() {
 
   const [translateX, setTranslateX] = useState(0);
   const [isReducedMotion, setIsReducedMotion] = useState(false);
+  const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -117,9 +119,7 @@ export function FeaturedSpotsSection() {
               <article
                 key={spot.id}
                 className="group shrink-0 w-[280px] sm:w-[320px] md:w-[360px] flex flex-col cursor-pointer transition-all duration-300 ease-out hover:scale-105 hover:z-10"
-                onClick={() => {
-                  alert(`Explorando o ponto: ${spot.name}`);
-                }}
+                onClick={() => setSelectedSpot(spot)}
               >
                 {/* Card Container with Image and Overlay Content */}
                 <div className="relative aspect-[3/4] w-full rounded-none overflow-hidden shadow-xs group-hover:shadow-xl transition-shadow bg-tur-dark/5">
@@ -150,6 +150,12 @@ export function FeaturedSpotsSection() {
           })}
         </div>
       </div>
+      
+      <SpotDetailModal 
+        spot={selectedSpot} 
+        isOpen={!!selectedSpot} 
+        onClose={() => setSelectedSpot(null)} 
+      />
     </div>
   );
 }
