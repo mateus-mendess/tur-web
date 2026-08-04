@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CadastrarPontoRouteImport } from './routes/cadastrar-ponto'
 import { Route as ExplorarRouteImport } from './routes/explorar'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastrarPontoRoute = CadastrarPontoRouteImport.update({
+  id: '/cadastrar-ponto',
+  path: '/cadastrar-ponto',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExplorarRoute = ExplorarRouteImport.update({
@@ -25,27 +31,31 @@ const ExplorarRoute = ExplorarRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cadastrar-ponto': typeof CadastrarPontoRoute
   '/explorar': typeof ExplorarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cadastrar-ponto': typeof CadastrarPontoRoute
   '/explorar': typeof ExplorarRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/cadastrar-ponto': typeof CadastrarPontoRoute
   '/explorar': typeof ExplorarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/explorar'
+  fullPaths: '/' | '/cadastrar-ponto' | '/explorar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/explorar'
-  id: '__root__' | '/' | '/explorar'
+  to: '/' | '/cadastrar-ponto' | '/explorar'
+  id: '__root__' | '/' | '/cadastrar-ponto' | '/explorar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CadastrarPontoRoute: typeof CadastrarPontoRoute
   ExplorarRoute: typeof ExplorarRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastrar-ponto': {
+      id: '/cadastrar-ponto'
+      path: '/cadastrar-ponto'
+      fullPath: '/cadastrar-ponto'
+      preLoaderRoute: typeof CadastrarPontoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/explorar': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CadastrarPontoRoute: CadastrarPontoRoute,
   ExplorarRoute: ExplorarRoute,
 }
 export const routeTree = rootRouteImport

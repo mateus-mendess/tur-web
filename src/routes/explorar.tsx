@@ -17,12 +17,12 @@ function ExplorarPage() {
   const [selectedAccessibility, setSelectedAccessibility] = useState<string>('Todas');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const [categoriesList, setCategoriesList] = useState<string[]>(INITIAL_CATEGORIES);
+  const categoriesList = INITIAL_CATEGORIES;
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState<boolean>(false);
   const [isAccessMenuOpen, setIsAccessMenuOpen] = useState<boolean>(false);
   const [isActiveFiltersMenuOpen, setIsActiveFiltersMenuOpen] = useState<boolean>(false);
   const [categorySearchQuery, setCategorySearchQuery] = useState<string>('');
-  const [newCategoryInput, setNewCategoryInput] = useState<string>('');
+  const [accessSearchQuery, setAccessSearchQuery] = useState<string>('');
   const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
 
   const filteredCategoriesInMenu = useMemo(() => {
@@ -32,18 +32,13 @@ function ExplorarPage() {
     );
   }, [categoriesList, categorySearchQuery]);
 
-  const handleAddCategory = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const trimmed = newCategoryInput.trim();
-    if (!trimmed) return;
-    if (!categoriesList.includes(trimmed)) {
-      setCategoriesList((prev) => [...prev, trimmed]);
-    }
-    setSelectedCategory(trimmed);
-    setNewCategoryInput('');
-    setCategorySearchQuery('');
-    setIsCategoryMenuOpen(false);
-  };
+  const filteredAccessOptionsInMenu = useMemo(() => {
+    const options = ACCESSIBILITY_OPTIONS.filter((opt) => opt !== 'Todas');
+    if (!accessSearchQuery.trim()) return options;
+    return options.filter((opt) =>
+      opt.toLowerCase().includes(accessSearchQuery.toLowerCase())
+    );
+  }, [accessSearchQuery]);
 
   const filteredSpots = useMemo(() => {
     return FEATURED_SPOTS.filter((spot) => {
@@ -184,27 +179,6 @@ function ExplorarPage() {
                     </div>
                   )}
                 </div>
-
-                {/* Add New Category Section */}
-                <form onSubmit={handleAddCategory} className="border-t border-black/10 pt-2.5 flex items-center gap-1.5">
-                  <input 
-                    type="text" 
-                    placeholder="Nova categoria..." 
-                    value={newCategoryInput}
-                    onChange={(e) => setNewCategoryInput(e.target.value)}
-                    className="flex-1 font-inter text-xs border border-black/30 px-2.5 py-2 rounded-none outline-none focus:border-black"
-                  />
-                  <button 
-                    type="submit" 
-                    title="Cadastrar nova categoria"
-                    className="bg-black text-white px-3 py-2 border border-black font-bold hover:bg-tur-accent hover:border-tur-accent transition-colors cursor-pointer flex items-center justify-center rounded-none"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="12" y1="5" x2="12" y2="19"/>
-                      <line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
-                  </button>
-                </form>
               </div>
             </div>
 
@@ -244,32 +218,55 @@ function ExplorarPage() {
               )}
 
               {/* Accessibility Dropdown Menu Box (Slide down & Fade effect) */}
-              <div className={`absolute left-0 top-full mt-2 w-60 bg-white border border-black shadow-2xl z-30 p-2 flex flex-col gap-1 rounded-none transition-all duration-200 ease-out transform origin-top-left ${
+              <div className={`absolute left-0 top-full mt-2 w-72 bg-white border border-black shadow-2xl z-30 p-3 flex flex-col gap-3 rounded-none transition-all duration-200 ease-out transform origin-top-left ${
                 isAccessMenuOpen 
                   ? 'opacity-100 translate-y-0 pointer-events-auto' 
                   : 'opacity-0 -translate-y-2 pointer-events-none'
               }`}>
-                {ACCESSIBILITY_OPTIONS.filter((opt) => opt !== 'Todas').map((opt) => {
-                  const isSelected = selectedAccessibility === opt;
-                  return (
-                    <button
-                      key={opt}
-                      type="button"
-                      onClick={() => {
-                        setSelectedAccessibility(isSelected ? 'Todas' : opt);
-                        setIsAccessMenuOpen(false);
-                      }}
-                      className="text-left font-inter text-xs px-2.5 py-2 transition-colors flex items-center gap-2.5 rounded-none hover:bg-black/5 text-tur-dark cursor-pointer"
-                    >
-                      <span className={`w-2.5 h-2.5 rounded-full transition-all shrink-0 ${
-                        isSelected
-                          ? 'bg-tur-accent'
-                          : 'border border-black/30 bg-transparent'
-                      }`} />
-                      <span className={isSelected ? 'font-semibold text-tur-accent' : 'font-normal text-tur-dark'}>{opt}</span>
-                    </button>
-                  );
-                })}
+                {/* Search inside Accessibility Menu */}
+                <div className="relative w-full">
+                  <input 
+                    type="text" 
+                    placeholder="Buscar acessibilidade..." 
+                    value={accessSearchQuery}
+                    onChange={(e) => setAccessSearchQuery(e.target.value)}
+                    className="w-full font-inter text-xs border border-black/30 p-2 pr-7 rounded-none outline-none focus:border-black"
+                  />
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="absolute right-2.5 top-1/2 -translate-y-1/2 text-tur-gray-500 pointer-events-none">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                  </svg>
+                </div>
+
+                {/* Accessibility Options List */}
+                <div className="max-h-44 overflow-y-auto flex flex-col gap-1 pr-1">
+                  {filteredAccessOptionsInMenu.map((opt) => {
+                    const isSelected = selectedAccessibility === opt;
+                    return (
+                      <button
+                        key={opt}
+                        type="button"
+                        onClick={() => {
+                          setSelectedAccessibility(isSelected ? 'Todas' : opt);
+                          setIsAccessMenuOpen(false);
+                        }}
+                        className="text-left font-inter text-xs px-2.5 py-2 transition-colors flex items-center gap-2.5 rounded-none hover:bg-black/5 text-tur-dark cursor-pointer"
+                      >
+                        <span className={`w-2.5 h-2.5 rounded-full transition-all shrink-0 ${
+                          isSelected
+                            ? 'bg-tur-accent'
+                            : 'border border-black/30 bg-transparent'
+                        }`} />
+                        <span className={isSelected ? 'font-semibold text-tur-accent' : 'font-normal text-tur-dark'}>{opt}</span>
+                      </button>
+                    );
+                  })}
+
+                  {filteredAccessOptionsInMenu.length === 0 && (
+                    <div className="font-inter text-xs text-tur-gray-500 py-2 text-center">
+                      Nenhuma opção encontrada
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -91,14 +91,14 @@ export function SignUpModal({
         className="relative w-full max-w-[920px] animate-scale-up"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close Icon (X) */}
+        {/* Close Icon (X) - Sem fundo branco */}
         <button
           type="button"
-          className="absolute -right-14 top-0 max-md:right-0 max-md:-top-14 bg-white w-12 h-12 flex items-center justify-center cursor-pointer text-tur-gray-600 transition-all duration-200 hover:bg-tur-gray-100 hover:text-tur-dark shadow-[0_2px_8px_rgba(0,0,0,0.1)] z-10"
+          className="absolute -right-12 top-0 max-md:right-4 max-md:top-4 bg-transparent border-none p-0 flex items-center justify-center cursor-pointer text-white hover:text-tur-accent max-md:text-tur-dark transition-colors duration-200 z-10"
           onClick={onClose}
           aria-label="Fechar modal"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
             <line x1="18" y1="6" x2="6" y2="18" />
             <line x1="6" y1="6" x2="18" y2="18" />
           </svg>
