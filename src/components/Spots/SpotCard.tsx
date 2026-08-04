@@ -1,8 +1,8 @@
-import type { Spot } from '../../data/spots';
+import type { Spot } from '../../data/spots'
 
 interface SpotCardProps {
-  spot: Spot;
-  onClick?: () => void;
+  spot: Spot
+  onClick?: () => void
 }
 
 export function SpotCard({ spot, onClick }: SpotCardProps) {
@@ -36,5 +36,5 @@ export function SpotCard({ spot, onClick }: SpotCardProps) {
         </div>
       </div>
     </article>
-  );
+  )
 }

@@ -15,12 +15,11 @@ export function CommunitySection() {
       code: 'COMM · CM 042',
       value: '642',
     },
-  ];
+  ]
 
   return (
     <section className="bg-white py-16 md:py-24 px-6 md:px-12 lg:px-24">
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row items-start lg:items-stretch gap-10 lg:gap-16">
-        
         {/* Left Column */}
         <div className="flex-1 lg:w-4/12 flex flex-col justify-between items-start gap-8">
           <div>
@@ -49,7 +48,6 @@ export function CommunitySection() {
 
         {/* Right Column */}
         <div className="flex-1 lg:w-8/12 w-full flex flex-col lg:border-l border-tur-dark lg:pl-10">
-          
           {/* Linha Superior (Destaque Principal) */}
           <div className="border-t border-b border-tur-dark py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="font-inter text-xs font-bold uppercase tracking-wider text-tur-dark">
@@ -63,8 +61,8 @@ export function CommunitySection() {
           {/* Linhas de Métricas (Compactas com linhas divisórias) */}
           <div className="flex flex-col w-full">
             {stats.map((stat, idx) => (
-              <div 
-                key={idx} 
+              <div
+                key={idx}
                 className="py-3.5 border-b border-tur-dark flex items-center justify-between gap-4 w-full"
               >
                 {/* Lado Esquerdo (Rótulo + Sub-código sutil) */}
@@ -84,10 +82,8 @@ export function CommunitySection() {
               </div>
             ))}
           </div>
-
         </div>
-
       </div>
     </section>
-  );
+  )
 }

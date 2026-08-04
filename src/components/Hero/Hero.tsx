@@ -1,20 +1,20 @@
-import { Header } from '../Header/Header';
+import { Header } from '../Header/Header'
 
 interface HeroProps {
-  videoSrc?: string;
+  videoSrc?: string
 }
 
 export function Hero({
-  videoSrc = "/assets/videos/hero-video.mp4"
+  videoSrc = '/assets/videos/hero-video.mp4',
 }: HeroProps) {
   const handleScrollDown = () => {
-    const introSection = document.getElementById('intro-section');
+    const introSection = document.getElementById('intro-section')
     if (introSection) {
-      introSection.scrollIntoView({ behavior: 'smooth' });
+      introSection.scrollIntoView({ behavior: 'smooth' })
     } else {
-      window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+      window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
     }
-  };
+  }
 
   return (
     <>
@@ -37,8 +37,12 @@ export function Hero({
 
         {/* Hero Title Split (Left / Right) */}
         <div className="flex max-md:flex-col justify-between max-md:justify-center items-center flex-1 z-10 w-full max-md:gap-3">
-          <h1 className="font-dm-sans text-[5.5vw] max-md:text-[42px] font-bold text-white m-0 leading-[1.05] tracking-[-2px] text-left max-md:text-center">Explore</h1>
-          <h1 className="font-dm-sans text-[5.5vw] max-md:text-[42px] font-bold text-white m-0 leading-[1.05] tracking-[-2px] text-right max-md:text-center">o mundo.</h1>
+          <h1 className="font-dm-sans text-[5.5vw] max-md:text-[42px] font-bold text-white m-0 leading-[1.05] tracking-[-2px] text-left max-md:text-center">
+            Explore
+          </h1>
+          <h1 className="font-dm-sans text-[5.5vw] max-md:text-[42px] font-bold text-white m-0 leading-[1.05] tracking-[-2px] text-right max-md:text-center">
+            o mundo.
+          </h1>
         </div>
 
         {/* Footer Section */}
@@ -50,11 +54,15 @@ export function Hero({
             className="flex justify-between items-center w-full bg-transparent border-none cursor-pointer group text-left p-0 font-inherit"
             aria-label="Rolar para explorar"
           >
-            <div className="flex items-center justify-center w-8 h-8 border border-white/40 rounded-none text-base text-white animate-bounce group-hover:border-white group-hover:bg-white/10 transition-all">↓</div>
-            <span className="text-white font-inter text-sm font-medium opacity-80 group-hover:opacity-100 transition-opacity">Scroll to explore</span>
+            <div className="flex items-center justify-center w-8 h-8 border border-white/40 rounded-none text-base text-white animate-bounce group-hover:border-white group-hover:bg-white/10 transition-all">
+              ↓
+            </div>
+            <span className="text-white font-inter text-sm font-medium opacity-80 group-hover:opacity-100 transition-opacity">
+              Scroll to explore
+            </span>
           </button>
         </footer>
       </section>
     </>
-  );
+  )
 }

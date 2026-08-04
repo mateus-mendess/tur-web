@@ -1,73 +1,74 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react'
 
 interface ScrollRevealSectionProps {
-  tagline?: string;
-  text?: string;
+  tagline?: string
+  text?: string
 }
 
-const DEFAULT_TAGLINE = "[ Plataforma Open Source ]";
-const DEFAULT_TEXT = "O Tur. é uma plataforma open source onde qualquer pessoa pode cadastrar e descobrir pontos turísticos, culturais e gastronômicos. Mapeie seu lugar favorito e ajude o mundo a explorar além do óbvio.";
+const DEFAULT_TAGLINE = '[ Plataforma Open Source ]'
+const DEFAULT_TEXT =
+  'O Tur. é uma plataforma open source onde qualquer pessoa pode cadastrar e descobrir pontos turísticos, culturais e gastronômicos. Mapeie seu lugar favorito e ajude o mundo a explorar além do óbvio.'
 
 export function ScrollRevealSection({
   tagline = DEFAULT_TAGLINE,
   text = DEFAULT_TEXT,
 }: ScrollRevealSectionProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [isReducedMotion, setIsReducedMotion] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const [isReducedMotion, setIsReducedMotion] = useState(false)
 
-  const words = text.split(" ");
+  const words = text.split(' ')
 
   useEffect(() => {
     // Check user preference for reduced motion
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setIsReducedMotion(mediaQuery.matches);
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setIsReducedMotion(mediaQuery.matches)
 
     const handleQueryChange = (e: MediaQueryListEvent) => {
-      setIsReducedMotion(e.matches);
-    };
+      setIsReducedMotion(e.matches)
+    }
 
-    mediaQuery.addEventListener('change', handleQueryChange);
+    mediaQuery.addEventListener('change', handleQueryChange)
 
-    let rafId: number;
+    let rafId: number
 
     const updateScrollProgress = () => {
-      if (!containerRef.current) return;
+      if (!containerRef.current) return
 
-      const rect = containerRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
+      const rect = containerRef.current.getBoundingClientRect()
+      const windowHeight = window.innerHeight
 
       // Keep activation moment EXACTLY at 40% of viewport height (as requested by user)
-      const startPoint = windowHeight * 0.40;
+      const startPoint = windowHeight * 0.4
       // Extend endPoint far negative to create a long, smooth, unhurried reveal distance
-      const endPoint = -windowHeight * 0.60;
-      const totalRange = startPoint - endPoint;
+      const endPoint = -windowHeight * 0.6
+      const totalRange = startPoint - endPoint
 
-      if (totalRange <= 0) return;
+      if (totalRange <= 0) return
 
-      const progress = (startPoint - rect.top) / totalRange;
-      const clampedProgress = Math.max(0, Math.min(1, progress));
+      const progress = (startPoint - rect.top) / totalRange
+      const clampedProgress = Math.max(0, Math.min(1, progress))
 
-      setScrollProgress(clampedProgress);
-    };
+      setScrollProgress(clampedProgress)
+    }
 
     const onScroll = () => {
-      rafId = requestAnimationFrame(updateScrollProgress);
-    };
+      rafId = requestAnimationFrame(updateScrollProgress)
+    }
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', updateScrollProgress);
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', updateScrollProgress)
 
     // Initial call to set position
-    updateScrollProgress();
+    updateScrollProgress()
 
     return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', updateScrollProgress);
-      mediaQuery.removeEventListener('change', handleQueryChange);
-      if (rafId) cancelAnimationFrame(rafId);
-    };
-  }, []);
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', updateScrollProgress)
+      mediaQuery.removeEventListener('change', handleQueryChange)
+      if (rafId) cancelAnimationFrame(rafId)
+    }
+  }, [])
 
   return (
     <section
@@ -85,19 +86,25 @@ export function ScrollRevealSection({
         {words.map((word, index) => {
           if (isReducedMotion) {
             return (
-              <span key={index} className="text-tur-dark inline-block mr-[0.28em]">
+              <span
+                key={index}
+                className="text-tur-dark inline-block mr-[0.28em]"
+              >
                 {word}
               </span>
-            );
+            )
           }
 
           // Calculate progress threshold for each word
-          const start = index / words.length;
-          const end = (index + 1) / words.length;
+          const start = index / words.length
+          const end = (index + 1) / words.length
 
           // Interpolate opacity between 0.2 (muted light gray) and 1.0 (deep dark #111111)
-          const wordStep = Math.max(0, Math.min(1, (scrollProgress - start) / (end - start)));
-          const opacity = 0.2 + wordStep * 0.8;
+          const wordStep = Math.max(
+            0,
+            Math.min(1, (scrollProgress - start) / (end - start)),
+          )
+          const opacity = 0.2 + wordStep * 0.8
 
           return (
             <span
@@ -112,9 +119,9 @@ export function ScrollRevealSection({
             >
               {word}
             </span>
-          );
+          )
         })}
       </div>
     </section>
-  );
+  )
 }

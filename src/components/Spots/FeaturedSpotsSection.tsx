@@ -1,27 +1,28 @@
-import { useEffect, useRef, useState } from 'react';
-import { FEATURED_SPOTS, type Spot } from '../../data/spots';
-import { SpotDetailModal } from './SpotDetailModal';
+import { useEffect, useRef, useState } from 'react'
+import { FEATURED_SPOTS } from '../../data/spots'
+import type { Spot } from '../../data/spots'
+import { SpotDetailModal } from './SpotDetailModal'
 
 export function FeaturedSpotsSection() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const trackContainerRef = useRef<HTMLDivElement>(null);
-  const trackContentRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null)
+  const trackContainerRef = useRef<HTMLDivElement>(null)
+  const trackContentRef = useRef<HTMLDivElement>(null)
 
-  const [translateX, setTranslateX] = useState(0);
-  const [isReducedMotion, setIsReducedMotion] = useState(false);
-  const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null);
+  const [translateX, setTranslateX] = useState(0)
+  const [isReducedMotion, setIsReducedMotion] = useState(false)
+  const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null)
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setIsReducedMotion(mediaQuery.matches);
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setIsReducedMotion(mediaQuery.matches)
 
     const handleQueryChange = (e: MediaQueryListEvent) => {
-      setIsReducedMotion(e.matches);
-    };
+      setIsReducedMotion(e.matches)
+    }
 
-    mediaQuery.addEventListener('change', handleQueryChange);
+    mediaQuery.addEventListener('change', handleQueryChange)
 
-    let rafId: number;
+    let rafId: number
 
     const updateTranslateX = () => {
       if (
@@ -29,57 +30,63 @@ export function FeaturedSpotsSection() {
         !trackContainerRef.current ||
         !trackContentRef.current
       )
-        return;
+        return
 
-      const sectionRect = sectionRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      const totalVerticalScrollable = sectionRect.height - windowHeight;
+      const sectionRect = sectionRef.current.getBoundingClientRect()
+      const windowHeight = window.innerHeight
+      const totalVerticalScrollable = sectionRect.height - windowHeight
 
-      if (totalVerticalScrollable <= 0) return;
+      if (totalVerticalScrollable <= 0) return
 
       // Calculate vertical scroll progress through this section (0.0 to 1.0)
-      const currentScroll = -sectionRect.top;
-      const progress = Math.max(0, Math.min(1, currentScroll / totalVerticalScrollable));
+      const currentScroll = -sectionRect.top
+      const progress = Math.max(
+        0,
+        Math.min(1, currentScroll / totalVerticalScrollable),
+      )
 
       // Calculate max horizontal scroll width
       const maxTranslate = Math.max(
         0,
-        trackContentRef.current.scrollWidth - trackContainerRef.current.clientWidth
-      );
+        trackContentRef.current.scrollWidth -
+          trackContainerRef.current.clientWidth,
+      )
 
-      setTranslateX(progress * maxTranslate);
-    };
+      setTranslateX(progress * maxTranslate)
+    }
 
     const onScroll = () => {
-      rafId = requestAnimationFrame(updateTranslateX);
-    };
+      rafId = requestAnimationFrame(updateTranslateX)
+    }
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', updateTranslateX);
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', updateTranslateX)
 
-    updateTranslateX();
+    updateTranslateX()
 
     return () => {
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', updateTranslateX);
-      mediaQuery.removeEventListener('change', handleQueryChange);
-      if (rafId) cancelAnimationFrame(rafId);
-    };
-  }, []);
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', updateTranslateX)
+      mediaQuery.removeEventListener('change', handleQueryChange)
+      if (rafId) cancelAnimationFrame(rafId)
+    }
+  }, [])
 
   return (
     <div
       ref={sectionRef}
-      className={`relative bg-tur-bg ${isReducedMotion ? 'h-auto py-20' : 'h-[320vh]'
-        }`}
+      className={`relative bg-tur-bg ${
+        isReducedMotion ? 'h-auto py-20' : 'h-[320vh]'
+      }`}
     >
       {/* Sticky Viewport Container */}
       <div
         ref={trackContainerRef}
-        className={`${isReducedMotion
-          ? 'relative h-auto px-6 md:px-12'
-          : 'sticky top-0 h-screen overflow-hidden'
-          } flex items-center`}
+        className={`${
+          isReducedMotion
+            ? 'relative h-auto px-6 md:px-12'
+            : 'sticky top-0 h-screen overflow-hidden'
+        } flex items-center`}
       >
         {/* Full Horizontal Sliding Track (Header Panel + All 6 Cards) */}
         <div
@@ -89,8 +96,9 @@ export function FeaturedSpotsSection() {
               ? 'none'
               : `translateX(-${translateX}px)`,
           }}
-          className={`flex items-center gap-2 md:gap-3 py-8 pl-6 md:pl-12 lg:pl-20 pr-12 md:pr-24 will-change-transform transition-transform ease-out ${isReducedMotion ? 'overflow-x-auto py-4 w-full' : ''
-            }`}
+          className={`flex items-center gap-2 md:gap-3 py-8 pl-6 md:pl-12 lg:pl-20 pr-12 md:pr-24 will-change-transform transition-transform ease-out ${
+            isReducedMotion ? 'overflow-x-auto py-4 w-full' : ''
+          }`}
         >
           {/* Header Title Panel (Slides horizontally together with all cards) */}
           <div className="w-[300px] sm:w-[360px] md:w-[420px] lg:w-[460px] shrink-0 flex flex-col justify-center py-6 pr-4">
@@ -101,7 +109,8 @@ export function FeaturedSpotsSection() {
               Destinos em Destaque.
             </h2>
             <p className="font-inter text-sm md:text-base text-tur-gray-700 leading-relaxed m-0">
-              Deslize para explorar a nossa coleção curada de pontos turísticos, culturais e gastronômicos por todo o Brasil.
+              Deslize para explorar a nossa coleção curada de pontos turísticos,
+              culturais e gastronômicos por todo o Brasil.
             </p>
 
             {/* Interactive Scroll Prompt Indicator */}
@@ -146,16 +155,16 @@ export function FeaturedSpotsSection() {
                   </div>
                 </div>
               </article>
-            );
+            )
           })}
         </div>
       </div>
-      
-      <SpotDetailModal 
-        spot={selectedSpot} 
-        isOpen={!!selectedSpot} 
-        onClose={() => setSelectedSpot(null)} 
+
+      <SpotDetailModal
+        spot={selectedSpot}
+        isOpen={!!selectedSpot}
+        onClose={() => setSelectedSpot(null)}
       />
     </div>
-  );
+  )
 }

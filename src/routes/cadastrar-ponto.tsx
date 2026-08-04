@@ -1,15 +1,16 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { useState } from 'react';
-import { CreateSpotModal, type CreateSpotData } from '../components/Spots/CreateSpotModal';
-import { Header } from '../components/Header/Header';
+import { createFileRoute } from '@tanstack/react-router'
+import { useState } from 'react'
+import { CreateSpotModal } from '../components/Spots/CreateSpotModal'
+import type { SpotFormData } from '../schemas/spotSchema'
+import { Header } from '../components/Header/Header'
 
 export const Route = createFileRoute('/cadastrar-ponto')({
   component: CadastrarPontoPage,
-});
+})
 
 function CadastrarPontoPage() {
-  const [isModalOpen, setIsModalOpen] = useState(true);
-  const [submittedData, setSubmittedData] = useState<CreateSpotData | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [submittedData, setSubmittedData] = useState<SpotFormData | null>(null)
 
   return (
     <div className="min-h-screen bg-tur-bg pb-20 px-6 md:px-12 py-6">
@@ -20,7 +21,8 @@ function CadastrarPontoPage() {
           Cadastro de Ponto Turístico
         </h1>
         <p className="font-inter text-tur-gray-600 mb-8">
-          Esta é a página de pré-visualização do modal para cadastrar pontos turísticos.
+          Esta é a página de pré-visualização do modal para cadastrar pontos
+          turísticos.
         </p>
 
         <button
@@ -47,10 +49,10 @@ function CadastrarPontoPage() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={(data) => {
-          setSubmittedData(data);
-          alert(`Ponto turístico "${data.nome}" cadastrado com sucesso!`);
+          setSubmittedData(data)
+          alert(`Ponto turístico "${data.nome}" cadastrado com sucesso!`)
         }}
       />
     </div>
-  );
+  )
 }

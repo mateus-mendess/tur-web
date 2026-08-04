@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 
 interface SearchOverlayProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen: boolean
+  onClose: () => void
 }
 
 const POPULAR_SEARCHES = [
@@ -12,61 +12,61 @@ const POPULAR_SEARCHES = [
   'Histórico',
   'Gastronomia',
   'Pousadas',
-];
+]
 
 export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [shouldRender, setShouldRender] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('')
+  const [shouldRender, setShouldRender] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
 
   // Handle slide down animation phases
   useEffect(() => {
     if (isOpen) {
-      setShouldRender(true);
+      setShouldRender(true)
       const raf = requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          setIsAnimating(true);
-        });
-      });
-      return () => cancelAnimationFrame(raf);
+          setIsAnimating(true)
+        })
+      })
+      return () => cancelAnimationFrame(raf)
     } else {
-      setIsAnimating(false);
+      setIsAnimating(false)
       const timer = setTimeout(() => {
-        setShouldRender(false);
-      }, 300); // Matches transition duration
-      return () => clearTimeout(timer);
+        setShouldRender(false)
+      }, 300) // Matches transition duration
+      return () => clearTimeout(timer)
     }
-  }, [isOpen]);
+  }, [isOpen])
 
   // Close on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
-        onClose();
+        onClose()
       }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, onClose])
 
   // Prevent background scroll when modal is open
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden'
     } else {
-      document.body.style.overflow = '';
+      document.body.style.overflow = ''
     }
     return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen]);
+      document.body.style.overflow = ''
+    }
+  }, [isOpen])
 
-  if (!shouldRender) return null;
+  if (!shouldRender) return null
 
   return (
     <>
       {/* Dark Backdrop Overlay */}
-      <div 
+      <div
         className={`fixed inset-0 bg-black/65 z-[999] transition-opacity duration-300 ease-in-out ${
           isAnimating ? 'opacity-100' : 'opacity-0'
         }`}
@@ -74,14 +74,15 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
       />
 
       {/* Top Sliding Search Panel (Original Position & Slide-Down Animation) */}
-      <div 
+      <div
         className={`fixed top-0 left-0 w-full z-[1000] transition-all duration-300 ease-in-out p-5 md:p-8 pointer-events-none flex justify-center ${
-          isAnimating ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'
+          isAnimating
+            ? 'opacity-100 translate-y-0'
+            : 'opacity-0 -translate-y-full'
         }`}
       >
         {/* Overlay Panel Wrapper with relative positioning for Close Button */}
         <div className="relative max-w-[920px] w-full pointer-events-auto">
-          
           {/* Close Icon (X) - Fora do modal à direita (Mesmo design e posição dos outros modais) */}
           <button
             type="button"
@@ -89,7 +90,15 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
             className="absolute -right-12 top-0 max-md:right-4 max-md:top-4 bg-transparent border-none p-0 flex items-center justify-center cursor-pointer text-white hover:text-tur-accent max-md:text-tur-dark transition-colors duration-200 z-10"
             aria-label="Fechar busca"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-7 h-7"
+            >
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
@@ -106,8 +115,20 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
 
               {/* Search Input Area */}
               <div className="relative w-full">
-                <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-tur-gray-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                <svg
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-tur-gray-500"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.3-4.3" />
                 </svg>
                 <input
                   type="text"
@@ -140,11 +161,10 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                   ))}
                 </div>
               </div>
-
             </div>
           </div>
         </div>
       </div>
     </>
-  );
+  )
 }
