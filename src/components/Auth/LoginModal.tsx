@@ -1,53 +1,57 @@
-import { useState } from 'react'
-import type { FormEvent } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { BaseModal } from '../UI/BaseModal'
 import { Input } from '../UI/Input'
 import { Label } from '../UI/Label'
 import { Button } from '../UI/Button'
 import { Checkbox } from '../UI/Checkbox'
+import { loginSchema, type LoginFormData } from '../../schemas/authSchema'
 
 export interface LoginModalProps {
   isOpen: boolean
   onClose: () => void
   onSwitchToSignUp?: () => void
-  onLoginSuccess?: (data: { email: string }) => void
-  leftImageSrc?: string
+  onLogin: (data: LoginFormData) => Promise<void>
 }
 
 export function LoginModal({
   isOpen,
   onClose,
   onSwitchToSignUp,
-  onLoginSuccess,
+  onLogin,
 }: LoginModalProps) {
-  const [email, setEmail] = useState('')
-  const [senha, setSenha] = useState('')
-  const [mantenhaConectado, setMantenhaConectado] = useState(false)
-  const [errorMessage, setErrorMessage] = useState('')
+  const {
+    register,
+    handleSubmit,
+    setError,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      senha: '',
+      manterConectado: false,
+    },
+  })
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault()
-    setErrorMessage('')
+  const manterConectado = watch('manterConectado')
 
-    if (!email.trim() || !email.includes('@')) {
-      setErrorMessage('Por favor, informe um e-mail válido.')
-      return
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      await onLogin(data)
+    } catch {
+      setError('root', {
+        message: 'E-mail ou senha incorretos. Verifique seus dados.',
+      })
     }
-    if (!senha) {
-      setErrorMessage('Por favor, digite sua senha.')
-      return
-    }
-
-    if (onLoginSuccess) {
-      onLoginSuccess({ email })
-    }
-    onClose()
-  }
+  })
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} ariaLabel="login-title">
       <div className="w-full bg-white rounded-none overflow-hidden shadow-[0_24px_48px_-12px_rgba(0,0,0,0.3),0_0_0_1px_rgba(0,0,0,0.05)] grid grid-cols-[1fr_1.15fr] max-md:grid-cols-1 min-h-[520px] max-md:max-h-[80vh] max-md:overflow-y-auto">
-        {/* COLUNA DA ESQUERDA (TÍTULO E BOAS-VINDAS) */}
+        {/* COLUNA DA ESQUERDA */}
         <div className="relative bg-white p-[50px_40px] max-md:p-[32px_24px] max-md:min-h-[200px] flex flex-col justify-start after:content-[''] after:absolute after:right-0 after:top-[15%] after:bottom-[15%] after:w-px after:bg-black/30 max-md:after:hidden">
           <div className="z-[3] relative mb-6">
             <h3 className="font-dm-sans text-[26px] font-normal text-tur-gray-600 tracking-[3px] uppercase m-0 leading-[1.2]">
@@ -56,7 +60,7 @@ export function LoginModal({
           </div>
 
           <div className="z-[3] relative font-inter text-[15px] text-tur-gray-700 leading-[1.6] font-normal">
-            Preencha os dados ao lado para acessar sua conta no tur.
+            Entre na sua conta e continue explorando o Brasil.
           </div>
 
           <div className="mt-auto pt-8 z-[3] relative font-inter text-sm text-tur-gray-700 leading-normal font-normal">
@@ -65,14 +69,14 @@ export function LoginModal({
               variant="ghost"
               type="button"
               className="inline font-semibold underline underline-offset-[3px]"
-              onClick={onSwitchToSignUp || onClose}
+              onClick={onSwitchToSignUp ?? onClose}
             >
               Cadastre-se agora
             </Button>
           </div>
         </div>
 
-        {/* COLUNA DA DIREITA (FORMULÁRIO DE LOGIN) */}
+        {/* COLUNA DA DIREITA — FORMULÁRIO */}
         <div className="relative bg-white p-[50px_44px_36px_44px] max-md:p-[32px_24px] flex flex-col justify-between">
           <div className="absolute top-6 right-8 max-md:hidden">
             <img
@@ -87,86 +91,89 @@ export function LoginModal({
               id="login-title"
               className="font-dm-sans text-[28px] font-semibold text-tur-dark tracking-[-0.5px] m-0 mb-2"
             >
-              Entrar na sua conta
+              Acesse sua conta
             </h2>
           </div>
 
           <form
-            onSubmit={handleSubmit}
+            onSubmit={onSubmit}
             className="flex flex-col justify-between flex-1 mt-[90px] max-md:mt-6 gap-5 z-10 relative"
           >
-            {errorMessage && (
+            {/* Erro global da API */}
+            {errors.root && (
               <div className="font-inter text-xs text-tur-red mt-0.5">
-                {errorMessage}
+                {errors.root.message}
               </div>
             )}
 
-            <div className="flex flex-col gap-4">
-              {/* E-MAIL */}
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="login-email" required>
-                  E-mail
-                </Label>
-                <div className="relative flex items-center">
-                  <Input
-                    id="login-email"
-                    type="email"
-                    placeholder="seuemail@exemplo.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-              </div>
+            {/* E-MAIL */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="login-email" required>
+                E-mail
+              </Label>
+              <Input
+                id="login-email"
+                type="email"
+                placeholder="seuemail@exemplo.com"
+                error={!!errors.email}
+                {...register('email')}
+              />
+              {errors.email && (
+                <span className="font-inter text-xs text-tur-red font-medium">
+                  {errors.email.message}
+                </span>
+              )}
+            </div>
 
-              {/* SENHA */}
-              <div className="flex flex-col gap-1.5">
+            {/* SENHA */}
+            <div className="flex flex-col gap-1.5">
+              <div className="flex justify-between items-center">
                 <Label htmlFor="login-senha" required>
                   Senha
                 </Label>
-                <div className="relative flex items-center">
-                  <Input
-                    id="login-senha"
-                    type="password"
-                    placeholder="Sua senha"
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              {/* OPÇÕES ADICIONAIS: LEMBRAR-ME & ESQUECEU A SENHA */}
-              <div className="flex items-center justify-between gap-2 mt-1">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="login-remember"
-                    checked={mantenhaConectado}
-                    onChange={(e) => setMantenhaConectado(e.target.checked)}
-                  />
-                  <label
-                    htmlFor="login-remember"
-                    className="font-inter text-[13px] text-tur-gray-700 cursor-pointer select-none"
-                  >
-                    Mantenha-me conectado
-                  </label>
-                </div>
-
                 <a
                   href="#esqueci-senha"
+                  className="font-inter text-xs text-tur-gray-600 hover:text-tur-accent underline underline-offset-2 transition-colors duration-200"
                   onClick={(e) => {
                     e.preventDefault()
-                    alert('Funcionalidade de recuperação de senha em breve.')
                   }}
-                  className="font-inter text-xs text-tur-gray-600 hover:text-tur-accent transition-colors underline underline-offset-2"
                 >
-                  Esqueceu sua senha?
+                  Esqueceu a senha?
                 </a>
               </div>
+              <Input
+                id="login-senha"
+                type="password"
+                placeholder="Sua senha"
+                error={!!errors.senha}
+                {...register('senha')}
+              />
+              {errors.senha && (
+                <span className="font-inter text-xs text-tur-red font-medium">
+                  {errors.senha.message}
+                </span>
+              )}
             </div>
 
-            {/* BOTÃO DE AÇÃO PRINCIPAL (CTA) */}
-            <div className="flex justify-center mt-4">
-              <Button type="submit" className="w-[180px]">
-                Entrar
+            {/* MANTER CONECTADO */}
+            <div className="flex items-center gap-2.5">
+              <Checkbox
+                id="login-remember"
+                checked={manterConectado ?? false}
+                onChange={(e) => setValue('manterConectado', e.target.checked)}
+              />
+              <label
+                htmlFor="login-remember"
+                className="font-inter text-[13px] text-tur-gray-700 cursor-pointer select-none"
+              >
+                Manter conectado
+              </label>
+            </div>
+
+            {/* CTA */}
+            <div className="flex justify-center mt-3">
+              <Button type="submit" className="w-[180px]" disabled={isSubmitting}>
+                {isSubmitting ? 'Entrando...' : 'Entrar'}
               </Button>
             </div>
           </form>

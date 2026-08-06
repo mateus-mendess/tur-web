@@ -7,55 +7,12 @@ import { Input } from '../UI/Input'
 import { Label } from '../UI/Label'
 import { Button } from '../UI/Button'
 import { SearchableDropdown } from '../UI/SearchableDropdown'
-
-const INITIAL_CATEGORIES = [
-  'Praias',
-  'Ecoturismo',
-  'Histórico',
-  'Gastronomia',
-  'Natureza',
-  'Aventura',
-  'Cultura',
-]
-
-const ACCESSIBILITY_OPTIONS = [
-  'Acessível para PCD',
-  'Rampa de acesso',
-  'Audiodescrição',
-  'Elevador adaptado',
-  'Banheiro acessível',
-  'Sinalização tátil',
-]
-
-const BRAZILIAN_STATES = [
-  'AC',
-  'AL',
-  'AP',
-  'AM',
-  'BA',
-  'CE',
-  'DF',
-  'ES',
-  'GO',
-  'MA',
-  'MT',
-  'MS',
-  'MG',
-  'PA',
-  'PB',
-  'PR',
-  'PE',
-  'PI',
-  'RJ',
-  'RN',
-  'RS',
-  'RO',
-  'RR',
-  'SC',
-  'SP',
-  'SE',
-  'TO',
-]
+import { useCreateSpot } from '../../hooks/api/useCreateSpot'
+import {
+  SPOT_CATEGORIES,
+  ACCESSIBILITY_OPTIONS,
+  BRAZILIAN_STATES,
+} from '../../constants/spots'
 
 export interface CreateSpotFormProps {
   onSuccess?: (data: SpotFormData) => void
@@ -63,9 +20,10 @@ export interface CreateSpotFormProps {
 }
 
 export function CreateSpotForm({ onSuccess, onCancel }: CreateSpotFormProps) {
+  const createSpot = useCreateSpot()
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [categoriesOptions, setCategoriesOptions] =
-    useState<string[]>(INITIAL_CATEGORIES)
+    useState<string[]>([...SPOT_CATEGORIES])
   const [newCategoryInput, setNewCategoryInput] = useState('')
 
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false)
@@ -114,8 +72,12 @@ export function CreateSpotForm({ onSuccess, onCancel }: CreateSpotFormProps) {
   }
 
   const onSubmit = (data: SpotFormData) => {
-    if (onSuccess) onSuccess(data)
-    onCancel()
+    createSpot.mutate(data, {
+      onSuccess: () => {
+        onSuccess?.(data)
+        onCancel()
+      },
+    })
   }
 
   const handleAddCategory = (e?: React.FormEvent) => {
@@ -630,8 +592,12 @@ export function CreateSpotForm({ onSuccess, onCancel }: CreateSpotFormProps) {
               >
                 Voltar
               </Button>
-              <Button type="submit" className="px-6">
-                Cadastrar
+              <Button
+                type="submit"
+                className="px-6"
+                disabled={createSpot.isPending}
+              >
+                {createSpot.isPending ? 'Cadastrando...' : 'Cadastrar'}
               </Button>
             </div>
           </div>

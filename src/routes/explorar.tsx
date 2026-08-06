@@ -1,47 +1,56 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState, useMemo } from 'react'
-import { FEATURED_SPOTS } from '../data/spots'
-import type { Spot } from '../data/spots'
+import { useState, useMemo, useEffect } from 'react'
+import { z } from 'zod'
+import type { Spot } from '../types/spot'
+import { useSpots } from '../hooks/api/useSpots'
 import { SpotCard } from '../components/Spots/SpotCard'
 import { SpotDetailModal } from '../components/Spots/SpotDetailModal'
 import { Header } from '../components/Header/Header'
 import { SearchableDropdown } from '../components/UI/SearchableDropdown'
+import { SpotCardSkeleton } from '../components/UI/Skeleton'
+import { SPOT_CATEGORIES, ACCESSIBILITY_OPTIONS } from '../constants/spots'
 
-export const Route = createFileRoute('/explorar')({
-  component: ExplorarPage,
+// Parâmetros de busca aceitos pela URL — permite compartilhar filtros via link
+const explorarSearchSchema = z.object({
+  busca: z.string().optional().default(''),
+  categoria: z.string().optional().default('Todas'),
 })
 
-const INITIAL_CATEGORIES = [
-  'Praias',
-  'Ecoturismo',
-  'Histórico',
-  'Gastronomia',
-  'Natureza',
-  'Aventura',
-  'Cultura',
-]
-const ACCESSIBILITY_OPTIONS = [
-  'Todas',
-  'Acessível para PCD',
-  'Rampa de acesso',
-  'Audiodescrição',
-]
+export const Route = createFileRoute('/explorar')({
+  validateSearch: explorarSearchSchema,
+  component: ExplorarPage,
+  head: () => ({
+    meta: [{ title: 'Explorar Destinos | Tur.' }],
+  }),
+})
 
 function ExplorarPage() {
-  const [selectedCategory, setSelectedCategory] = useState<string>('Todas')
+  const { busca: initialBusca, categoria: initialCategoria } = Route.useSearch()
+
+  const { data: spots = [], isLoading, isError, refetch } = useSpots()
+
+  const [selectedCategory, setSelectedCategory] =
+    useState<string>(initialCategoria)
   const [selectedAccessibility, setSelectedAccessibility] =
     useState<string>('Todas')
-  const [searchQuery, setSearchQuery] = useState<string>('')
+  const [searchQuery, setSearchQuery] = useState<string>(initialBusca)
 
-  const categoriesList = INITIAL_CATEGORIES
+  const categoriesList = [...SPOT_CATEGORIES]
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState<boolean>(false)
   const [isAccessMenuOpen, setIsAccessMenuOpen] = useState<boolean>(false)
   const [isActiveFiltersMenuOpen, setIsActiveFiltersMenuOpen] =
     useState<boolean>(false)
   const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null)
 
+  // Sincroniza estado local com os search params da URL
+  // (ex: ao navegar a partir do SearchOverlay)
+  useEffect(() => {
+    setSearchQuery(initialBusca)
+    setSelectedCategory(initialCategoria)
+  }, [initialBusca, initialCategoria])
+
   const filteredSpots = useMemo(() => {
-    return FEATURED_SPOTS.filter((spot) => {
+    return spots.filter((spot) => {
       const matchCategory =
         selectedCategory === 'Todas' || spot.category === selectedCategory
       const matchAccessibility =
@@ -55,7 +64,7 @@ function ExplorarPage() {
 
       return matchCategory && matchAccessibility && matchSearch
     })
-  }, [selectedCategory, selectedAccessibility, searchQuery])
+  }, [spots, selectedCategory, selectedAccessibility, searchQuery])
 
   const handleResetFilters = () => {
     setSelectedCategory('Todas')
@@ -124,7 +133,7 @@ function ExplorarPage() {
 
             {/* Accessibility Filter Custom Popover */}
             <SearchableDropdown
-              options={ACCESSIBILITY_OPTIONS.filter((opt) => opt !== 'Todas')}
+              options={[...ACCESSIBILITY_OPTIONS]}
               selectedValues={
                 selectedAccessibility !== 'Todas' ? [selectedAccessibility] : []
               }
@@ -324,47 +333,79 @@ function ExplorarPage() {
           </h2>
         </div>
 
-        {filteredSpots.length > 0 ? (
+        {/* Loading State */}
+        {isLoading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-2 md:gap-x-3 lg:gap-x-4 gap-y-10 md:gap-y-12">
-            {filteredSpots.map((spot) => (
-              <SpotCard
-                key={spot.id}
-                spot={spot}
-                onClick={() => setSelectedSpot(spot)}
-              />
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SpotCardSkeleton key={i} />
             ))}
           </div>
-        ) : (
+        )}
+
+        {/* Error State */}
+        {isError && (
           <div className="w-full py-20 flex flex-col items-center justify-center text-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="48"
-              height="48"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-tur-gray-400 mb-4"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.3-4.3" />
-            </svg>
             <h3 className="font-dm-sans text-2xl font-bold text-tur-dark mb-2">
-              Nenhum destino encontrado
+              Não conseguimos carregar os destinos
             </h3>
-            <p className="font-inter text-tur-gray-600 max-w-md mx-auto">
-              Não encontramos destinos que correspondam aos filtros
-              selecionados. Tente ajustar suas preferências.
+            <p className="font-inter text-tur-gray-600 max-w-md mx-auto mb-6">
+              Verifique sua conexão e tente novamente.
             </p>
             <button
-              onClick={handleResetFilters}
-              className="mt-6 font-inter font-semibold px-6 py-3 bg-tur-dark text-white rounded-none hover:bg-tur-dark-hover transition-colors cursor-pointer border-none"
+              onClick={() => void refetch()}
+              className="font-inter font-semibold px-6 py-3 bg-tur-dark text-white rounded-none hover:bg-tur-dark-hover transition-colors cursor-pointer border-none"
             >
-              Limpar Filtros
+              Tentar novamente
             </button>
           </div>
+        )}
+
+        {/* Results */}
+        {!isLoading && !isError && (
+          <>
+            {filteredSpots.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-2 md:gap-x-3 lg:gap-x-4 gap-y-10 md:gap-y-12">
+                {filteredSpots.map((spot) => (
+                  <SpotCard
+                    key={spot.id}
+                    spot={spot}
+                    onClick={() => setSelectedSpot(spot)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="w-full py-20 flex flex-col items-center justify-center text-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-tur-gray-400 mb-4"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.3-4.3" />
+                </svg>
+                <h3 className="font-dm-sans text-2xl font-bold text-tur-dark mb-2">
+                  Nenhum destino encontrado
+                </h3>
+                <p className="font-inter text-tur-gray-600 max-w-md mx-auto">
+                  Não encontramos destinos que correspondam aos filtros
+                  selecionados. Tente ajustar suas preferências.
+                </p>
+                <button
+                  onClick={handleResetFilters}
+                  className="mt-6 font-inter font-semibold px-6 py-3 bg-tur-dark text-white rounded-none hover:bg-tur-dark-hover transition-colors cursor-pointer border-none"
+                >
+                  Limpar Filtros
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 

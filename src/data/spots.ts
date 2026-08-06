@@ -1,34 +1,9 @@
-export interface SpotReview {
-  id: string
-  user: string
-  avatarUrl: string
-  text: string
-  rating?: number
-}
+// Dados mock — usados enquanto a API não está conectada.
+// Quando a API estiver pronta, basta remover este arquivo
+// e os imports de './data/spots' nos serviços.
+import type { Spot, SpotReview } from '../types/spot'
 
-export interface Spot {
-  id: string
-  number: string
-  name: string
-  location: string
-  category: string
-  imageUrl: string
-  author: {
-    name: string
-    handle: string
-    avatarUrl?: string
-  }
-  accessibility?: string[]
-
-  // New fields for SpotDetailModal
-  rating?: number
-  publishedAt?: string
-  description?: string
-  tags?: string[]
-  address?: string
-  gallery?: string[]
-  reviews?: SpotReview[]
-}
+export type { Spot, SpotReview }
 
 const mockReviews: SpotReview[] = [
   {
@@ -162,7 +137,7 @@ export const FEATURED_SPOTS: Spot[] = [
     gallery: [
       'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?q=80&w=800&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1596701389335-51978d38096f?q=80&w=800&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1629813137979-42b7bd77b78a?q=80&w=800&auto=format&fit=crop', // Reusing images for mock
+      'https://images.unsplash.com/photo-1629813137979-42b7bd77b78a?q=80&w=800&auto=format&fit=crop',
     ],
     reviews: mockReviews.slice(1, 3),
   },

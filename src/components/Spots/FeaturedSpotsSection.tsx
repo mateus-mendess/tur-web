@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { FEATURED_SPOTS } from '../../data/spots'
-import type { Spot } from '../../data/spots'
+import type { Spot } from '../../types/spot'
+import { useSpots } from '../../hooks/api/useSpots'
+import { FeaturedSpotSkeleton } from '../UI/Skeleton'
 import { SpotDetailModal } from './SpotDetailModal'
 
 export function FeaturedSpotsSection() {
+  const { data: spots = [], isLoading } = useSpots()
   const sectionRef = useRef<HTMLDivElement>(null)
   const trackContainerRef = useRef<HTMLDivElement>(null)
   const trackContentRef = useRef<HTMLDivElement>(null)
@@ -72,6 +74,20 @@ export function FeaturedSpotsSection() {
     }
   }, [])
 
+  if (isLoading) {
+    return (
+      <div className="relative bg-tur-bg h-auto py-20">
+        <div className="sticky top-0 h-auto flex items-center overflow-hidden">
+          <div className="flex gap-2 md:gap-3 py-8 pl-6 md:pl-12 lg:pl-20 pr-12 overflow-x-auto">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <FeaturedSpotSkeleton key={i} />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       ref={sectionRef}
@@ -123,7 +139,7 @@ export function FeaturedSpotsSection() {
           </div>
 
           {/* 6 Destination Cards */}
-          {FEATURED_SPOTS.map((spot) => {
+          {spots.map((spot) => {
             return (
               <article
                 key={spot.id}

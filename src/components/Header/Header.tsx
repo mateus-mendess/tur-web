@@ -1,27 +1,15 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { SignUpModal } from '../Auth/SignUpModal'
-import { LoginModal } from '../Auth/LoginModal'
 import { SearchOverlay } from '../Search/SearchOverlay'
+import { useAuth } from '../../contexts/AuthContext'
 
 interface HeaderProps {
   theme?: 'dark' | 'light'
 }
 
 export function Header({ theme = 'dark' }: HeaderProps) {
-  const [isSignUpOpen, setIsSignUpOpen] = useState(false)
-  const [isLoginOpen, setIsLoginOpen] = useState(false)
+  const { openLogin, openSignUp } = useAuth()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
-
-  const handleOpenLogin = () => {
-    setIsSignUpOpen(false)
-    setIsLoginOpen(true)
-  }
-
-  const handleOpenSignUp = () => {
-    setIsLoginOpen(false)
-    setIsSignUpOpen(true)
-  }
 
   const textColor = theme === 'dark' ? 'text-white' : 'text-tur-dark'
 
@@ -76,41 +64,21 @@ export function Header({ theme = 'dark' }: HeaderProps) {
           <button
             type="button"
             className={`${textColor} no-underline text-[15px] font-medium transition-opacity duration-200 hover:opacity-80 bg-transparent border-none cursor-pointer font-inherit`}
-            onClick={handleOpenLogin}
+            onClick={openLogin}
           >
             Entrar
           </button>
           <button
             type="button"
             className={`${textColor} no-underline text-[15px] font-medium transition-opacity duration-200 hover:opacity-80 bg-transparent border-none cursor-pointer font-inherit`}
-            onClick={handleOpenSignUp}
+            onClick={openSignUp}
           >
             Cadastrar-se
           </button>
         </div>
       </header>
 
-      {/* Sign-Up Modal */}
-      <SignUpModal
-        isOpen={isSignUpOpen}
-        onClose={() => setIsSignUpOpen(false)}
-        onSwitchToLogin={handleOpenLogin}
-        onSignUpSuccess={(data) => {
-          alert(`Conta criada com sucesso para ${data.nome} (${data.email})!`)
-        }}
-      />
-
-      {/* Login Modal */}
-      <LoginModal
-        isOpen={isLoginOpen}
-        onClose={() => setIsLoginOpen(false)}
-        onSwitchToSignUp={handleOpenSignUp}
-        onLoginSuccess={(data) => {
-          alert(`Login efetuado com sucesso para ${data.email}!`)
-        }}
-      />
-
-      {/* Search Overlay */}
+      {/* Search Overlay — permanece local pois não é estado global */}
       <SearchOverlay
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
