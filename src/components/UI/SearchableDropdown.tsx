@@ -3,7 +3,7 @@ import { useState, useMemo, useEffect } from 'react'
 export type DropdownVariant = 'default' | 'compact'
 
 export interface SearchableDropdownProps {
-  options: string[]
+  options: readonly string[]
   selectedValues: string[]
   onSelect: (option: string) => void
   isOpen: boolean

@@ -167,7 +167,6 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Digite um destino, estado ou categoria..."
                   className="w-full bg-white/60 backdrop-blur-md border border-tur-gray-300 rounded-none py-4 pl-12 pr-4 font-inter text-lg text-tur-dark placeholder:text-tur-gray-500 focus:outline-none focus:ring-2 focus:ring-tur-accent transition-shadow"
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus={isOpen}
                 />
                 {/* Botão de submit invisível — captura o Enter do input */}

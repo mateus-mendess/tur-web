@@ -5,7 +5,8 @@ import { Input } from '../UI/Input'
 import { Label } from '../UI/Label'
 import { Button } from '../UI/Button'
 import { Checkbox } from '../UI/Checkbox'
-import { loginSchema, type LoginFormData } from '../../schemas/authSchema'
+import { loginSchema  } from '../../schemas/authSchema'
+import type {LoginFormData} from '../../schemas/authSchema';
 
 export interface LoginModalProps {
   isOpen: boolean
@@ -107,7 +108,7 @@ export function LoginModal({
             )}
 
             {/* E-MAIL */}
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1.5 mt-3">
               <Label htmlFor="login-email" required>
                 E-mail
               </Label>
@@ -125,12 +126,41 @@ export function LoginModal({
               )}
             </div>
 
-            {/* SENHA */}
-            <div className="flex flex-col gap-1.5">
-              <div className="flex justify-between items-center">
+            {/* SENHA E MANTER CONECTADO */}
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1.5">
                 <Label htmlFor="login-senha" required>
                   Senha
                 </Label>
+                <Input
+                  id="login-senha"
+                  type="password"
+                  placeholder="Sua senha"
+                  error={!!errors.senha}
+                  {...register('senha')}
+                />
+                {errors.senha && (
+                  <span className="font-inter text-xs text-tur-red font-medium">
+                    {errors.senha.message}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex justify-between items-center mt-0.5">
+                <div className="flex items-center gap-2.5">
+                  <Checkbox
+                    id="login-remember"
+                    checked={!!manterConectado}
+                    onChange={(e) => setValue('manterConectado', e.target.checked)}
+                  />
+                  <label
+                    htmlFor="login-remember"
+                    className="font-inter text-[13px] text-tur-gray-700 cursor-pointer select-none"
+                  >
+                    Manter conectado
+                  </label>
+                </div>
+                
                 <a
                   href="#esqueci-senha"
                   className="font-inter text-xs text-tur-gray-600 hover:text-tur-accent underline underline-offset-2 transition-colors duration-200"
@@ -141,33 +171,6 @@ export function LoginModal({
                   Esqueceu a senha?
                 </a>
               </div>
-              <Input
-                id="login-senha"
-                type="password"
-                placeholder="Sua senha"
-                error={!!errors.senha}
-                {...register('senha')}
-              />
-              {errors.senha && (
-                <span className="font-inter text-xs text-tur-red font-medium">
-                  {errors.senha.message}
-                </span>
-              )}
-            </div>
-
-            {/* MANTER CONECTADO */}
-            <div className="flex items-center gap-2.5">
-              <Checkbox
-                id="login-remember"
-                checked={manterConectado ?? false}
-                onChange={(e) => setValue('manterConectado', e.target.checked)}
-              />
-              <label
-                htmlFor="login-remember"
-                className="font-inter text-[13px] text-tur-gray-700 cursor-pointer select-none"
-              >
-                Manter conectado
-              </label>
             </div>
 
             {/* CTA */}

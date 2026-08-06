@@ -6,7 +6,7 @@ export const loginSchema = z.object({
     .string()
     .min(1, 'Por favor, informe sua senha.')
     .min(6, 'A senha deve ter no mínimo 6 caracteres.'),
-  manterConectado: z.boolean().optional().default(false),
+  manterConectado: z.boolean().optional(),
 })
 
 export type LoginFormData = z.infer<typeof loginSchema>
@@ -24,9 +24,7 @@ export const signUpSchema = z
       .min(6, 'A senha deve ter no mínimo 6 caracteres.'),
     confirmarSenha: z.string().min(1, 'Por favor, confirme sua senha.'),
     aceitoTermos: z.literal(true, {
-      errorMap: () => ({
-        message: 'Você deve aceitar os Termos de Uso para continuar.',
-      }),
+      message: 'Você deve aceitar os Termos de Uso para continuar.',
     }),
   })
   .refine((data) => data.senha === data.confirmarSenha, {

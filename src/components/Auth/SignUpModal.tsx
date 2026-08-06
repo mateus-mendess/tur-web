@@ -5,7 +5,8 @@ import { Input } from '../UI/Input'
 import { Label } from '../UI/Label'
 import { Button } from '../UI/Button'
 import { Checkbox } from '../UI/Checkbox'
-import { signUpSchema, type SignUpFormData } from '../../schemas/authSchema'
+import { signUpSchema  } from '../../schemas/authSchema'
+import type {SignUpFormData} from '../../schemas/authSchema';
 
 export interface SignUpModalProps {
   isOpen: boolean
