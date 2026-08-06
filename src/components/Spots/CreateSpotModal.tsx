@@ -1,6 +1,6 @@
-import { BaseModal } from '../UI/BaseModal'
+import { BaseModal } from '#/components/UI/BaseModal'
 import { CreateSpotForm } from './CreateSpotForm'
-import type { SpotFormData } from '../../schemas/spotSchema'
+import type { SpotFormData } from '#/schemas/spotSchema'
 
 export interface CreateSpotModalProps {
   isOpen: boolean

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
-import type { Spot } from '../../data/spots'
-import { BookmarkIcon, ShareIcon, CloseIcon, MapPinIcon } from '../UI/Icons'
+import { BaseModal } from '#/components/UI/BaseModal'
+import type { Spot } from '#/data/spots'
+import { BookmarkIcon, ShareIcon, CloseIcon, MapPinIcon } from '#/components/UI/Icons'
 
 interface SpotDetailModalProps {
   spot: Spot | null

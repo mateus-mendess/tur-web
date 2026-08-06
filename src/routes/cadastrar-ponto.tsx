@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { CreateSpotModal } from '../components/Spots/CreateSpotModal'
-import { Header } from '../components/Header/Header'
+import { CreateSpotModal } from '#/components/Spots/CreateSpotModal'
+import { Header } from '#/components/Header/Header'
 
 export const Route = createFileRoute('/cadastrar-ponto')({
   component: CadastrarPontoPage,

@@ -1,12 +1,12 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { BaseModal } from '../UI/BaseModal'
-import { Input } from '../UI/Input'
-import { Label } from '../UI/Label'
-import { Button } from '../UI/Button'
-import { Checkbox } from '../UI/Checkbox'
-import { signUpSchema  } from '../../schemas/authSchema'
-import type {SignUpFormData} from '../../schemas/authSchema';
+import { BaseModal } from '#/components/UI/BaseModal'
+import { Input } from '#/components/UI/Input'
+import { Label } from '#/components/UI/Label'
+import { Button } from '#/components/UI/Button'
+import { Checkbox } from '#/components/UI/Checkbox'
+import { signUpSchema } from '#/schemas/authSchema'
+import type { SignUpFormData } from '#/schemas/authSchema'
 
 export interface SignUpModalProps {
   isOpen: boolean

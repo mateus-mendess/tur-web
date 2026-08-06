@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { SPOT_CATEGORIES } from '../../constants/spots'
+import { SPOT_CATEGORIES } from '#/constants/spots'
 
 interface SearchOverlayProps {
   isOpen: boolean

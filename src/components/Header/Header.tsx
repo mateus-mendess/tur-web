@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { SearchOverlay } from '../Search/SearchOverlay'
-import { useAuth } from '../../contexts/AuthContext'
+import { SearchOverlay } from '#/components/Search/SearchOverlay'
+import { useAuth } from '#/contexts/AuthContext'
 
 interface HeaderProps {
   theme?: 'dark' | 'light'

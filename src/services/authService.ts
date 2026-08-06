@@ -1,6 +1,6 @@
-import { api } from '../lib/axios'
-import type { LoginFormData, SignUpFormData } from '../schemas/authSchema'
-import { storage } from '../lib/storage'
+import { api } from '#/lib/axios'
+import type { LoginFormData, SignUpFormData } from '#/schemas/authSchema'
+import { storage } from '#/lib/storage'
 
 export interface AuthUser {
   id: string

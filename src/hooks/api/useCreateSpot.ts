@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { spotsService } from '../../services/spotsService'
+import { spotsService } from '#/services/spotsService'
 
 export function useCreateSpot() {
   const queryClient = useQueryClient()

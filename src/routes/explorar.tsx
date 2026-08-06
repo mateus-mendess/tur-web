@@ -1,14 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useMemo, useEffect } from 'react'
 import { z } from 'zod'
-import type { Spot } from '../types/spot'
-import { useSpots } from '../hooks/api/useSpots'
-import { SpotCard } from '../components/Spots/SpotCard'
-import { SpotDetailModal } from '../components/Spots/SpotDetailModal'
-import { Header } from '../components/Header/Header'
-import { SearchableDropdown } from '../components/UI/SearchableDropdown'
-import { SpotCardSkeleton } from '../components/UI/Skeleton'
-import { SPOT_CATEGORIES, ACCESSIBILITY_OPTIONS } from '../constants/spots'
+import type { Spot } from '#/types/spot'
+import { useSpots } from '#/hooks/api/useSpots'
+import { SpotCard } from '#/components/Spots/SpotCard'
+import { SpotDetailModal } from '#/components/Spots/SpotDetailModal'
+import { Header } from '#/components/Header/Header'
+import { SearchableDropdown } from '#/components/UI/SearchableDropdown'
+import { SpotCardSkeleton } from '#/components/UI/Skeleton'
+import { SPOT_CATEGORIES, ACCESSIBILITY_OPTIONS } from '#/constants/spots'
+import { useDropdown } from '#/hooks/useDropdown'
 
 // Parâmetros de busca aceitos pela URL — permite compartilhar filtros via link
 const explorarSearchSchema = z.object({
@@ -36,11 +37,28 @@ function ExplorarPage() {
   const [searchQuery, setSearchQuery] = useState<string>(initialBusca)
 
   const categoriesList = [...SPOT_CATEGORIES]
-  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState<boolean>(false)
-  const [isAccessMenuOpen, setIsAccessMenuOpen] = useState<boolean>(false)
-  const [isActiveFiltersMenuOpen, setIsActiveFiltersMenuOpen] =
-    useState<boolean>(false)
+  const categoryMenu = useDropdown()
+  const accessMenu = useDropdown()
+  const activeFiltersMenu = useDropdown()
   const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null)
+
+  const handleCategoryToggle = () => {
+    categoryMenu.toggle()
+    accessMenu.close()
+    activeFiltersMenu.close()
+  }
+
+  const handleAccessToggle = () => {
+    accessMenu.toggle()
+    categoryMenu.close()
+    activeFiltersMenu.close()
+  }
+
+  const handleActiveFiltersToggle = () => {
+    activeFiltersMenu.toggle()
+    categoryMenu.close()
+    accessMenu.close()
+  }
 
   // Sincroniza estado local com os search params da URL
   // (ex: ao navegar a partir do SearchOverlay)
@@ -115,14 +133,11 @@ function ExplorarPage() {
               }
               onSelect={(cat) => {
                 setSelectedCategory(selectedCategory === cat ? 'Todas' : cat)
-                setIsCategoryMenuOpen(false)
+                categoryMenu.close()
               }}
-              isOpen={isCategoryMenuOpen}
-              onToggle={() => {
-                setIsCategoryMenuOpen((prev) => !prev)
-                setIsAccessMenuOpen(false)
-              }}
-              onClose={() => setIsCategoryMenuOpen(false)}
+              isOpen={categoryMenu.isOpen}
+              onToggle={handleCategoryToggle}
+              onClose={categoryMenu.close}
               placeholder="Buscar categoria..."
               triggerContent={<span>Categoria</span>}
               triggerClassName="font-inter text-sm px-3.5 py-2 rounded-none border border-black bg-transparent text-tur-dark hover:bg-black/5 font-medium cursor-pointer transition-all flex items-center gap-2"
@@ -141,14 +156,11 @@ function ExplorarPage() {
                 setSelectedAccessibility(
                   selectedAccessibility === opt ? 'Todas' : opt,
                 )
-                setIsAccessMenuOpen(false)
+                accessMenu.close()
               }}
-              isOpen={isAccessMenuOpen}
-              onToggle={() => {
-                setIsAccessMenuOpen((prev) => !prev)
-                setIsCategoryMenuOpen(false)
-              }}
-              onClose={() => setIsAccessMenuOpen(false)}
+              isOpen={accessMenu.isOpen}
+              onToggle={handleAccessToggle}
+              onClose={accessMenu.close}
               placeholder="Buscar acessibilidade..."
               triggerContent={<span>Acessibilidade</span>}
               triggerClassName="font-inter text-sm px-3.5 py-2 rounded-none border border-black bg-transparent text-tur-dark hover:bg-black/5 font-medium cursor-pointer transition-all flex items-center gap-2"
@@ -164,11 +176,7 @@ function ExplorarPage() {
             <div className="relative">
               <button
                 type="button"
-                onClick={() => {
-                  setIsActiveFiltersMenuOpen((prev) => !prev)
-                  setIsCategoryMenuOpen(false)
-                  setIsAccessMenuOpen(false)
-                }}
+                onClick={handleActiveFiltersToggle}
                 className={`font-inter text-sm font-semibold px-4 py-2.5 rounded-none border border-black transition-all flex items-center gap-2 outline-none cursor-pointer ${
                   isFilterActive
                     ? 'bg-tur-accent text-white'
@@ -200,24 +208,24 @@ function ExplorarPage() {
                   strokeWidth="2.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className={`transition-transform duration-200 shrink-0 ${isActiveFiltersMenuOpen ? 'rotate-180' : ''}`}
+                  className={`transition-transform duration-200 shrink-0 ${activeFiltersMenu.isOpen ? 'rotate-180' : ''}`}
                 >
                   <path d="m6 9 6 6 6-6" />
                 </svg>
               </button>
 
               {/* Backdrop */}
-              {isActiveFiltersMenuOpen && (
+              {activeFiltersMenu.isOpen && (
                 <div
                   className="fixed inset-0 z-20"
-                  onClick={() => setIsActiveFiltersMenuOpen(false)}
+                  onClick={activeFiltersMenu.close}
                 />
               )}
 
               {/* Active Filters Dropdown Menu Box */}
               <div
                 className={`absolute right-0 top-full mt-2 w-72 bg-white border border-black shadow-2xl z-30 p-3 flex flex-col gap-2 rounded-none transition-all duration-200 ease-out transform origin-top-right ${
-                  isActiveFiltersMenuOpen
+                  activeFiltersMenu.isOpen
                     ? 'opacity-100 translate-y-0 pointer-events-auto'
                     : 'opacity-0 -translate-y-2 pointer-events-none'
                 }`}

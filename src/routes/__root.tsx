@@ -4,11 +4,11 @@ import { TanStackDevtools } from '@tanstack/react-devtools'
 import { Toaster } from 'sonner'
 import { QueryClientProvider } from '@tanstack/react-query'
 
-import appCss from '../styles.css?url'
-import { queryClient } from '../lib/queryClient'
-import { AuthProvider, useAuth } from '../contexts/AuthContext'
-import { LoginModal } from '../components/Auth/LoginModal'
-import { SignUpModal } from '../components/Auth/SignUpModal'
+import appCss from '#/styles.css?url'
+import { queryClient } from '#/lib/queryClient'
+import { AuthProvider, useAuth } from '#/contexts/AuthContext'
+import { LoginModal } from '#/components/Auth/LoginModal'
+import { SignUpModal } from '#/components/Auth/SignUpModal'
 
 export const Route = createRootRoute({
   head: () => ({

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Spot } from '../../types/spot'
-import { useSpots } from '../../hooks/api/useSpots'
-import { FeaturedSpotSkeleton } from '../UI/Skeleton'
+import type { Spot } from '#/types/spot'
+import { useSpots } from '#/hooks/api/useSpots'
+import { FeaturedSpotSkeleton } from '#/components/UI/Skeleton'
 import { SpotDetailModal } from './SpotDetailModal'
 
 export function FeaturedSpotsSection() {

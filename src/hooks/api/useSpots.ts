@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { spotsService } from '../../services/spotsService'
+import { spotsService } from '#/services/spotsService'
 
 export function useSpots() {
   return useQuery({

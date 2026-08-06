@@ -1,7 +1,7 @@
-import { api } from '../lib/axios'
-import type { Spot } from '../types/spot'
-import type { SpotFormData } from '../schemas/spotSchema'
-import { FEATURED_SPOTS as mockSpots } from '../data/spots'
+import { api } from '#/lib/axios'
+import type { Spot } from '#/types/spot'
+import type { SpotFormData } from '#/schemas/spotSchema'
+import { FEATURED_SPOTS as mockSpots } from '#/data/spots'
 
 // Estado local simulando um banco em memória durante a fase mock.
 // Removível quando a API estiver conectada.

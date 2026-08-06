@@ -1,7 +1,7 @@
 // Dados mock — usados enquanto a API não está conectada.
 // Quando a API estiver pronta, basta remover este arquivo
 // e os imports de './data/spots' nos serviços.
-import type { Spot, SpotReview } from '../types/spot'
+import type { Spot, SpotReview } from '#/types/spot'
 
 export type { Spot, SpotReview }
 
