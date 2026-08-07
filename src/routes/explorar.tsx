@@ -1,14 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useMemo, useEffect } from 'react'
 import { z } from 'zod'
-import type { Spot } from '#/types/spot'
+import type { TouristPointResponse } from '#/types/api'
+import { toSpot } from '#/types/spot'
 import { useSpots } from '#/hooks/api/useSpots'
+import { useCategories } from '#/hooks/api/useCategories'
+import { useAccessibilityTypes } from '#/hooks/api/useAccessibilityTypes'
 import { SpotCard } from '#/components/Spots/SpotCard'
 import { SpotDetailModal } from '#/components/Spots/SpotDetailModal'
 import { Header } from '#/components/Header/Header'
 import { SearchableDropdown } from '#/components/UI/SearchableDropdown'
 import { SpotCardSkeleton } from '#/components/UI/Skeleton'
-import { SPOT_CATEGORIES, ACCESSIBILITY_OPTIONS } from '#/constants/spots'
 import { useDropdown } from '#/hooks/useDropdown'
 
 // Parâmetros de busca aceitos pela URL — permite compartilhar filtros via link
@@ -29,6 +31,8 @@ function ExplorarPage() {
   const { busca: initialBusca, categoria: initialCategoria } = Route.useSearch()
 
   const { data: spots = [], isLoading, isError, refetch } = useSpots()
+  const { data: categoriesData = [] } = useCategories()
+  const { data: accessibilityTypes = [] } = useAccessibilityTypes()
 
   const [selectedCategory, setSelectedCategory] =
     useState<string>(initialCategoria)
@@ -36,11 +40,12 @@ function ExplorarPage() {
     useState<string>('Todas')
   const [searchQuery, setSearchQuery] = useState<string>(initialBusca)
 
-  const categoriesList = [...SPOT_CATEGORIES]
+  const categoriesList = categoriesData.map((c) => c.name)
+  const accessibilityList = accessibilityTypes.map((a) => a.name)
   const categoryMenu = useDropdown()
   const accessMenu = useDropdown()
   const activeFiltersMenu = useDropdown()
-  const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null)
+  const [selectedSpot, setSelectedSpot] = useState<TouristPointResponse | null>(null)
 
   const handleCategoryToggle = () => {
     categoryMenu.toggle()
@@ -70,15 +75,15 @@ function ExplorarPage() {
   const filteredSpots = useMemo(() => {
     return spots.filter((spot) => {
       const matchCategory =
-        selectedCategory === 'Todas' || spot.category === selectedCategory
+        selectedCategory === 'Todas' ||
+        spot.categories.some((c) => c.name === selectedCategory)
       const matchAccessibility =
         selectedAccessibility === 'Todas' ||
-        (spot.accessibility &&
-          spot.accessibility.includes(selectedAccessibility))
+        spot.accessibilityTypes.some((a) => a.name === selectedAccessibility)
       const matchSearch =
         searchQuery.trim() === '' ||
         spot.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        spot.location.toLowerCase().includes(searchQuery.toLowerCase())
+        spot.address.city.toLowerCase().includes(searchQuery.toLowerCase())
 
       return matchCategory && matchAccessibility && matchSearch
     })
@@ -148,7 +153,7 @@ function ExplorarPage() {
 
             {/* Accessibility Filter Custom Popover */}
             <SearchableDropdown
-              options={[...ACCESSIBILITY_OPTIONS]}
+              options={accessibilityList}
               selectedValues={
                 selectedAccessibility !== 'Todas' ? [selectedAccessibility] : []
               }
@@ -376,7 +381,7 @@ function ExplorarPage() {
                 {filteredSpots.map((spot) => (
                   <SpotCard
                     key={spot.id}
-                    spot={spot}
+                    spot={toSpot(spot)}
                     onClick={() => setSelectedSpot(spot)}
                   />
                 ))}
@@ -418,7 +423,7 @@ function ExplorarPage() {
       </div>
 
       <SpotDetailModal
-        spot={selectedSpot}
+        spot={selectedSpot ? toSpot(selectedSpot) : null}
         isOpen={!!selectedSpot}
         onClose={() => setSelectedSpot(null)}
       />

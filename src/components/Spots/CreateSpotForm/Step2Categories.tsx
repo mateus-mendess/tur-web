@@ -3,9 +3,9 @@ import type { SpotFormData } from '#/schemas/spotSchema'
 import { Label } from '#/components/UI/Label'
 import { Button } from '#/components/UI/Button'
 import { SearchableDropdown } from '#/components/UI/SearchableDropdown'
-import { ACCESSIBILITY_OPTIONS } from '#/constants/spots'
 import { useDropdown } from '#/hooks/useDropdown'
 import { useSpotCategories } from './useSpotCategories'
+import { useAccessibilityTypes } from '#/hooks/api/useAccessibilityTypes'
 
 interface Step2CategoriesProps {
   onBack: () => void
@@ -22,12 +22,17 @@ export function Step2Categories({ onBack, onNext }: Step2CategoriesProps) {
   const {
     categoriesOptions,
     categoriasWatch,
+    getCategoryName,
+    getCategoryIdByName,
     newCategoryInput,
     setNewCategoryInput,
     handleAddCategory,
+    isCategoriesLoading,
+    isCreatingCategory,
   } = useSpotCategories()
 
-  const acessibilidadesWatch = watch('acessibilidades')
+  const { data: accessibilityTypes = [] } = useAccessibilityTypes()
+  const acessibilidadesWatch = watch('acessibilidades') // number[]
 
   const categoryMenu = useDropdown()
   const accessMenu = useDropdown()
@@ -47,15 +52,17 @@ export function Step2Categories({ onBack, onNext }: Step2CategoriesProps) {
       <div className="flex flex-col gap-1.5">
         <Label required>Categoria(s)</Label>
         <SearchableDropdown
-          options={categoriesOptions}
-          selectedValues={categoriasWatch}
+          options={isCategoriesLoading ? ['Carregando...'] : categoriesOptions}
+          selectedValues={categoriasWatch.map((uuid) => getCategoryName(uuid))}
           isOpen={categoryMenu.isOpen}
           onToggle={handleCategoryToggle}
           onClose={categoryMenu.close}
-          onSelect={(val) => {
-            const next = categoriasWatch.includes(val)
-              ? categoriasWatch.filter((c) => c !== val)
-              : [...categoriasWatch, val]
+          onSelect={(name) => {
+            const id = getCategoryIdByName(name)
+            if (!id) return
+            const next = categoriasWatch.includes(id)
+              ? categoriasWatch.filter((c) => c !== id)
+              : [...categoriasWatch, id]
             setValue('categorias', next, { shouldValidate: true })
           }}
           placeholder="Buscar categoria..."
@@ -86,8 +93,9 @@ export function Step2Categories({ onBack, onNext }: Step2CategoriesProps) {
               />
               <button
                 type="button"
-                onClick={handleAddCategory}
-                className="bg-black text-white px-2 py-1 border border-black font-bold hover:bg-tur-accent transition-colors cursor-pointer rounded-none shrink-0"
+                onClick={() => { void handleAddCategory() }}
+                disabled={isCreatingCategory}
+                className="bg-black text-white px-2 py-1 border border-black font-bold hover:bg-tur-accent transition-colors cursor-pointer rounded-none shrink-0 disabled:opacity-50"
               >
                 <svg
                   width="12"
@@ -118,7 +126,7 @@ export function Step2Categories({ onBack, onNext }: Step2CategoriesProps) {
                 key={cat}
                 className="font-inter text-[11px] bg-tur-dark text-white px-2 py-0.5 rounded-none flex items-center gap-1.5"
               >
-                <span>{cat}</span>
+                <span>{getCategoryName(cat)}</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -141,15 +149,19 @@ export function Step2Categories({ onBack, onNext }: Step2CategoriesProps) {
       <div className="flex flex-col gap-1.5 mt-4">
         <Label>Acessibilidade</Label>
         <SearchableDropdown
-          options={ACCESSIBILITY_OPTIONS}
-          selectedValues={acessibilidadesWatch}
+          options={accessibilityTypes.map((a) => a.name)}
+          selectedValues={acessibilidadesWatch.map(
+            (id) => accessibilityTypes.find((a) => a.id === id)?.name ?? String(id),
+          )}
           isOpen={accessMenu.isOpen}
           onToggle={handleAccessToggle}
           onClose={accessMenu.close}
-          onSelect={(val) => {
-            const next = acessibilidadesWatch.includes(val)
-              ? acessibilidadesWatch.filter((c) => c !== val)
-              : [...acessibilidadesWatch, val]
+          onSelect={(name) => {
+            const type = accessibilityTypes.find((a) => a.name === name)
+            if (!type) return
+            const next = acessibilidadesWatch.includes(type.id)
+              ? acessibilidadesWatch.filter((id) => id !== type.id)
+              : [...acessibilidadesWatch, type.id]
             setValue('acessibilidades', next)
           }}
           placeholder="Buscar acessibilidade..."
@@ -166,26 +178,29 @@ export function Step2Categories({ onBack, onNext }: Step2CategoriesProps) {
         />
         {acessibilidadesWatch.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-0.5">
-            {acessibilidadesWatch.map((acc) => (
-              <span
-                key={acc}
-                className="font-inter text-[11px] bg-tur-dark text-white px-2 py-0.5 rounded-none flex items-center gap-1.5"
-              >
-                <span>{acc}</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setValue(
-                      'acessibilidades',
-                      acessibilidadesWatch.filter((c) => c !== acc),
-                    )
-                  }}
-                  className="hover:text-tur-accent font-bold cursor-pointer"
-                >
-                  ✕
-                </button>
-              </span>
-            ))}
+              {acessibilidadesWatch.map((id) => {
+                const name = accessibilityTypes.find((a) => a.id === id)?.name ?? String(id)
+                return (
+                  <span
+                    key={id}
+                    className="font-inter text-[11px] bg-tur-dark text-white px-2 py-0.5 rounded-none flex items-center gap-1.5"
+                  >
+                    <span>{name}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setValue(
+                          'acessibilidades',
+                          acessibilidadesWatch.filter((a) => a !== id),
+                        )
+                      }}
+                      className="hover:text-tur-accent font-bold cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </span>
+                )
+              })}
           </div>
         )}
       </div>

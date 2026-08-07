@@ -7,8 +7,8 @@ import {
   useState,
 } from 'react'
 import { toast } from 'sonner'
-import { authService  } from '#/services/authService'
-import type {AuthUser} from '#/services/authService';
+import { authService } from '#/services/authService'
+import type { AuthUser } from '#/services/authService'
 import type { LoginFormData, SignUpFormData } from '#/schemas/authSchema'
 import { storage } from '#/lib/storage'
 

@@ -1,6 +1,7 @@
-// Tipos centralizados de Spot — usados pelo serviço, hooks e componentes.
-// Os dados mock em src/data/spots.ts importam deste arquivo.
-// Quando a API estiver conectada, este arquivo define o contrato de resposta.
+// Tipos de UI do Spot — usados pelo SpotCard e SpotDetailModal.
+// A interface Spot serve como camada de apresentação dos dados de TouristPointResponse.
+// Use toSpot() para converter dados da API para este formato.
+import type { TouristPointResponse } from './api'
 
 export interface SpotReview {
   id: string
@@ -32,4 +33,27 @@ export interface Spot {
   address?: string
   gallery?: string[]
   reviews?: SpotReview[]
+}
+
+/**
+ * Adapta um TouristPointResponse (formato da API) para o formato Spot
+ * esperado pelos componentes visuais (SpotCard, SpotDetailModal).
+ * Permite reutilizar os componentes sem alterar seu JSX.
+ */
+export function toSpot(tp: TouristPointResponse): Spot {
+  const primaryPhotoPath = tp.photos.length > 0 ? tp.photos[0].path : ''
+  return {
+    id: tp.id,
+    number: tp.id.slice(0, 2).toUpperCase(),
+    name: tp.name,
+    location: `${tp.address.city}, ${tp.address.state}`,
+    category: tp.categories.length > 0 ? tp.categories[0].name : '',
+    imageUrl: primaryPhotoPath,
+    author: { name: '', handle: '' },
+    accessibility: tp.accessibilityTypes.map((a) => a.name),
+    description: tp.description,
+    tags: tp.categories.map((c) => `#${c.name}`),
+    address: `${tp.address.street}, ${tp.address.neighborhood} - ${tp.address.city} / ${tp.address.state}`,
+    gallery: tp.photos.map((p) => p.path),
+  }
 }

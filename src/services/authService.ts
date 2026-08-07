@@ -1,9 +1,9 @@
+import axios from 'axios'
 import { api } from '#/lib/axios'
 import type { LoginFormData, SignUpFormData } from '#/schemas/authSchema'
 import { storage } from '#/lib/storage'
 
 export interface AuthUser {
-  id: string
   nome: string
   email: string
 }
@@ -13,51 +13,96 @@ export interface AuthResponse {
   user: AuthUser
 }
 
-export const authService = {
-  login: async (data: LoginFormData): Promise<AuthResponse> => {
-    // TODO: Descomentar quando a API estiver pronta
-    // const { data: response } = await api.post<AuthResponse>('/auth/login', {
-    //   email: data.email,
-    //   senha: data.senha,
-    // })
-    // return response
+/**
+ * Extrai uma representação de nome do email (ex: "joao.silva@x.com" → "João Silva").
+ * Fallback usado apenas quando não temos o nome diretamente (caso do login).
+ */
+function nameFromEmail(email: string): string {
+  const local = email.split('@')[0] ?? email
+  return local
+    .split(/[._-]/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ')
+}
 
-    // Mock temporário
-    void api // evitar erro de "importado mas não usado" durante fase mock
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          token: 'mock-token-12345',
-          user: { id: '1', nome: 'Usuário Tur.', email: data.email },
-        })
-      }, 800)
-    })
+export const authService = {
+  /**
+   * POST /auth/login
+   * A API retorna apenas { token }. O AuthUser é construído localmente
+   * pois não há endpoint GET /me documentado no contrato.
+   */
+  login: async (data: LoginFormData): Promise<AuthResponse> => {
+    try {
+      const { data: response } = await api.post<{ token: string }>(
+        '/auth/login',
+        {
+          email: data.email,
+          password: data.senha,
+        },
+      )
+
+      const user: AuthUser = {
+        nome: nameFromEmail(data.email),
+        email: data.email,
+      }
+
+      return { token: response.token, user }
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        throw new Error('E-mail ou senha inválidos.')
+      }
+      throw new Error('Não foi possível fazer login. Tente novamente.')
+    }
   },
 
+  /**
+   * POST /users (registro) seguido de POST /auth/login (auto-login).
+   * A resposta de POST /users é um objeto não especificado no contrato —
+   * fazemos auto-login para obter o token válido.
+   */
   register: async (data: SignUpFormData): Promise<AuthResponse> => {
-    // TODO: Descomentar quando a API estiver pronta
-    // const { data: response } = await api.post<AuthResponse>('/auth/register', {
-    //   nome: data.nome,
-    //   email: data.email,
-    //   senha: data.senha,
-    // })
-    // return response
+    try {
+      await api.post('/users', {
+        name: data.nome,
+        email: data.email,
+        password: data.senha,
+        confirmPassword: data.confirmarSenha,
+      })
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 400) {
+        // Backend pode rejeitar por email já em uso ou dados inválidos
+        const message =
+          (err.response.data as { message?: string } | undefined)?.message ??
+          'E-mail já cadastrado ou dados inválidos.'
+        throw new Error(message)
+      }
+      throw new Error('Não foi possível criar a conta. Tente novamente.')
+    }
 
-    // Mock temporário
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          token: 'mock-token-12345',
-          user: { id: '1', nome: data.nome, email: data.email },
-        })
-      }, 1000)
-    })
+    // Auto-login após registro bem-sucedido
+    try {
+      const { data: loginResponse } = await api.post<{ token: string }>(
+        '/auth/login',
+        {
+          email: data.email,
+          password: data.senha,
+        },
+      )
+
+      const user: AuthUser = {
+        nome: data.nome,
+        email: data.email,
+      }
+
+      return { token: loginResponse.token, user }
+    } catch {
+      throw new Error(
+        'Conta criada! Faça login para continuar.',
+      )
+    }
   },
 
   logout: async (): Promise<void> => {
-    // TODO: Descomentar quando a API estiver pronta
-    // await api.post('/auth/logout')
-
     storage.removeItem('tur_token')
   },
 }

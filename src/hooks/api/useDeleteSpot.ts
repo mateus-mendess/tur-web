@@ -2,14 +2,14 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { spotsService } from '#/services/spotsService'
 
-export function useCreateSpot() {
+export function useDeleteSpot() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: spotsService.createSpot,
+    mutationFn: (spotId: string) => spotsService.deleteSpot(spotId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['spots'] })
-      toast.success('Ponto turístico cadastrado com sucesso!')
+      toast.success('Ponto turístico removido com sucesso!')
     },
     onError: (error: Error) => {
       toast.error(error.message)

@@ -1,60 +1,154 @@
+import axios from 'axios'
 import { api } from '#/lib/axios'
-import type { Spot } from '#/types/spot'
 import type { SpotFormData } from '#/schemas/spotSchema'
-import { FEATURED_SPOTS as mockSpots } from '#/data/spots'
+import type {
+  TouristPointResponse,
+  TouristPointRequest,
+  TouristPointUpdateRequest,
+} from '#/types/api'
 
-// Estado local simulando um banco em memória durante a fase mock.
-// Removível quando a API estiver conectada.
-let localSpots = [...mockSpots]
+/**
+ * Mapeia os campos do formulário (em português) para o formato
+ * TouristPointRequest esperado pelo backend.
+ */
+function toTouristPointRequest(data: SpotFormData): TouristPointRequest {
+  return {
+    name: data.nome,
+    description: data.descricao,
+    categoriesIds: data.categorias,
+    accessibilityTypesIds: data.acessibilidades,
+    addressRequest: {
+      street: data.rua,
+      complement: data.complemento || undefined,
+      neighborhood: data.bairro,
+      city: data.cidade,
+      zipcode: data.cep,
+      stateId: data.stateId,
+    },
+  }
+}
 
 export const spotsService = {
-  getSpots: async (): Promise<Spot[]> => {
-    // TODO: Descomentar quando a API estiver pronta
-    // const { data } = await api.get<Spot[]>('/spots')
-    // return data
-
-    void api // evitar erro de "importado mas não usado" durante fase mock
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(localSpots), 800)
-    })
+  /**
+   * GET /tourist-points
+   * Lista todos os pontos turísticos ativos. Não requer autenticação.
+   */
+  getSpots: async (): Promise<TouristPointResponse[]> => {
+    const { data } = await api.get<TouristPointResponse[]>('/tourist-points')
+    return data
   },
 
-  getSpotById: async (id: string): Promise<Spot | undefined> => {
-    // TODO: Descomentar quando a API estiver pronta
-    // const { data } = await api.get<Spot>(`/spots/${id}`)
-    // return data
-
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(localSpots.find((s) => s.id === id)), 500)
-    })
+  /**
+   * GET /tourist-points/{id}
+   * Detalhe completo de um ponto turístico. Não requer autenticação.
+   * Lança erro com mensagem legível em caso de 404.
+   */
+  getSpotById: async (id: string): Promise<TouristPointResponse> => {
+    try {
+      const { data } = await api.get<TouristPointResponse>(
+        `/tourist-points/${id}`,
+      )
+      return data
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 404) {
+        throw new Error('Ponto turístico não encontrado.')
+      }
+      throw new Error('Erro ao carregar o ponto turístico. Tente novamente.')
+    }
   },
 
-  createSpot: async (data: SpotFormData): Promise<Spot> => {
-    // TODO: Descomentar quando a API estiver pronta
-    // const { data: newSpot } = await api.post<Spot>('/spots', data)
-    // return newSpot
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const newSpot: Spot = {
-          id: String(Date.now()),
-          number: String(localSpots.length + 1).padStart(2, '0'),
-          name: data.nome,
-          location: `${data.cidade}, ${data.estado}`,
-          category: data.categorias[0] ?? 'Turismo',
-          imageUrl:
-            'https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=800&auto=format&fit=crop',
-          rating: 0,
-          author: { name: 'Usuário Atual', handle: '@usuario.atual' },
-          tags: data.categorias.map((c) => `#${c}`),
-          description: data.descricao,
-          accessibility: data.acessibilidades,
-          gallery: [],
-          address: `${data.rua}, ${data.bairro} - ${data.cidade} / ${data.estado}`,
+  /**
+   * POST /tourist-points
+   * Cria um novo ponto turístico. Requer autenticação (token enviado via interceptor).
+   * Trata 400 (dados inválidos), 401 (não autenticado), 404 (stateId inválido)
+   * e 503 (geocoding falhou — CEP/endereço não localizável).
+   */
+  createSpot: async (data: SpotFormData): Promise<TouristPointResponse> => {
+    try {
+      const { data: created } = await api.post<TouristPointResponse>(
+        '/tourist-points',
+        toTouristPointRequest(data),
+      )
+      return created
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status
+        if (status === 401) {
+          throw new Error('Você precisa estar logado para cadastrar um ponto.')
         }
-        localSpots = [newSpot, ...localSpots]
-        resolve(newSpot)
-      }, 1000)
-    })
+        if (status === 404) {
+          throw new Error('Estado selecionado não encontrado.')
+        }
+        if (status === 503) {
+          throw new Error(
+            'Não conseguimos localizar esse endereço. Verifique o CEP e tente novamente.',
+          )
+        }
+        if (status === 400) {
+          const message =
+            (err.response?.data as { message?: string } | undefined)
+              ?.message ?? 'Dados inválidos. Verifique o formulário.'
+          throw new Error(message)
+        }
+      }
+      throw new Error('Erro ao cadastrar o ponto. Tente novamente.')
+    }
+  },
+
+  /**
+   * PATCH /tourist-points/{id}
+   * Atualiza parcialmente nome e/ou descrição. Requer autenticação (apenas o dono).
+   * Nota: não atualiza endereço, categorias, acessibilidade nem fotos —
+   * cada um tem endpoint próprio.
+   */
+  updateSpot: async (
+    id: string,
+    data: TouristPointUpdateRequest,
+  ): Promise<void> => {
+    try {
+      await api.patch(`/tourist-points/${id}`, data)
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status
+        if (status === 401) {
+          throw new Error('Você precisa estar logado para editar este ponto.')
+        }
+        if (status === 403) {
+          throw new Error('Você não tem permissão para editar este ponto.')
+        }
+        if (status === 404) {
+          throw new Error('Ponto turístico não encontrado.')
+        }
+        if (status === 400) {
+          throw new Error('Dados inválidos. Verifique os campos.')
+        }
+      }
+      throw new Error('Erro ao atualizar o ponto. Tente novamente.')
+    }
+  },
+
+  /**
+   * DELETE /tourist-points/{id}
+   * Remove permanentemente um ponto e todos os dados associados.
+   * Requer autenticação (apenas o dono).
+   */
+  deleteSpot: async (id: string): Promise<void> => {
+    try {
+      await api.delete(`/tourist-points/${id}`)
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status
+        if (status === 401) {
+          throw new Error('Você precisa estar logado para remover este ponto.')
+        }
+        if (status === 403) {
+          throw new Error('Você não tem permissão para remover este ponto.')
+        }
+        if (status === 404) {
+          throw new Error('Ponto turístico não encontrado.')
+        }
+      }
+      throw new Error('Erro ao remover o ponto. Tente novamente.')
+    }
   },
 }

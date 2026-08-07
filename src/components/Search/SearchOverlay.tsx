@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { SPOT_CATEGORIES } from '#/constants/spots'
 
 interface SearchOverlayProps {
   isOpen: boolean
   onClose: () => void
 }
 
+// Tags de busca em alta — marcadas como categoria para navegação com ?categoria=
+// Essas strings devem corresponder a nomes reais de categorias da API.
 const POPULAR_SEARCHES = [
   'Destinos',
   'Praias',
@@ -16,8 +17,17 @@ const POPULAR_SEARCHES = [
   'Pousadas',
 ]
 
-// Tags que correspondem a categorias reais — navega com ?categoria=
-const CATEGORY_TAGS = new Set<string>(SPOT_CATEGORIES)
+// Tags que correspondem a categorias — navega com ?categoria=
+// Mantida como Set local para não bloquear o SearchOverlay na API de categorias
+const CATEGORY_TAGS = new Set<string>([
+  'Praias',
+  'Ecoturismo',
+  'Histórico',
+  'Gastronomia',
+  'Natureza',
+  'Aventura',
+  'Cultura',
+])
 
 export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const navigate = useNavigate()

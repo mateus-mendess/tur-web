@@ -29,7 +29,7 @@ export function CreateSpotForm({ onSuccess, onCancel }: CreateSpotFormProps) {
       rua: '',
       bairro: '',
       cidade: '',
-      estado: '',
+      stateId: 0,
       complemento: '',
     },
   })

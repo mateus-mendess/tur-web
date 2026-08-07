@@ -1,4 +1,4 @@
-import type { Spot } from '#/data/spots'
+import type { Spot } from '#/types/spot'
 
 interface SpotCardProps {
   spot: Spot

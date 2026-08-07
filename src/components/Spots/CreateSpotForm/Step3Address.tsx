@@ -3,8 +3,8 @@ import type { SpotFormData } from '#/schemas/spotSchema'
 import { Input } from '#/components/UI/Input'
 import { Label } from '#/components/UI/Label'
 import { Button } from '#/components/UI/Button'
-import { BRAZILIAN_STATES } from '#/constants/spots'
 import { useDropdown } from '#/hooks/useDropdown'
+import { useStates } from '#/hooks/api/useStates'
 
 interface Step3AddressProps {
   onBack: () => void
@@ -20,7 +20,10 @@ export function Step3Address({ onBack, isSubmitting }: Step3AddressProps) {
   } = useFormContext<SpotFormData>()
 
   const estadoMenu = useDropdown()
-  const estadoWatch = watch('estado')
+  const { data: states = [] } = useStates()
+  const stateIdWatch = watch('stateId')
+  // Exibição: mostra a abreviação do estado selecionado
+  const selectedStateLabel = states.find((s) => s.id === stateIdWatch)?.abbreviation ?? ''
 
   return (
     <div className="flex flex-col gap-4">
@@ -104,12 +107,12 @@ export function Step3Address({ onBack, isSubmitting }: Step3AddressProps) {
             >
               <span
                 className={
-                  estadoWatch
+                  stateIdWatch
                     ? 'text-tur-dark font-medium'
                     : 'text-tur-gray-400'
                 }
               >
-                {estadoWatch || 'UF'}
+                {selectedStateLabel || 'UF'}
               </span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -142,29 +145,29 @@ export function Step3Address({ onBack, isSubmitting }: Step3AddressProps) {
               }`}
             >
               <div className="max-h-36 overflow-y-auto flex flex-col gap-0.5 pr-0.5">
-                {BRAZILIAN_STATES.map((uf) => (
+                {states.map((state) => (
                   <button
-                    key={uf}
+                    key={state.id}
                     type="button"
                     onClick={() => {
-                      setValue('estado', uf, { shouldValidate: true })
+                      setValue('stateId', state.id, { shouldValidate: true })
                       estadoMenu.close()
                     }}
                     className={`text-center font-inter text-xs py-1 px-2 transition-colors rounded-none hover:bg-black/5 cursor-pointer ${
-                      estadoWatch === uf
+                      stateIdWatch === state.id
                         ? 'bg-tur-dark text-white font-bold'
                         : 'text-tur-dark'
                     }`}
                   >
-                    {uf}
+                    {state.abbreviation}
                   </button>
                 ))}
               </div>
             </div>
           </div>
-          {errors.estado && (
+          {errors.stateId && (
             <span className="font-inter text-xs text-tur-red mt-0.5 block font-medium">
-              {errors.estado.message}
+              {errors.stateId.message}
             </span>
           )}
         </div>
