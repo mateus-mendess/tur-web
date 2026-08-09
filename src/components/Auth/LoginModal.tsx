@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { BaseModal } from '#/components/UI/BaseModal'
@@ -13,6 +14,7 @@ export interface LoginModalProps {
   onClose: () => void
   onSwitchToSignUp?: () => void
   onLogin: (data: LoginFormData) => Promise<void>
+  defaultEmail?: string
 }
 
 export function LoginModal({
@@ -20,6 +22,7 @@ export function LoginModal({
   onClose,
   onSwitchToSignUp,
   onLogin,
+  defaultEmail,
 }: LoginModalProps) {
   const {
     register,
@@ -31,13 +34,19 @@ export function LoginModal({
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
+      email: defaultEmail || '',
       senha: '',
       manterConectado: false,
     },
   })
 
   const manterConectado = watch('manterConectado')
+
+  useEffect(() => {
+    if (isOpen && defaultEmail) {
+      setValue('email', defaultEmail)
+    }
+  }, [isOpen, defaultEmail, setValue])
 
   const onSubmit = handleSubmit(async (data) => {
     try {

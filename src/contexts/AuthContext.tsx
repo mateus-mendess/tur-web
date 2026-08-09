@@ -19,12 +19,13 @@ interface AuthContextValue {
   isInitializing: boolean
   isLoginOpen: boolean
   isSignUpOpen: boolean
-  openLogin: () => void
+  openLogin: (defaultEmail?: string) => void
   openSignUp: () => void
   closeModals: () => void
   handleLogin: (data: LoginFormData) => Promise<void>
   handleSignUp: (data: SignUpFormData) => Promise<void>
   logout: () => void
+  defaultLoginEmail: string
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -35,6 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isInitializing, setIsInitializing] = useState(true)
   const [isLoginOpen, setLoginOpen] = useState(false)
   const [isSignUpOpen, setSignUpOpen] = useState(false)
+  const [defaultLoginEmail, setDefaultLoginEmail] = useState('')
 
   // Carrega o token inicial de forma segura no client (evita mismatch de hidratação)
   useEffect(() => {
@@ -57,7 +59,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  const openLogin = useCallback(() => {
+  const openLogin = useCallback((email?: string) => {
+    if (typeof email === 'string') setDefaultLoginEmail(email)
     setLoginOpen(true)
     setSignUpOpen(false)
   }, [])
@@ -86,14 +89,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const handleSignUp = useCallback(
     async (data: SignUpFormData) => {
-      const response = await authService.register(data)
-      setUser(response.user)
-      setToken(response.token)
-      storage.setItem('tur_token', response.token)
-      toast.success(`Conta criada! Bem-vindo, ${response.user.nome}!`)
-      closeModals()
+      await authService.register(data)
     },
-    [closeModals],
+    [],
   )
 
   const logout = useCallback(() => {
@@ -118,6 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         handleLogin,
         handleSignUp,
         logout,
+        defaultLoginEmail,
       }}
     >
       {children}

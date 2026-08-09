@@ -72,7 +72,7 @@ Cria uma nova conta de usuário.
 **Erros:**
 | Status | Situação |
 |---|---|
-| `400` | Dados inválidos ou email já em uso |
+| `400` | Dados inválidos ou email já em uso. Shape retornado é um ProblemDetail com propriedades soltas: `{ "field": "email", "detail": "Email já cadastrado" }` e não um array de erros. |
 
 **Notas de integração:** o front deve replicar os dois regex (`name` e `password`) no `authSchema.ts` (Zod) para dar feedback imediato ao usuário antes de bater na API. O backend **não deixa explícito no schema** que valida `password === confirmPassword` — trate isso como validação client-side obrigatória via Zod `.refine()`, e trate um possível `400` de "senhas não conferem" no catch do service mesmo assim.
 
