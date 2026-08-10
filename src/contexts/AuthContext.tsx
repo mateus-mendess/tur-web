@@ -11,6 +11,7 @@ import { authService } from '#/services/authService'
 import type { AuthUser } from '#/services/authService'
 import type { LoginFormData, SignUpFormData } from '#/schemas/authSchema'
 import { storage } from '#/lib/storage'
+import { decodeJwt } from '#/lib/jwt'
 
 interface AuthContextValue {
   user: AuthUser | null
@@ -43,6 +44,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedToken = storage.getItem('tur_token')
     if (storedToken) {
       setToken(storedToken)
+      
+      const decoded = decodeJwt(storedToken)
+      if (decoded && decoded.sub) {
+        setUser({
+          id: decoded.sub,
+          nome: decoded.nome || 'Usuário',
+          email: decoded.email || '',
+        })
+      }
     }
     setIsInitializing(false)
   }, [])
@@ -81,7 +91,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(response.user)
       setToken(response.token)
       storage.setItem('tur_token', response.token)
-      toast.success(`Bem-vindo de volta, ${response.user.nome}!`)
       closeModals()
     },
     [closeModals],

@@ -112,6 +112,7 @@ export interface CommentRequest {
  */
 export interface TouristPointResponse {
   id: string // UUID
+  userId: string // UUID do dono
   name: string
   description: string
   accessibilityTypes: AccessibilityTypeResponse[]

@@ -2,7 +2,14 @@ import { useEffect, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { BaseModal } from '#/components/UI/BaseModal'
 import type { Spot } from '#/types/spot'
-import { BookmarkIcon, ShareIcon, CloseIcon, MapPinIcon } from '#/components/UI/Icons'
+import { BookmarkIcon, ShareIcon, CloseIcon, MapPinIcon, EditIcon } from '#/components/UI/Icons'
+import { useAuth } from '#/contexts/AuthContext'
+import { useQueryClient } from '@tanstack/react-query'
+import type { TouristPointResponse } from '#/types/api'
+import { toSpot } from '#/types/spot'
+import { UploadPhotosModal } from './UploadPhotosModal'
+import { EditSpotModal } from './EditSpotModal'
+import { EditAddressModal } from './EditAddressModal'
 
 interface SpotDetailModalProps {
   spot: Spot | null
@@ -15,7 +22,13 @@ export function SpotDetailModal({
   isOpen,
   onClose,
 }: SpotDetailModalProps) {
+  const { user } = useAuth()
+  const queryClient = useQueryClient()
+  
   const [visibleReviewsCount, setVisibleReviewsCount] = useState(5)
+  const [isUploadPhotosOpen, setIsUploadPhotosOpen] = useState(false)
+  const [isEditSpotOpen, setIsEditSpotOpen] = useState(false)
+  const [isEditAddressOpen, setIsEditAddressOpen] = useState(false)
 
   // Reset state on open
   useEffect(() => {
@@ -26,8 +39,15 @@ export function SpotDetailModal({
 
   if (!spot) return null
 
+  // Reflete a mudança otimista usando o cache atualizado
+  const spots = queryClient.getQueryData<TouristPointResponse[]>(['spots'])
+  const rawSpot = spots?.find((s) => s.id === spot.id)
+  const currentSpot = rawSpot ? toSpot(rawSpot) : spot
+
+  const isOwner = user?.id && currentSpot.userId === user.id
+
   const images =
-    spot.gallery && spot.gallery.length > 0 ? spot.gallery : [spot.imageUrl]
+    currentSpot.gallery && currentSpot.gallery.length > 0 ? currentSpot.gallery : [currentSpot.imageUrl]
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -48,19 +68,19 @@ export function SpotDetailModal({
               }
             }}
           >
-            <Dialog.Title className="sr-only">{spot.name}</Dialog.Title>
+            <Dialog.Title className="sr-only">{currentSpot.name}</Dialog.Title>
 
             {/* 1. TOP BAR */}
             <header className="sticky top-0 z-40 w-full bg-tur-bg/95 backdrop-blur-md border-b border-tur-dark/15 px-6 md:px-12 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                   <span className="font-dm-sans font-bold text-base text-tur-dark uppercase tracking-wider">
-                    {spot.name}
+                    {currentSpot.name}
                   </span>
                   <span className="font-inter text-xs text-tur-gray-700">
                     por{' '}
                     <strong className="text-tur-dark font-semibold">
-                      {spot.author.name}
+                      {currentSpot.author.name}
                     </strong>
                   </span>
                 </div>
@@ -97,7 +117,7 @@ export function SpotDetailModal({
                 NOTA
               </span>
               <span className="font-dm-sans text-xl sm:text-2xl font-extrabold text-tur-dark leading-none my-0.5">
-                {spot.rating || '4.8'}
+                {currentSpot.rating || '4.8'}
               </span>
               <span className="font-inter text-[8px] sm:text-[9px] text-tur-dark/60 font-semibold">
                 / 5.0
@@ -110,20 +130,31 @@ export function SpotDetailModal({
                 <div className="text-center mb-6">
                   <span className="font-inter text-xs font-extrabold uppercase tracking-[2px] text-tur-dark/60">
                     PUBLICADO -{' '}
-                    {spot.publishedAt
-                      ? spot.publishedAt
+                    {currentSpot.publishedAt
+                      ? currentSpot.publishedAt
                           .replace(/\bDE\b/gi, ',')
                           .replace(/\s+/g, ' ')
                           .toUpperCase()
                       : 'OUTUBRO, 2023'}
                   </span>
                 </div>
-                <div className="text-center my-6 md:my-10">
-                  <h1 className="font-dm-sans text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight text-tur-dark leading-[0.95]">
-                    {spot.name}
-                  </h1>
+                <div className="text-center my-6 md:my-10 relative">
+                  <div className="flex items-center justify-center gap-4">
+                    <h1 className="font-dm-sans text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight text-tur-dark leading-[0.95]">
+                      {currentSpot.name}
+                    </h1>
+                    {isOwner && (
+                      <button
+                        onClick={() => setIsEditSpotOpen(true)}
+                        className="p-2.5 rounded-none bg-tur-dark/5 text-tur-dark hover:bg-tur-dark hover:text-white transition-colors cursor-pointer self-start"
+                        title="Editar Ponto Turístico"
+                      >
+                        <EditIcon className="w-6 h-6" />
+                      </button>
+                    )}
+                  </div>
                   <p className="font-inter text-sm sm:text-base md:text-lg font-medium text-tur-gray-700 mt-4 max-w-2xl mx-auto">
-                    {spot.location}
+                    {currentSpot.location}
                   </p>
                 </div>
               </section>
@@ -133,7 +164,7 @@ export function SpotDetailModal({
                   <div className="md:col-span-7 h-[350px] md:h-[480px] lg:h-[560px] bg-tur-dark/5 rounded-none overflow-hidden">
                     <img
                       src={images[0]}
-                      alt={`${spot.name} 1`}
+                      alt={`${currentSpot.name} 1`}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -141,7 +172,7 @@ export function SpotDetailModal({
                     <div className="h-[220px] md:h-[48%] bg-tur-dark/5 rounded-none overflow-hidden">
                       <img
                         src={images[1] || images[0]}
-                        alt={`${spot.name} 2`}
+                        alt={`${currentSpot.name} 2`}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -149,14 +180,14 @@ export function SpotDetailModal({
                       <div className="h-full bg-tur-dark/5 rounded-none overflow-hidden">
                         <img
                           src={images[2] || images[0]}
-                          alt={`${spot.name} 3`}
+                          alt={`${currentSpot.name} 3`}
                           className="w-full h-full object-cover"
                         />
                       </div>
                       <div className="h-full bg-tur-dark/5 rounded-none overflow-hidden">
                         <img
                           src={images[3] || images[1] || images[0]}
-                          alt={`${spot.name} 4`}
+                          alt={`${currentSpot.name} 4`}
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -172,8 +203,8 @@ export function SpotDetailModal({
                       Sobre
                     </h3>
                     <div className="space-y-4 font-inter text-base sm:text-lg text-tur-dark/90 leading-relaxed font-normal">
-                      {spot.description ? (
-                        spot.description
+                      {currentSpot.description ? (
+                        currentSpot.description
                           .split('\n\n')
                           .map((paragraph, idx) => <p key={idx}>{paragraph}</p>)
                       ) : (
@@ -190,9 +221,9 @@ export function SpotDetailModal({
                       <h4 className="font-dm-sans text-lg font-bold uppercase text-tur-dark">
                         Acessibilidade
                       </h4>
-                      {spot.accessibility && spot.accessibility.length > 0 ? (
+                      {currentSpot.accessibility && currentSpot.accessibility.length > 0 ? (
                         <ul className="space-y-2.5">
-                          {spot.accessibility.map((item, idx) => (
+                          {currentSpot.accessibility.map((item, idx) => (
                             <li
                               key={idx}
                               className="flex items-center gap-2.5 font-inter text-sm sm:text-base font-medium text-tur-dark"
@@ -217,8 +248,8 @@ export function SpotDetailModal({
                       </h4>
                       <ul className="space-y-2.5">
                         {(
-                          spot.tags || [
-                            spot.category ? spot.category : 'Turismo',
+                          currentSpot.tags || [
+                            currentSpot.category ? currentSpot.category : 'Turismo',
                             'Ponto Turístico',
                             'Vistas',
                           ]
@@ -240,16 +271,27 @@ export function SpotDetailModal({
 
                 <div className="lg:col-span-5 xl:col-span-4 space-y-6 flex flex-col justify-between h-full">
                   <div className="space-y-2">
-                    <div className="flex items-start gap-3">
-                      <MapPinIcon className="w-5 h-5 text-tur-accent shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="font-dm-sans font-bold text-base text-tur-dark uppercase">
-                          Localização
-                        </h4>
-                        <p className="font-inter text-sm text-tur-gray-700 mt-1 leading-relaxed">
-                          {spot.address || spot.location}
-                        </p>
+                    <div className="flex items-start gap-3 justify-between">
+                      <div className="flex items-start gap-3">
+                        <MapPinIcon className="w-5 h-5 text-tur-accent shrink-0 mt-0.5" />
+                        <div>
+                          <h4 className="font-dm-sans font-bold text-base text-tur-dark uppercase">
+                            Localização
+                          </h4>
+                          <p className="font-inter text-sm text-tur-gray-700 mt-1 leading-relaxed">
+                            {currentSpot.address || currentSpot.location}
+                          </p>
+                        </div>
                       </div>
+                      {isOwner && (
+                        <button
+                          onClick={() => setIsEditAddressOpen(true)}
+                          className="p-1.5 rounded-none bg-tur-dark/5 text-tur-dark hover:bg-tur-dark hover:text-white transition-colors cursor-pointer shrink-0"
+                          title="Editar Endereço"
+                        >
+                          <EditIcon className="w-5 h-5" />
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -269,7 +311,7 @@ export function SpotDetailModal({
                 </div>
               </section>
 
-              {spot.reviews && spot.reviews.length > 0 && (
+              {currentSpot.reviews && currentSpot.reviews.length > 0 && (
                 <section className="space-y-6 pt-8 border-t border-tur-dark/15">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
@@ -280,13 +322,23 @@ export function SpotDetailModal({
                         Avaliações dos Visitantes
                       </h3>
                     </div>
-                    <button className="self-start sm:self-auto px-6 py-2.5 bg-tur-dark text-white font-inter font-bold text-xs uppercase tracking-widest border border-tur-dark rounded-none hover:bg-tur-accent transition-colors cursor-pointer">
-                      Avaliar
-                    </button>
+                    <div className="flex items-center gap-3 self-start sm:self-auto">
+                      {isOwner && (
+                        <button 
+                          onClick={() => setIsUploadPhotosOpen(true)}
+                          className="px-6 py-2.5 bg-white text-tur-dark font-inter font-bold text-xs uppercase tracking-widest border border-tur-dark rounded-none hover:bg-black/5 transition-colors cursor-pointer"
+                        >
+                          Cadastrar Imagens
+                        </button>
+                      )}
+                      <button className="px-6 py-2.5 bg-tur-dark text-white font-inter font-bold text-xs uppercase tracking-widest border border-tur-dark rounded-none hover:bg-tur-accent transition-colors cursor-pointer">
+                        Avaliar
+                      </button>
+                    </div>
                   </div>
 
                   <div className="mt-8 sm:mt-10 border-y border-dashed border-tur-dark divide-y divide-dashed divide-tur-dark">
-                    {spot.reviews
+                    {currentSpot.reviews
                       .slice(0, visibleReviewsCount)
                       .map((review) => (
                         <div
@@ -312,7 +364,7 @@ export function SpotDetailModal({
                       ))}
                   </div>
 
-                  {visibleReviewsCount < spot.reviews.length && (
+                  {visibleReviewsCount < currentSpot.reviews.length && (
                     <div className="flex justify-center pt-4">
                       <button
                         onClick={() =>
@@ -331,6 +383,25 @@ export function SpotDetailModal({
           </Dialog.Content>
         </div>
       </Dialog.Portal>
+
+      {/* Sub-modals for editing and uploading photos */}
+      <UploadPhotosModal
+        isOpen={isUploadPhotosOpen}
+        onClose={() => setIsUploadPhotosOpen(false)}
+        spot={currentSpot}
+      />
+      <EditSpotModal
+        isOpen={isEditSpotOpen}
+        onClose={() => setIsEditSpotOpen(false)}
+        spot={currentSpot}
+      />
+      {rawSpot && (
+        <EditAddressModal
+          isOpen={isEditAddressOpen}
+          onClose={() => setIsEditAddressOpen(false)}
+          rawSpot={rawSpot}
+        />
+      )}
     </Dialog.Root>
   )
 }

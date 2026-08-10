@@ -13,6 +13,7 @@ export interface SpotReview {
 
 export interface Spot {
   id: string
+  userId?: string
   number: string
   name: string
   location: string
@@ -44,6 +45,7 @@ export function toSpot(tp: TouristPointResponse): Spot {
   const primaryPhotoPath = tp.photos.length > 0 ? tp.photos[0].path : ''
   return {
     id: tp.id,
+    userId: tp.userId,
     number: tp.id.slice(0, 2).toUpperCase(),
     name: tp.name,
     location: `${tp.address.city}, ${tp.address.state}`,

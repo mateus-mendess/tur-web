@@ -1,9 +1,11 @@
 import axios from 'axios'
 import { api } from '#/lib/axios'
+import { decodeJwt } from '#/lib/jwt'
 import type { LoginFormData, SignUpFormData } from '#/schemas/authSchema'
 import { storage } from '#/lib/storage'
 
 export interface AuthUser {
+  id: string
   nome: string
   email: string
 }
@@ -41,7 +43,11 @@ export const authService = {
         },
       )
 
+      const decoded = decodeJwt(response.token)
+      const userId = decoded?.sub ?? ''
+
       const user: AuthUser = {
+        id: userId,
         nome: nameFromEmail(data.email),
         email: data.email,
       }
@@ -89,7 +95,11 @@ export const authService = {
         },
       )
 
+      const decoded = decodeJwt(loginResponse.token)
+      const userId = decoded?.sub ?? ''
+
       const user: AuthUser = {
+        id: userId,
         nome: data.nome,
         email: data.email,
       }

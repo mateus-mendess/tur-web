@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link } from '@tanstack/react-router'
 import { SearchOverlay } from '#/components/Search/SearchOverlay'
+import { CreateSpotModal } from '#/components/Spots/CreateSpotModal'
 import { useAuth } from '#/contexts/AuthContext'
 
 interface HeaderProps {
@@ -10,6 +11,7 @@ interface HeaderProps {
 export function Header({ theme = 'dark' }: HeaderProps) {
   const { openLogin, openSignUp, isAuthenticated, logout } = useAuth()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [isCreateSpotOpen, setIsCreateSpotOpen] = useState(false)
   
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const profileMenuRef = useRef<HTMLDivElement>(null)
@@ -76,12 +78,13 @@ export function Header({ theme = 'dark' }: HeaderProps) {
         <div className="flex items-center justify-end max-md:justify-center gap-6 flex-1">
           {isAuthenticated ? (
             <>
-              <Link
-                to="/cadastrar-ponto"
-                className={`${textColor} no-underline text-[15px] font-medium transition-opacity duration-200 hover:opacity-80`}
+              <button
+                type="button"
+                onClick={() => setIsCreateSpotOpen(true)}
+                className={`${textColor} no-underline text-[15px] font-medium transition-opacity duration-200 hover:opacity-80 bg-transparent border-none cursor-pointer font-inherit`}
               >
                 Cadastrar ponto
-              </Link>
+              </button>
               <div className="relative" ref={profileMenuRef}>
                 <button
                   type="button"
@@ -105,35 +108,39 @@ export function Header({ theme = 'dark' }: HeaderProps) {
                   </svg>
                 </button>
 
-                {isProfileMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-[0_4px_12px_rgba(0,0,0,0.1)] py-1.5 z-50 border border-black/5 flex flex-col font-inter">
-                    <Link
-                      to="/perfil/salvos"
-                      onClick={() => setIsProfileMenuOpen(false)}
-                      className="block px-4 py-2 text-sm text-tur-gray-700 hover:bg-black/5 hover:text-tur-accent transition-colors text-left no-underline font-medium"
-                    >
-                      Salvos
-                    </Link>
-                    <Link
-                      to="/perfil/meus-pontos"
-                      onClick={() => setIsProfileMenuOpen(false)}
-                      className="block px-4 py-2 text-sm text-tur-gray-700 hover:bg-black/5 hover:text-tur-accent transition-colors text-left no-underline font-medium"
-                    >
-                      Meus Pontos
-                    </Link>
-                    <div className="border-t border-black/5 my-1.5"></div>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsProfileMenuOpen(false)
-                        logout()
-                      }}
-                      className="block w-full px-4 py-2 text-sm text-tur-red hover:bg-tur-red/5 transition-colors text-left font-medium cursor-pointer bg-transparent border-none"
-                    >
-                      Sair
-                    </button>
-                  </div>
-                )}
+                <div
+                  className={`absolute right-0 top-full mt-2 w-48 bg-white rounded-none shadow-[0_4px_12px_rgba(0,0,0,0.1)] py-1.5 z-50 border border-black/5 flex flex-col font-inter transition-all duration-200 ease-out origin-top ${
+                    isProfileMenuOpen
+                      ? 'opacity-100 translate-y-0 pointer-events-auto'
+                      : 'opacity-0 -translate-y-2 pointer-events-none'
+                  }`}
+                >
+                  <Link
+                    to="/perfil/salvos"
+                    onClick={() => setIsProfileMenuOpen(false)}
+                    className="block px-4 py-2 text-sm text-tur-gray-700 hover:bg-black/5 hover:text-tur-accent transition-colors text-left no-underline font-medium"
+                  >
+                    Salvos
+                  </Link>
+                  <Link
+                    to="/perfil/meus-pontos"
+                    onClick={() => setIsProfileMenuOpen(false)}
+                    className="block px-4 py-2 text-sm text-tur-gray-700 hover:bg-black/5 hover:text-tur-accent transition-colors text-left no-underline font-medium"
+                  >
+                    Meus Pontos
+                  </Link>
+                  <div className="border-t border-black/5 my-1.5"></div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsProfileMenuOpen(false)
+                      logout()
+                    }}
+                    className="block w-full px-4 py-2 text-sm text-tur-red hover:bg-tur-red/5 transition-colors text-left font-medium cursor-pointer bg-transparent border-none"
+                  >
+                    Sair
+                  </button>
+                </div>
               </div>
             </>
           ) : (
@@ -161,6 +168,11 @@ export function Header({ theme = 'dark' }: HeaderProps) {
       <SearchOverlay
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
+      />
+
+      <CreateSpotModal
+        isOpen={isCreateSpotOpen}
+        onClose={() => setIsCreateSpotOpen(false)}
       />
     </>
   )
