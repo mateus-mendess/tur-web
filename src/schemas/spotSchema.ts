@@ -36,10 +36,26 @@ export const spotSchema = z.object({
   cidade: z.string().min(1, 'Por favor, informe a cidade.'),
   // ID numérico do estado vindo de GET /states (substitui sigla string)
   stateId: z
-    .number({ required_error: 'Por favor, selecione um estado.' })
+    .number({ message: 'Por favor, selecione um estado.' })
     .int()
     .positive('Por favor, selecione um estado.'),
   complemento: z.string().optional().default(''),
 })
 
 export type SpotFormData = z.infer<typeof spotSchema>
+
+export const editSpotSchema = spotSchema.pick({
+  nome: true,
+  descricao: true,
+})
+export type EditSpotFormData = z.infer<typeof editSpotSchema>
+
+export const editAddressSchema = spotSchema.pick({
+  cep: true,
+  rua: true,
+  bairro: true,
+  cidade: true,
+  stateId: true,
+  complemento: true,
+})
+export type EditAddressFormData = z.infer<typeof editAddressSchema>

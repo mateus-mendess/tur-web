@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import { BaseModal } from '#/components/UI/BaseModal'
 import { Button } from '#/components/UI/Button'
@@ -6,6 +8,8 @@ import { Input } from '#/components/UI/Input'
 import { Label } from '#/components/UI/Label'
 import { spotsService } from '#/services/spotsService'
 import type { Spot } from '#/types/spot'
+import { editSpotSchema } from '#/schemas/spotSchema'
+import type { EditSpotFormData } from '#/schemas/spotSchema'
 
 interface EditSpotModalProps {
   isOpen: boolean
@@ -16,93 +20,98 @@ interface EditSpotModalProps {
 export function EditSpotModal({ isOpen, onClose, spot }: EditSpotModalProps) {
   const queryClient = useQueryClient()
   
-  const [name, setName] = useState(spot.name)
-  const [description, setDescription] = useState(spot.description || '')
-  
-  const [error, setError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const {
+    register,
+    handleSubmit,
+    setError,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<EditSpotFormData>({
+    resolver: zodResolver(editSpotSchema),
+    defaultValues: {
+      nome: spot.name,
+      descricao: spot.description || '',
+    },
+  })
 
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
-      setName(spot.name)
-      setDescription(spot.description || '')
-      setError(null)
+      reset({
+        nome: spot.name,
+        descricao: spot.description || '',
+      })
     }
-  }, [isOpen, spot])
+  }, [isOpen, spot, reset])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    // Validations
-    if (name.length < 5 || name.length > 100) {
-      setError('O nome deve ter entre 5 e 100 caracteres.')
-      return
-    }
-    if (description.trim().length < 1) {
-      setError('A descrição não pode ficar vazia.')
-      return
-    }
-
-    setIsSubmitting(true)
-    setError(null)
-
+  const onSubmit = handleSubmit(async (data) => {
     try {
       await spotsService.updateSpot(spot.id, {
-        name,
-        description
+        name: data.nome,
+        description: data.descricao
       })
       await queryClient.invalidateQueries({ queryKey: ['spots'] })
       onClose()
     } catch (err: any) {
-      setError(err.message || 'Erro ao atualizar o ponto turístico.')
-    } finally {
-      setIsSubmitting(false)
+      setError('root', {
+        message: err.message || 'Erro ao atualizar o ponto turístico.',
+      })
     }
-  }
+  })
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} maxWidthClass="max-w-lg">
-      <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-none flex flex-col gap-6">
+      <form onSubmit={onSubmit} className="bg-white p-6 sm:p-8 rounded-none flex flex-col gap-6">
         <h2 className="font-dm-sans text-2xl font-bold text-tur-dark m-0">
-          Editar Nome e Descrição
+          Editar Informações
         </h2>
 
-        {error && (
+        {errors.root && (
           <div className="p-3 bg-red-50 text-red-600 font-inter text-sm border border-red-200">
-            {error}
+            {errors.root.message}
           </div>
         )}
 
         <div className="space-y-4">
           <div className="space-y-1">
-            <Label htmlFor="name">Nome do local *</Label>
+            <Label htmlFor="nome">Nome do local *</Label>
             <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              id="nome"
               placeholder="Ex: Cristo Redentor"
               disabled={isSubmitting}
+              error={!!errors.nome}
+              {...register('nome')}
             />
+            {errors.nome && (
+              <span className="text-red-500 text-xs mt-1 block">
+                {errors.nome.message}
+              </span>
+            )}
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="description">Descrição *</Label>
+            <Label htmlFor="descricao">Descrição *</Label>
             <textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              id="descricao"
               placeholder="Conte um pouco sobre este lugar..."
               disabled={isSubmitting}
-              className="w-full border border-black/20 rounded-none bg-transparent px-3 py-2 font-inter text-sm text-tur-dark placeholder:text-tur-gray-400 outline-none focus:border-black min-h-[120px] resize-y"
+              className={`w-full border rounded-none bg-transparent px-3 py-2 font-inter text-sm text-tur-dark placeholder:text-tur-gray-400 outline-none focus:border-black min-h-[120px] resize-y ${
+                errors.descricao ? 'border-tur-red' : 'border-black/20'
+              }`}
+              {...register('descricao')}
             />
+            {errors.descricao && (
+              <span className="text-red-500 text-xs mt-1 block">
+                {errors.descricao.message}
+              </span>
+            )}
           </div>
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
           <Button
             type="button"
-            variant="outline"
+            variant="secondary"
             onClick={onClose}
             disabled={isSubmitting}
           >
@@ -110,9 +119,9 @@ export function EditSpotModal({ isOpen, onClose, spot }: EditSpotModalProps) {
           </Button>
           <Button
             type="submit"
-            isLoading={isSubmitting}
+            disabled={isSubmitting}
           >
-            Salvar
+            {isSubmitting ? 'Salvando...' : 'Salvar'}
           </Button>
         </div>
       </form>

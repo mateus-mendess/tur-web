@@ -106,8 +106,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     setUser(null)
     setToken(null)
+    storage.removeItem('tur_token')
     void authService.logout()
-    toast.info('Sessão encerrada com sucesso.')
+    window.location.href = '/'
   }, [])
 
   return (

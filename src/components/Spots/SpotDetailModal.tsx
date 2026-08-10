@@ -1,15 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
-import { BaseModal } from '#/components/UI/BaseModal'
 import type { Spot } from '#/types/spot'
 import { BookmarkIcon, ShareIcon, CloseIcon, MapPinIcon, EditIcon } from '#/components/UI/Icons'
 import { useAuth } from '#/contexts/AuthContext'
 import { useQueryClient } from '@tanstack/react-query'
 import type { TouristPointResponse } from '#/types/api'
 import { toSpot } from '#/types/spot'
-import { UploadPhotosModal } from './UploadPhotosModal'
 import { EditSpotModal } from './EditSpotModal'
 import { EditAddressModal } from './EditAddressModal'
+import { UploadPhotosModal } from './UploadPhotosModal'
+import { DeleteSpotModal } from './DeleteSpotModal'
+import { useDropdown } from '#/hooks/useDropdown'
+
+const PLACEHOLDER_IMAGE = 'https://placehold.co/600x400/eeeeee/999999?text=Sem+Foto'
 
 interface SpotDetailModalProps {
   spot: Spot | null
@@ -26,9 +29,28 @@ export function SpotDetailModal({
   const queryClient = useQueryClient()
   
   const [visibleReviewsCount, setVisibleReviewsCount] = useState(5)
-  const [isUploadPhotosOpen, setIsUploadPhotosOpen] = useState(false)
   const [isEditSpotOpen, setIsEditSpotOpen] = useState(false)
   const [isEditAddressOpen, setIsEditAddressOpen] = useState(false)
+  const [isUploadPhotosOpen, setIsUploadPhotosOpen] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+
+  const editMenu = useDropdown()
+  const editMenuRef = useRef<HTMLDivElement>(null)
+
+  // Handle clicking outside the dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (editMenuRef.current && !editMenuRef.current.contains(event.target as Node)) {
+        editMenu.close()
+      }
+    }
+    if (editMenu.isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [editMenu.isOpen, editMenu])
 
   // Reset state on open
   useEffect(() => {
@@ -47,7 +69,7 @@ export function SpotDetailModal({
   const isOwner = user?.id && currentSpot.userId === user.id
 
   const images =
-    currentSpot.gallery && currentSpot.gallery.length > 0 ? currentSpot.gallery : [currentSpot.imageUrl]
+    currentSpot.gallery && currentSpot.gallery.length > 0 ? currentSpot.gallery : [currentSpot.imageUrl || PLACEHOLDER_IMAGE]
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -144,13 +166,61 @@ export function SpotDetailModal({
                       {currentSpot.name}
                     </h1>
                     {isOwner && (
-                      <button
-                        onClick={() => setIsEditSpotOpen(true)}
-                        className="p-2.5 rounded-none bg-tur-dark/5 text-tur-dark hover:bg-tur-dark hover:text-white transition-colors cursor-pointer self-start"
-                        title="Editar Ponto Turístico"
-                      >
-                        <EditIcon className="w-6 h-6" />
-                      </button>
+                      <div className="relative" ref={editMenuRef}>
+                        <button
+                          type="button"
+                          onClick={() => editMenu.toggle()}
+                          className="p-2.5 rounded-none bg-tur-dark/5 text-tur-dark hover:bg-tur-dark hover:text-white transition-colors cursor-pointer self-start"
+                          title="Opções de Edição"
+                        >
+                          <EditIcon className="w-6 h-6" />
+                        </button>
+                        
+                        <div
+                          className={`absolute right-0 top-full mt-2 w-48 bg-white rounded-none shadow-[0_4px_12px_rgba(0,0,0,0.1)] py-1.5 z-50 border border-black/5 flex flex-col font-inter transition-all duration-200 ease-out origin-top ${
+                            editMenu.isOpen
+                              ? 'opacity-100 translate-y-0 pointer-events-auto'
+                              : 'opacity-0 -translate-y-2 pointer-events-none'
+                          }`}
+                        >
+                          <button
+                            onClick={() => {
+                              editMenu.close()
+                              setIsUploadPhotosOpen(true)
+                            }}
+                            className="block w-full px-4 py-2 text-sm text-tur-gray-700 hover:bg-black/5 hover:text-tur-accent transition-colors text-left bg-transparent border-none font-medium cursor-pointer"
+                          >
+                            Editar imagens
+                          </button>
+                          <button
+                            onClick={() => {
+                              editMenu.close()
+                              setIsEditSpotOpen(true)
+                            }}
+                            className="block w-full px-4 py-2 text-sm text-tur-gray-700 hover:bg-black/5 hover:text-tur-accent transition-colors text-left bg-transparent border-none font-medium cursor-pointer"
+                          >
+                            Editar informações
+                          </button>
+                            <button
+                              onClick={() => {
+                                editMenu.close()
+                                setIsEditAddressOpen(true)
+                              }}
+                              className="block w-full px-4 py-2 text-sm text-tur-gray-700 hover:bg-black/5 hover:text-tur-accent transition-colors text-left bg-transparent border-none font-medium cursor-pointer"
+                            >
+                              Editar localização
+                            </button>
+                            <button
+                              onClick={() => {
+                                editMenu.close()
+                                setIsDeleteModalOpen(true)
+                              }}
+                              className="block w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors text-left bg-transparent border-none font-medium cursor-pointer"
+                            >
+                              Excluir ponto
+                            </button>
+                        </div>
+                      </div>
                     )}
                   </div>
                   <p className="font-inter text-sm sm:text-base md:text-lg font-medium text-tur-gray-700 mt-4 max-w-2xl mx-auto">
@@ -283,15 +353,6 @@ export function SpotDetailModal({
                           </p>
                         </div>
                       </div>
-                      {isOwner && (
-                        <button
-                          onClick={() => setIsEditAddressOpen(true)}
-                          className="p-1.5 rounded-none bg-tur-dark/5 text-tur-dark hover:bg-tur-dark hover:text-white transition-colors cursor-pointer shrink-0"
-                          title="Editar Endereço"
-                        >
-                          <EditIcon className="w-5 h-5" />
-                        </button>
-                      )}
                     </div>
                   </div>
 
@@ -323,14 +384,6 @@ export function SpotDetailModal({
                       </h3>
                     </div>
                     <div className="flex items-center gap-3 self-start sm:self-auto">
-                      {isOwner && (
-                        <button 
-                          onClick={() => setIsUploadPhotosOpen(true)}
-                          className="px-6 py-2.5 bg-white text-tur-dark font-inter font-bold text-xs uppercase tracking-widest border border-tur-dark rounded-none hover:bg-black/5 transition-colors cursor-pointer"
-                        >
-                          Cadastrar Imagens
-                        </button>
-                      )}
                       <button className="px-6 py-2.5 bg-tur-dark text-white font-inter font-bold text-xs uppercase tracking-widest border border-tur-dark rounded-none hover:bg-tur-accent transition-colors cursor-pointer">
                         Avaliar
                       </button>
@@ -384,7 +437,7 @@ export function SpotDetailModal({
         </div>
       </Dialog.Portal>
 
-      {/* Sub-modals for editing and uploading photos */}
+      {/* Sub-modals for editing */}
       <UploadPhotosModal
         isOpen={isUploadPhotosOpen}
         onClose={() => setIsUploadPhotosOpen(false)}
@@ -402,6 +455,15 @@ export function SpotDetailModal({
           rawSpot={rawSpot}
         />
       )}
+      <DeleteSpotModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        spot={currentSpot}
+        onDeleted={() => {
+          setIsDeleteModalOpen(false)
+          onClose()
+        }}
+      />
     </Dialog.Root>
   )
 }

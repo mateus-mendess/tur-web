@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import { BaseModal } from '#/components/UI/BaseModal'
 import { Button } from '#/components/UI/Button'
@@ -7,6 +9,8 @@ import { Label } from '#/components/UI/Label'
 import { addressService } from '#/services/addressService'
 import type { TouristPointResponse } from '#/types/api'
 import { useStates } from '#/hooks/api/useStates'
+import { editAddressSchema } from '#/schemas/spotSchema'
+import type { EditAddressFormData } from '#/schemas/spotSchema'
 
 interface EditAddressModalProps {
   isOpen: boolean
@@ -18,141 +22,175 @@ export function EditAddressModal({ isOpen, onClose, rawSpot }: EditAddressModalP
   const queryClient = useQueryClient()
   const { data: states = [] } = useStates()
   
-  const [street, setStreet] = useState('')
-  const [complement, setComplement] = useState('')
-  const [neighborhood, setNeighborhood] = useState('')
-  const [city, setCity] = useState('')
-  const [zipcode, setZipcode] = useState('')
-  const [stateId, setStateId] = useState<number | ''>('')
-  
-  const [error, setError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const {
+    register,
+    handleSubmit,
+    setError,
+    reset,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(editAddressSchema),
+    defaultValues: {
+      rua: rawSpot.address.street || '',
+      complemento: rawSpot.address.complement || '',
+      bairro: rawSpot.address.neighborhood || '',
+      cidade: rawSpot.address.city || '',
+      cep: rawSpot.address.zipcode || '',
+    },
+  })
 
   // Initialize form when modal opens
   useEffect(() => {
     if (isOpen && states.length > 0) {
-      setStreet(rawSpot.address.street || '')
-      setComplement(rawSpot.address.complement || '')
-      setNeighborhood(rawSpot.address.neighborhood || '')
-      setCity(rawSpot.address.city || '')
-      setZipcode(rawSpot.address.zipcode || '')
-      
       const foundState = states.find(s => s.name === rawSpot.address.state)
-      setStateId(foundState ? foundState.id : '')
-      setError(null)
+      
+      reset({
+        rua: rawSpot.address.street || '',
+        complemento: rawSpot.address.complement || '',
+        bairro: rawSpot.address.neighborhood || '',
+        cidade: rawSpot.address.city || '',
+        cep: rawSpot.address.zipcode || '',
+        stateId: foundState ? foundState.id : undefined,
+      })
     }
-  }, [isOpen, rawSpot, states])
+  }, [isOpen, rawSpot, states, reset])
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    // Basic validation
-    if (!street || !neighborhood || !city || !zipcode || stateId === '') {
-      setError('Preencha todos os campos obrigatórios.')
-      return
-    }
-
-    setIsSubmitting(true)
-    setError(null)
-
+  const onSubmit = handleSubmit(async (data) => {
     try {
       await addressService.updateAddress(rawSpot.id, {
-        street,
-        complement,
-        neighborhood,
-        city,
-        zipcode,
-        stateId: Number(stateId)
+        street: data.rua,
+        complement: data.complemento,
+        neighborhood: data.bairro,
+        city: data.cidade,
+        zipcode: data.cep,
+        stateId: data.stateId
       })
       await queryClient.invalidateQueries({ queryKey: ['spots'] })
       onClose()
     } catch (err: any) {
-      setError(err.message || 'Erro ao atualizar o endereço.')
-    } finally {
-      setIsSubmitting(false)
+      setError('root', {
+        message: err.message || 'Erro ao atualizar o endereço.',
+      })
     }
-  }
+  })
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} maxWidthClass="max-w-xl">
-      <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-none flex flex-col gap-6">
+      <form onSubmit={onSubmit} className="bg-white p-6 sm:p-8 rounded-none flex flex-col gap-6">
         <h2 className="font-dm-sans text-2xl font-bold text-tur-dark m-0">
           Editar Localização
         </h2>
 
-        {error && (
+        {errors.root && (
           <div className="p-3 bg-red-50 text-red-600 font-inter text-sm border border-red-200">
-            {error}
+            {errors.root.message}
           </div>
         )}
 
         <div className="space-y-4">
           <div className="space-y-1">
-            <Label htmlFor="zipcode">CEP *</Label>
+            <Label htmlFor="cep">CEP *</Label>
             <Input
-              id="zipcode"
-              value={zipcode}
-              onChange={(e) => setZipcode(e.target.value.replace(/\D/g, '').slice(0, 8))}
+              id="cep"
               placeholder="00000000"
               disabled={isSubmitting}
+              error={!!errors.cep}
+              {...register('cep')}
+              onChange={(e) => {
+                setValue('cep', e.target.value.replace(/\D/g, '').slice(0, 8), {
+                  shouldValidate: true,
+                })
+              }}
             />
+            {errors.cep && (
+              <span className="text-red-500 text-xs mt-1 block">
+                {errors.cep.message}
+              </span>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="street">Rua *</Label>
+              <Label htmlFor="rua">Rua *</Label>
               <Input
-                id="street"
-                value={street}
-                onChange={(e) => setStreet(e.target.value)}
+                id="rua"
                 disabled={isSubmitting}
+                error={!!errors.rua}
+                {...register('rua')}
               />
+              {errors.rua && (
+                <span className="text-red-500 text-xs mt-1 block">
+                  {errors.rua.message}
+                </span>
+              )}
             </div>
             <div className="space-y-1">
-              <Label htmlFor="complement">Complemento</Label>
+              <Label htmlFor="complemento">Complemento</Label>
               <Input
-                id="complement"
-                value={complement}
-                onChange={(e) => setComplement(e.target.value)}
+                id="complemento"
                 disabled={isSubmitting}
+                error={!!errors.complemento}
+                {...register('complemento')}
               />
+              {errors.complemento && (
+                <span className="text-red-500 text-xs mt-1 block">
+                  {errors.complemento.message}
+                </span>
+              )}
             </div>
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="neighborhood">Bairro *</Label>
+            <Label htmlFor="bairro">Bairro *</Label>
             <Input
-              id="neighborhood"
-              value={neighborhood}
-              onChange={(e) => setNeighborhood(e.target.value)}
+              id="bairro"
               disabled={isSubmitting}
+              error={!!errors.bairro}
+              {...register('bairro')}
             />
+            {errors.bairro && (
+              <span className="text-red-500 text-xs mt-1 block">
+                {errors.bairro.message}
+              </span>
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="city">Cidade *</Label>
+              <Label htmlFor="cidade">Cidade *</Label>
               <Input
-                id="city"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
+                id="cidade"
                 disabled={isSubmitting}
+                error={!!errors.cidade}
+                {...register('cidade')}
               />
+              {errors.cidade && (
+                <span className="text-red-500 text-xs mt-1 block">
+                  {errors.cidade.message}
+                </span>
+              )}
             </div>
             <div className="space-y-1 flex flex-col">
               <Label htmlFor="stateId">Estado *</Label>
               <select
                 id="stateId"
-                value={stateId}
-                onChange={(e) => setStateId(e.target.value === '' ? '' : Number(e.target.value))}
                 disabled={isSubmitting || states.length === 0}
-                className="w-full h-10 border border-black/20 rounded-none bg-transparent px-3 font-inter text-sm text-tur-dark outline-none focus:border-black"
+                className={`w-full h-10 border rounded-none bg-transparent px-3 font-inter text-sm text-tur-dark outline-none focus:border-black ${
+                  errors.stateId ? 'border-tur-red' : 'border-black/20'
+                }`}
+                {...register('stateId', { valueAsNumber: true })}
               >
                 <option value="">Selecione...</option>
                 {states.map(s => (
                   <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
               </select>
+              {errors.stateId && (
+                <span className="text-red-500 text-xs mt-1 block">
+                  {errors.stateId.message}
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -160,7 +198,7 @@ export function EditAddressModal({ isOpen, onClose, rawSpot }: EditAddressModalP
         <div className="flex justify-end gap-3 pt-2">
           <Button
             type="button"
-            variant="outline"
+            variant="secondary"
             onClick={onClose}
             disabled={isSubmitting}
           >
@@ -168,9 +206,9 @@ export function EditAddressModal({ isOpen, onClose, rawSpot }: EditAddressModalP
           </Button>
           <Button
             type="submit"
-            isLoading={isSubmitting}
+            disabled={isSubmitting}
           >
-            Salvar
+            {isSubmitting ? 'Salvando...' : 'Salvar'}
           </Button>
         </div>
       </form>

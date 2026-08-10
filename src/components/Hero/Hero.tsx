@@ -33,7 +33,9 @@ export function Hero({
         {/* Dark Overlay for Text Readability */}
         <div className="absolute inset-0 bg-black/40 pointer-events-none z-0" />
 
-        <Header theme="dark" />
+        <div className="relative z-20 w-full">
+          <Header theme="dark" />
+        </div>
 
         {/* Hero Title Split (Left / Right) */}
         <div className="flex max-md:flex-col justify-between max-md:justify-center items-center flex-1 z-10 w-full max-md:gap-3">
