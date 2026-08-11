@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Spot } from '#/types/spot'
+import { toSpot  } from '#/types/spot'
+import type {Spot} from '#/types/spot';
 import { useSpots } from '#/hooks/api/useSpots'
 import { FeaturedSpotSkeleton } from '#/components/UI/Skeleton'
 import { SpotDetailModal } from './SpotDetailModal'
@@ -139,7 +140,8 @@ export function FeaturedSpotsSection() {
           </div>
 
           {/* 6 Destination Cards */}
-          {spots.map((spot) => {
+          {spots.map((rawSpot) => {
+            const spot = toSpot(rawSpot)
             return (
               <article
                 key={spot.id}

@@ -42,7 +42,7 @@ export interface Spot {
  * Permite reutilizar os componentes sem alterar seu JSX.
  */
 export function toSpot(tp: TouristPointResponse): Spot {
-  const primaryPhotoPath = tp.photos.length > 0 ? tp.photos[0].path : ''
+  const primaryPhotoUrl = tp.photos.length > 0 ? tp.photos[0].url : ''
   return {
     id: tp.id,
     userId: tp.userId,
@@ -50,12 +50,12 @@ export function toSpot(tp: TouristPointResponse): Spot {
     name: tp.name,
     location: `${tp.address.city}, ${tp.address.state}`,
     category: tp.categories.length > 0 ? tp.categories[0].name : '',
-    imageUrl: primaryPhotoPath,
-    author: { name: '', handle: '' },
+    imageUrl: primaryPhotoUrl,
+    author: { name: tp.userName, handle: '' },
     accessibility: tp.accessibilityTypes.map((a) => a.name),
     description: tp.description,
     tags: tp.categories.map((c) => `#${c.name}`),
     address: `${tp.address.street}, ${tp.address.neighborhood} - ${tp.address.city} / ${tp.address.state}`,
-    gallery: tp.photos.map((p) => p.path),
+    gallery: tp.photos.map((p) => p.url),
   }
 }

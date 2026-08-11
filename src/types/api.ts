@@ -86,7 +86,7 @@ export interface AddressResponse {
 /** Shape de foto dentro de TouristPointResponse e provavelmente retornado por POST /photos */
 export interface PhotoResponse {
   id: string // UUID
-  path: string
+  url: string
 }
 
 // ─── Comments ─────────────────────────────────────────────────────────────────
@@ -115,6 +115,7 @@ export interface CommentRequest {
 export interface TouristPointResponse {
   id: string // UUID
   userId: string // UUID do dono
+  userName: string
   name: string
   description: string
   accessibilityTypes: AccessibilityTypeResponse[]
