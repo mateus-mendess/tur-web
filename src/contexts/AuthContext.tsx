@@ -11,7 +11,7 @@ import { authService } from '#/services/authService'
 import type { AuthUser } from '#/services/authService'
 import type { LoginFormData, SignUpFormData } from '#/schemas/authSchema'
 import { storage } from '#/lib/storage'
-import { decodeJwt } from '#/lib/jwt'
+import { decodeJwt, isTokenExpired } from '#/lib/jwt'
 
 interface AuthContextValue {
   user: AuthUser | null
@@ -43,15 +43,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const storedToken = storage.getItem('tur_token')
     if (storedToken) {
-      setToken(storedToken)
+      if (isTokenExpired(storedToken)) {
+        storage.removeItem('tur_token')
+      } else {
+        setToken(storedToken)
 
-      const decoded = decodeJwt(storedToken)
-      if (decoded && decoded.sub) {
-        setUser({
-          id: decoded.sub,
-          nome: decoded.nome || 'Usuário',
-          email: decoded.email || '',
-        })
+        const decoded = decodeJwt(storedToken)
+        if (decoded && decoded.sub) {
+          setUser({
+            id: decoded.sub,
+            nome: decoded.nome || 'Usuário',
+            email: decoded.email || '',
+          })
+        }
       }
     }
     setIsInitializing(false)
