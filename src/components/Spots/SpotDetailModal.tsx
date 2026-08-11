@@ -1,7 +1,13 @@
 import { useEffect, useState, useRef } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import type { Spot } from '#/types/spot'
-import { BookmarkIcon, ShareIcon, CloseIcon, MapPinIcon, EditIcon } from '#/components/UI/Icons'
+import {
+  BookmarkIcon,
+  ShareIcon,
+  CloseIcon,
+  MapPinIcon,
+  EditIcon,
+} from '#/components/UI/Icons'
 import { useAuth } from '#/contexts/AuthContext'
 import { useQueryClient } from '@tanstack/react-query'
 import type { TouristPointResponse } from '#/types/api'
@@ -11,8 +17,11 @@ import { EditAddressModal } from './EditAddressModal'
 import { UploadPhotosModal } from './UploadPhotosModal'
 import { DeleteSpotModal } from './DeleteSpotModal'
 import { useDropdown } from '#/hooks/useDropdown'
+import { useSpotDetailModals } from './useSpotDetailModals'
+import { SpotReviewsList } from './SpotReviewsList'
 
-const PLACEHOLDER_IMAGE = 'https://placehold.co/600x400/eeeeee/999999?text=Sem+Foto'
+const PLACEHOLDER_IMAGE =
+  'https://placehold.co/600x400/eeeeee/999999?text=Sem+Foto'
 
 interface SpotDetailModalProps {
   spot: Spot | null
@@ -27,12 +36,17 @@ export function SpotDetailModal({
 }: SpotDetailModalProps) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
-  
-  const [visibleReviewsCount, setVisibleReviewsCount] = useState(5)
-  const [isEditSpotOpen, setIsEditSpotOpen] = useState(false)
-  const [isEditAddressOpen, setIsEditAddressOpen] = useState(false)
-  const [isUploadPhotosOpen, setIsUploadPhotosOpen] = useState(false)
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+
+  const {
+    isEditSpotOpen,
+    setIsEditSpotOpen,
+    isEditAddressOpen,
+    setIsEditAddressOpen,
+    isUploadPhotosOpen,
+    setIsUploadPhotosOpen,
+    isDeleteModalOpen,
+    setIsDeleteModalOpen,
+  } = useSpotDetailModals()
 
   const editMenu = useDropdown()
   const editMenuRef = useRef<HTMLDivElement>(null)
@@ -40,7 +54,10 @@ export function SpotDetailModal({
   // Handle clicking outside the dropdown
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (editMenuRef.current && !editMenuRef.current.contains(event.target as Node)) {
+      if (
+        editMenuRef.current &&
+        !editMenuRef.current.contains(event.target as Node)
+      ) {
         editMenu.close()
       }
     }
@@ -52,13 +69,6 @@ export function SpotDetailModal({
     }
   }, [editMenu.isOpen, editMenu])
 
-  // Reset state on open
-  useEffect(() => {
-    if (isOpen) {
-      setVisibleReviewsCount(5)
-    }
-  }, [isOpen, spot])
-
   if (!spot) return null
 
   // Reflete a mudança otimista usando o cache atualizado
@@ -69,7 +79,9 @@ export function SpotDetailModal({
   const isOwner = user?.id && currentSpot.userId === user.id
 
   const images =
-    currentSpot.gallery && currentSpot.gallery.length > 0 ? currentSpot.gallery : [currentSpot.imageUrl || PLACEHOLDER_IMAGE]
+    currentSpot.gallery && currentSpot.gallery.length > 0
+      ? currentSpot.gallery
+      : [currentSpot.imageUrl || PLACEHOLDER_IMAGE]
 
   return (
     <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -175,7 +187,7 @@ export function SpotDetailModal({
                         >
                           <EditIcon className="w-6 h-6" />
                         </button>
-                        
+
                         <div
                           className={`absolute right-0 top-full mt-2 w-48 bg-white rounded-none shadow-[0_4px_12px_rgba(0,0,0,0.1)] py-1.5 z-50 border border-black/5 flex flex-col font-inter transition-all duration-200 ease-out origin-top ${
                             editMenu.isOpen
@@ -201,24 +213,24 @@ export function SpotDetailModal({
                           >
                             Editar informações
                           </button>
-                            <button
-                              onClick={() => {
-                                editMenu.close()
-                                setIsEditAddressOpen(true)
-                              }}
-                              className="block w-full px-4 py-2 text-sm text-tur-gray-700 hover:bg-black/5 hover:text-tur-accent transition-colors text-left bg-transparent border-none font-medium cursor-pointer"
-                            >
-                              Editar localização
-                            </button>
-                            <button
-                              onClick={() => {
-                                editMenu.close()
-                                setIsDeleteModalOpen(true)
-                              }}
-                              className="block w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors text-left bg-transparent border-none font-medium cursor-pointer"
-                            >
-                              Excluir ponto
-                            </button>
+                          <button
+                            onClick={() => {
+                              editMenu.close()
+                              setIsEditAddressOpen(true)
+                            }}
+                            className="block w-full px-4 py-2 text-sm text-tur-gray-700 hover:bg-black/5 hover:text-tur-accent transition-colors text-left bg-transparent border-none font-medium cursor-pointer"
+                          >
+                            Editar localização
+                          </button>
+                          <button
+                            onClick={() => {
+                              editMenu.close()
+                              setIsDeleteModalOpen(true)
+                            }}
+                            className="block w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors text-left bg-transparent border-none font-medium cursor-pointer"
+                          >
+                            Excluir ponto
+                          </button>
                         </div>
                       </div>
                     )}
@@ -291,7 +303,8 @@ export function SpotDetailModal({
                       <h4 className="font-dm-sans text-lg font-bold uppercase text-tur-dark">
                         Acessibilidade
                       </h4>
-                      {currentSpot.accessibility && currentSpot.accessibility.length > 0 ? (
+                      {currentSpot.accessibility &&
+                      currentSpot.accessibility.length > 0 ? (
                         <ul className="space-y-2.5">
                           {currentSpot.accessibility.map((item, idx) => (
                             <li
@@ -319,7 +332,9 @@ export function SpotDetailModal({
                       <ul className="space-y-2.5">
                         {(
                           currentSpot.tags || [
-                            currentSpot.category ? currentSpot.category : 'Turismo',
+                            currentSpot.category
+                              ? currentSpot.category
+                              : 'Turismo',
                             'Ponto Turístico',
                             'Vistas',
                           ]
@@ -372,66 +387,7 @@ export function SpotDetailModal({
                 </div>
               </section>
 
-              {currentSpot.reviews && currentSpot.reviews.length > 0 && (
-                <section className="space-y-6 pt-8 border-t border-tur-dark/15">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                      <span className="font-inter text-xs font-extrabold uppercase tracking-widest text-tur-accent block">
-                        DEPOIMENTOS DA COMUNIDADE
-                      </span>
-                      <h3 className="font-dm-sans text-2xl sm:text-3xl font-bold uppercase text-tur-dark">
-                        Avaliações dos Visitantes
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-3 self-start sm:self-auto">
-                      <button className="px-6 py-2.5 bg-tur-dark text-white font-inter font-bold text-xs uppercase tracking-widest border border-tur-dark rounded-none hover:bg-tur-accent transition-colors cursor-pointer">
-                        Avaliar
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="mt-8 sm:mt-10 border-y border-dashed border-tur-dark divide-y divide-dashed divide-tur-dark">
-                    {currentSpot.reviews
-                      .slice(0, visibleReviewsCount)
-                      .map((review) => (
-                        <div
-                          key={review.id}
-                          className="py-6 grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-8 items-center"
-                        >
-                          <div className="sm:col-span-4 lg:col-span-3 space-y-1">
-                            <span className="font-dm-sans font-bold text-sm uppercase tracking-wider text-tur-dark block">
-                              {review.user}
-                            </span>
-                            <span className="font-inter text-xs font-semibold text-tur-dark block">
-                              Nota:{' '}
-                              {review.rating ? review.rating.toFixed(1) : '5.0'}{' '}
-                              / 5.0
-                            </span>
-                          </div>
-                          <div className="sm:col-span-8 lg:col-span-9">
-                            <p className="font-inter text-base sm:text-lg text-tur-dark leading-relaxed font-normal text-justify">
-                              "{review.text}"
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-
-                  {visibleReviewsCount < currentSpot.reviews.length && (
-                    <div className="flex justify-center pt-4">
-                      <button
-                        onClick={() =>
-                          setVisibleReviewsCount((prev) => prev + 5)
-                        }
-                        className="px-6 py-2 bg-transparent text-tur-dark border border-tur-dark font-inter font-black text-lg tracking-widest hover:bg-tur-dark hover:text-white transition-colors cursor-pointer rounded-none"
-                        title="Carregar mais comentários"
-                      >
-                        ...
-                      </button>
-                    </div>
-                  )}
-                </section>
-              )}
+              <SpotReviewsList currentSpot={currentSpot} isOpen={isOpen} />
             </main>
           </Dialog.Content>
         </div>
