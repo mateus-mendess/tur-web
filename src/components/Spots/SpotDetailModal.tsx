@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import type { Spot } from '#/types/spot'
 import {

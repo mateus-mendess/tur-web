@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState, useMemo, useEffect } from 'react'
+import { useState } from 'react'
 import { z } from 'zod'
 import type { TouristPointResponse } from '#/types/api'
 import { toSpot } from '#/types/spot'
@@ -33,6 +33,11 @@ function ExplorarPage() {
   const { data: spots = [], isLoading, isError, refetch } = useSpots()
   const { data: categoriesData = [] } = useCategories()
   const { data: accessibilityTypes = [] } = useAccessibilityTypes()
+  const categoriesList = categoriesData.map((c) => c.name)
+  const accessibilityList = accessibilityTypes.map((a) => a.name)
+  const [selectedSpot, setSelectedSpot] = useState<TouristPointResponse | null>(
+    null,
+  )
 
   const {
     selectedCategory,
