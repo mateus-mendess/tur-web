@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { commentsService } from '#/services/commentsService'
 import type { CommentRequest } from '#/types/api'
+import { queryKeys } from '#/lib/queryKeys'
 
 export function useCreateComment(touristPointId: string) {
   const queryClient = useQueryClient()
@@ -11,7 +12,7 @@ export function useCreateComment(touristPointId: string) {
       commentsService.createComment(touristPointId, comment),
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: ['comments', touristPointId],
+        queryKey: queryKeys.comments(touristPointId),
       })
       toast.success('Comentário enviado com sucesso!')
     },

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { addressService } from '#/services/addressService'
 import type { AddressRequest } from '#/types/api'
+import { queryKeys } from '#/lib/queryKeys'
 
 export function useUpdateAddress(touristPointId: string) {
   const queryClient = useQueryClient()
@@ -11,7 +12,7 @@ export function useUpdateAddress(touristPointId: string) {
       addressService.updateAddress(touristPointId, address),
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: ['spots', touristPointId],
+        queryKey: queryKeys.spots.detail(touristPointId),
       })
       toast.success('Endereço atualizado com sucesso!')
     },

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { accessibilityService } from '#/services/accessibilityService'
+import { queryKeys } from '#/lib/queryKeys'
 
 export function useUpdateAccessibility(touristPointId: string) {
   const queryClient = useQueryClient()
@@ -13,7 +14,7 @@ export function useUpdateAccessibility(touristPointId: string) {
       ),
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: ['spots', touristPointId],
+        queryKey: queryKeys.spots.detail(touristPointId),
       })
       toast.success('Acessibilidade atualizada com sucesso!')
     },
