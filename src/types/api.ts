@@ -1,3 +1,5 @@
+// TODO: migrar para geração automática via openapi-typescript quando o spec
+// OpenAPI do tur-api estiver acessível. Ver discussão em 11/08/2026.
 // Tipos centralizados da API tur-api — shapes de resposta e request conforme contrato.
 // Referência: .agents/context/tur-api-endpoints.md
 
