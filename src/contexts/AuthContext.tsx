@@ -6,7 +6,7 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { toast } from 'sonner'
+
 import { authService } from '#/services/authService'
 import type { AuthUser } from '#/services/authService'
 import type { LoginFormData, SignUpFormData } from '#/schemas/authSchema'
@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedToken = storage.getItem('tur_token')
     if (storedToken) {
       setToken(storedToken)
-      
+
       const decoded = decodeJwt(storedToken)
       if (decoded && decoded.sub) {
         setUser({
@@ -98,9 +98,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const handleSignUp = useCallback(
     async (data: SignUpFormData) => {
-      await authService.register(data)
+      const response = await authService.register(data)
+      setUser(response.user)
+      setToken(response.token)
+      storage.setItem('tur_token', response.token)
+      closeModals()
     },
-    [],
+    [closeModals],
   )
 
   const logout = useCallback(() => {
