@@ -10,7 +10,6 @@ import { addressService } from '#/services/addressService'
 import type { TouristPointResponse } from '#/types/api'
 import { useStates } from '#/hooks/api/useStates'
 import { editAddressSchema } from '#/schemas/spotSchema'
-import type { EditAddressFormData } from '#/schemas/spotSchema'
 
 interface EditAddressModalProps {
   isOpen: boolean

@@ -39,7 +39,7 @@ export const spotSchema = z.object({
     .number({ message: 'Por favor, selecione um estado.' })
     .int()
     .positive('Por favor, selecione um estado.'),
-  complemento: z.string().optional().default(''),
+  complemento: z.string().optional(),
 })
 
 export type SpotFormData = z.infer<typeof spotSchema>

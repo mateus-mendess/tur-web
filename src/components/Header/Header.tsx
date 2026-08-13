@@ -148,7 +148,7 @@ export function Header({ theme = 'dark' }: HeaderProps) {
               <button
                 type="button"
                 className={`${textColor} no-underline text-[15px] font-medium transition-opacity duration-200 hover:opacity-80 bg-transparent border-none cursor-pointer font-inherit`}
-                onClick={openLogin}
+                onClick={() => openLogin()}
               >
                 Entrar
               </button>

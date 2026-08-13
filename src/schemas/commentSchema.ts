@@ -6,7 +6,7 @@ const AUTHOR_NAME_REGEX = /^[A-Za-zÀ-ÖØ-öø-ÿ ]{2,100}$/
 export const commentSchema = z.object({
   content: z.string().min(1, 'Por favor, escreva seu comentário.'),
   note: z
-    .number({ required_error: 'Por favor, informe a nota.' })
+    .number({ error: 'Por favor, informe a nota.' })
     .int()
     .min(1, 'A nota deve ser entre 1 e 5.')
     .max(5, 'A nota deve ser entre 1 e 5.'),

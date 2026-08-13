@@ -103,7 +103,7 @@ export function Step3Address({ onBack, isSubmitting }: Step3AddressProps) {
             <button
               type="button"
               onClick={estadoMenu.toggle}
-              className={`w-full h-10 px-0.5 font-inter text-sm bg-transparent border-b rounded-none outline-none transition-colors duration-200 cursor-pointer flex items-center justify-between ${errors.estado ? 'border-tur-red' : 'border-tur-gray-300'}`}
+              className={`w-full h-10 px-0.5 font-inter text-sm bg-transparent border-b rounded-none outline-none transition-colors duration-200 cursor-pointer flex items-center justify-between ${errors.stateId ? 'border-tur-red' : 'border-tur-gray-300'}`}
             >
               <span
                 className={
