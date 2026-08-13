@@ -52,9 +52,10 @@ export function EditSpotModal({ isOpen, onClose, spot }: EditSpotModalProps) {
       })
       await queryClient.invalidateQueries({ queryKey: ['spots'] })
       onClose()
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro ao atualizar o ponto turístico.'
       setError('root', {
-        message: err.message || 'Erro ao atualizar o ponto turístico.',
+        message,
       })
     }
   })

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import axios from 'axios'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { BaseModal } from '#/components/UI/BaseModal'
@@ -60,9 +61,9 @@ export function SignUpModal({
         onClose()
         if (onSwitchToLogin) onSwitchToLogin(data.email)
       }, 700)
-    } catch (error: any) {
+    } catch (error: unknown) {
       setButtonStatus('idle')
-      const errData = error?.response?.data
+      const errData = axios.isAxiosError(error) ? error.response?.data : undefined
       if (errData?.field && errData?.detail) {
         if (['nome', 'email', 'senha', 'confirmarSenha', 'aceitoTermos'].includes(errData.field)) {
           setError(errData.field as keyof SignUpFormData, { message: errData.detail })

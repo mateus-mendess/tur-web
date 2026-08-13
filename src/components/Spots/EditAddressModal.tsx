@@ -68,9 +68,10 @@ export function EditAddressModal({ isOpen, onClose, rawSpot }: EditAddressModalP
       })
       await queryClient.invalidateQueries({ queryKey: ['spots'] })
       onClose()
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Erro ao atualizar o endereço.'
       setError('root', {
-        message: err.message || 'Erro ao atualizar o endereço.',
+        message,
       })
     }
   })
