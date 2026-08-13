@@ -2,7 +2,7 @@ import axios from 'axios'
 import { api } from '#/lib/axios'
 import { decodeJwt } from '#/lib/jwt'
 import type { LoginFormData, SignUpFormData } from '#/schemas/authSchema'
-import { storage } from '#/lib/storage'
+import { storage, TOKEN_STORAGE_KEY } from '#/lib/storage'
 
 export interface AuthUser {
   id: string
@@ -113,6 +113,6 @@ export const authService = {
   },
 
   logout: async (): Promise<void> => {
-    storage.removeItem('tur_token')
+    storage.removeItem(TOKEN_STORAGE_KEY)
   },
 }

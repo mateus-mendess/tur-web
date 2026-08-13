@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { api } from '#/lib/axios'
 import type { CommentResponse, CommentRequest } from '#/types/api'
-import { storage } from '#/lib/storage'
+import { storage, TOKEN_STORAGE_KEY } from '#/lib/storage'
 
 export const commentsService = {
   /**
@@ -33,7 +33,7 @@ export const commentsService = {
   ): Promise<void> => {
     try {
       // Verifica se há token disponível para enviar (sem forçar)
-      const token = storage.getItem('tur_token')
+      const token = storage.getItem(TOKEN_STORAGE_KEY)
       const headers: Record<string, string> = {}
       if (token) {
         headers['Authorization'] = `Bearer ${token}`

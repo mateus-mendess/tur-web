@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { storage } from './storage'
+import { storage, TOKEN_STORAGE_KEY } from './storage'
 
 const BASE_URL =
   (import.meta.env['VITE_API_URL'] as string | undefined) ??
@@ -15,7 +15,7 @@ export const api = axios.create({
 
 // Injeta o token Bearer em todas as requisições autenticadas
 api.interceptors.request.use((config) => {
-  const token = storage.getItem('tur_token')
+  const token = storage.getItem(TOKEN_STORAGE_KEY)
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
@@ -30,7 +30,7 @@ api.interceptors.response.use(
       const status = error.response?.status
       if (status === 401) {
         // Token expirado ou inválido — limpar sessão
-        storage.removeItem('tur_token')
+        storage.removeItem(TOKEN_STORAGE_KEY)
         // Redirecionar para home se necessário (implementar quando tiver auth real)
       }
     }

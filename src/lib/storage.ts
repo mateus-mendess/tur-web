@@ -1,3 +1,5 @@
+export const TOKEN_STORAGE_KEY = 'tur_token'
+
 export const storage = {
   getItem: (key: string): string | null => {
     if (typeof window !== 'undefined') {

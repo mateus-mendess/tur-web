@@ -10,7 +10,7 @@ import {
 import { authService } from '#/services/authService'
 import type { AuthUser } from '#/services/authService'
 import type { LoginFormData, SignUpFormData } from '#/schemas/authSchema'
-import { storage } from '#/lib/storage'
+import { storage, TOKEN_STORAGE_KEY } from '#/lib/storage'
 import { decodeJwt, isTokenExpired } from '#/lib/jwt'
 
 interface AuthContextValue {
@@ -41,10 +41,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Carrega o token inicial de forma segura no client (evita mismatch de hidratação)
   useEffect(() => {
-    const storedToken = storage.getItem('tur_token')
+    const storedToken = storage.getItem(TOKEN_STORAGE_KEY)
     if (storedToken) {
       if (isTokenExpired(storedToken)) {
-        storage.removeItem('tur_token')
+        storage.removeItem(TOKEN_STORAGE_KEY)
       } else {
         setToken(storedToken)
 
@@ -94,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await authService.login(data)
       setUser(response.user)
       setToken(response.token)
-      storage.setItem('tur_token', response.token)
+      storage.setItem(TOKEN_STORAGE_KEY, response.token)
       closeModals()
     },
     [closeModals],
@@ -105,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await authService.register(data)
       setUser(response.user)
       setToken(response.token)
-      storage.setItem('tur_token', response.token)
+      storage.setItem(TOKEN_STORAGE_KEY, response.token)
       closeModals()
     },
     [closeModals],
@@ -114,7 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     setUser(null)
     setToken(null)
-    storage.removeItem('tur_token')
+    storage.removeItem(TOKEN_STORAGE_KEY)
     void authService.logout()
     window.location.href = '/'
   }, [])
