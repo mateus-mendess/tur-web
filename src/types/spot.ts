@@ -33,6 +33,7 @@ export interface Spot {
   tags?: string[]
   address?: string
   gallery?: string[]
+  photos?: { id: string; url: string }[]
   reviews?: SpotReview[]
 }
 
@@ -57,5 +58,6 @@ export function toSpot(tp: TouristPointResponse): Spot {
     tags: tp.categories.map((c) => `#${c.name}`),
     address: `${tp.address.street}, ${tp.address.neighborhood} - ${tp.address.city} / ${tp.address.state}`,
     gallery: tp.photos.map((p) => p.url),
+    photos: tp.photos.map((p) => ({ id: p.id, url: p.url })),
   }
 }
