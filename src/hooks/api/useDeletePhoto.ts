@@ -13,6 +13,7 @@ export function useDeletePhoto(touristPointId: string) {
         queryKey: queryKeys.spots.detail(touristPointId),
       })
       toast.success('Foto removida com sucesso!')
+      setTimeout(() => window.location.reload(), 500)
     },
     onError: (error: Error) => {
       toast.error(error.message)

@@ -27,6 +27,7 @@ export function DeleteSpotModal({ isOpen, onClose, spot, onDeleted }: DeleteSpot
       await queryClient.invalidateQueries({ queryKey: ['spots'] })
       toast.success('Ponto turístico excluído com sucesso.')
       onDeleted()
+      setTimeout(() => window.location.reload(), 500)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro ao excluir o ponto turístico.'
       setError(message)

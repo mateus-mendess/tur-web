@@ -52,6 +52,7 @@ export function EditSpotModal({ isOpen, onClose, spot }: EditSpotModalProps) {
       })
       await queryClient.invalidateQueries({ queryKey: ['spots'] })
       onClose()
+      setTimeout(() => window.location.reload(), 500)
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Erro ao atualizar o ponto turístico.'
       setError('root', {

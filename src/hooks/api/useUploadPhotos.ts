@@ -96,6 +96,10 @@ export function useUploadPhotos() {
       )
     }
 
+    if (successCount > 0) {
+      setTimeout(() => window.location.reload(), 500)
+    }
+
     return { successCount, totalFiles: files.length }
   }
 

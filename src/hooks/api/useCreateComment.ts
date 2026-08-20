@@ -15,6 +15,7 @@ export function useCreateComment(touristPointId: string) {
         queryKey: queryKeys.comments(touristPointId),
       })
       toast.success('Comentário enviado com sucesso!')
+      setTimeout(() => window.location.reload(), 500)
     },
     onError: (error: Error) => {
       toast.error(error.message)
