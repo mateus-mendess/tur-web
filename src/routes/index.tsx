@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Hero } from '#/components/Hero/Hero'
+import { HeroCarousel } from '#/components/HeroCarousel/HeroCarousel'
+import { NavBar } from '#/components/NavBar/NavBar'
 import { ScrollRevealSection } from '#/components/Intro/ScrollRevealSection'
 import { FeaturedSpotsSection } from '#/components/Spots/FeaturedSpotsSection'
 import { CommunitySection } from '#/components/Community/CommunitySection'
@@ -9,8 +10,9 @@ export const Route = createFileRoute('/')({ component: Home })
 
 function Home() {
   return (
-    <main className="min-h-screen bg-tur-bg">
-      <Hero />
+    <main className="min-h-screen bg-background">
+      <NavBar />
+      <HeroCarousel />
       <ScrollRevealSection />
       <FeaturedSpotsSection />
       <CommunitySection />
