@@ -2,8 +2,14 @@
 
 @import 'tailwindcss';
 
+@font-face {
+  font-family: 'PP Neue Montreal';
+  src: url('/assets/fonts/PPNeueMontreal-Medium.woff2') format('woff2');
+  font-weight: 400;
+}
+
 @theme {
-  --font-sans: 'Inter Tight', sans-serif;
+  --font-sans: 'PP Neue Montreal', sans-serif;
   --color-background: #f1f1f1;
   --color-surface: #ffffff;
   --color-primary: #000000;
@@ -34,6 +40,8 @@ body,
 
 body {
   margin: 0;
+  font-size: 26px;
+  font-weight: 400;
 }
 
 @keyframes bounce {
