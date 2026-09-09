@@ -119,9 +119,7 @@ export function FeaturedSpotsSection() {
         >
           {/* Header Title Panel (Slides horizontally together with all cards) */}
           <div className="w-[300px] sm:w-[360px] md:w-[420px] lg:w-[460px] shrink-0 flex flex-col justify-center py-6 pr-4">
-            <span className="font-inter text-xs font-bold uppercase tracking-[1.5px] text-tur-accent mb-3 block">
-              [ GALERIA DE DESTAQUES ]
-            </span>
+
             <h2 className="font-dm-sans text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-tur-dark leading-[1.05] mb-5">
               Destinos em Destaque.
             </h2>
@@ -132,7 +130,7 @@ export function FeaturedSpotsSection() {
 
             {/* Interactive Scroll Prompt Indicator */}
             <div className="mt-8 flex items-center gap-3 font-inter text-xs font-bold uppercase tracking-[1.5px] text-tur-dark/70">
-              <span>ROLANDO PARA EXPLORAR</span>
+              <span className="text-secondary">ROLANDO PARA EXPLORAR</span>
               <div className="w-8 h-8 rounded-none border border-tur-dark/30 flex items-center justify-center text-sm animate-pulse">
                 →
               </div>
@@ -161,7 +159,7 @@ export function FeaturedSpotsSection() {
                   <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/15 to-black/75 p-5 md:p-6 flex flex-col justify-between text-white pointer-events-none">
                     {/* Top: Tourist Spot Name */}
                     <div>
-                      <h3 className="font-dm-sans text-base sm:text-lg md:text-xl font-bold tracking-tight text-white leading-snug drop-shadow-md">
+                      <h3 className="font-dm-sans text-base sm:text-lg md:text-xl font-normal tracking-tight text-white leading-snug drop-shadow-md">
                         {spot.name}
                       </h3>
                     </div>

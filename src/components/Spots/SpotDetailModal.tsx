@@ -87,7 +87,7 @@ export function SpotDetailModal({
             <header className="sticky top-0 z-40 w-full bg-tur-bg/95 backdrop-blur-md border-b border-tur-dark/15 px-6 md:px-12 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-                  <span className="font-dm-sans font-bold text-base text-tur-dark uppercase tracking-wider">
+                  <span className="font-dm-sans font-normal text-base text-tur-dark uppercase tracking-wider">
                     {currentSpot.name}
                   </span>
                   <span className="font-inter text-xs text-tur-gray-700">
@@ -153,7 +153,7 @@ export function SpotDetailModal({
                 </div>
                 <div className="text-center my-6 md:my-10 relative">
                   <div className="flex items-center justify-center gap-4">
-                    <h1 className="font-dm-sans text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight text-tur-dark leading-[0.95]">
+                    <h1 className="font-dm-sans text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-normal uppercase tracking-tight text-tur-dark leading-[0.95]">
                       {currentSpot.name}
                     </h1>
                     {isOwner && (

@@ -39,10 +39,10 @@ export function Hero({
 
         {/* Hero Title Split (Left / Right) */}
         <div className="flex max-md:flex-col justify-between max-md:justify-center items-center flex-1 z-10 w-full max-md:gap-3">
-          <h1 className="font-dm-sans text-[5.5vw] max-md:text-[42px] font-bold text-white m-0 leading-[1.05] tracking-[-2px] text-left max-md:text-center">
+          <h1 className="font-dm-sans text-[5.5vw] max-md:text-[42px] font-normal text-white m-0 leading-[1.05] tracking-[-2px] text-left max-md:text-center">
             Explore
           </h1>
-          <h1 className="font-dm-sans text-[5.5vw] max-md:text-[42px] font-bold text-white m-0 leading-[1.05] tracking-[-2px] text-right max-md:text-center">
+          <h1 className="font-dm-sans text-[5.5vw] max-md:text-[42px] font-normal text-white m-0 leading-[1.05] tracking-[-2px] text-right max-md:text-center">
             o mundo.
           </h1>
         </div>

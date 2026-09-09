@@ -29,7 +29,7 @@ export function HeroCarousel() {
       ))}
       
       <div className="absolute bottom-16 left-10 text-surface z-20">
-        <h1 className="text-5xl font-semibold mb-2">{MOCK_LOCATIONS[currentIndex].name}</h1>
+        <h1 className="text-5xl font-normal mb-2">{MOCK_LOCATIONS[currentIndex].name}</h1>
         <p className="text-xl opacity-90">{MOCK_LOCATIONS[currentIndex].location}</p>
       </div>
 

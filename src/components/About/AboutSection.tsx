@@ -1,10 +1,10 @@
 export function AboutSection() {
   return (
-    <section className="bg-background text-primary py-24 md:py-40 px-8 md:px-16 lg:px-24 font-sans">
+    <section className="bg-background text-primary pt-24 md:pt-40 pb-12 md:pb-20 px-8 md:px-16 lg:px-24 font-sans">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-12 md:gap-24">
         {/* Left Column: Label */}
         <div>
-          <h2 className="text-base md:text-lg font-medium opacity-60 m-0 leading-tight">
+          <h2 className="text-base md:text-lg font-medium text-secondary m-0 leading-tight">
             Sobre
           </h2>
         </div>
