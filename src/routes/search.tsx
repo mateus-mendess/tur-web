@@ -6,28 +6,30 @@ import { toSpot } from '#/types/spot'
 import { useSpots } from '#/hooks/api/useSpots'
 import { useCategories } from '#/hooks/api/useCategories'
 import { useAccessibilityTypes } from '#/hooks/api/useAccessibilityTypes'
+
 import { SpotCard } from '#/components/Spots/SpotCard'
 import { SpotDetailModal } from '#/components/Spots/SpotDetailModal'
-import { Header } from '#/components/Header/Header'
 import { SpotFilterBar } from '#/components/Spots/SpotFilterBar'
 import { useSpotFilters } from '#/hooks/useSpotFilters'
 import { SpotCardSkeleton } from '#/components/UI/Skeleton'
+import { PageContainer } from '#/components/UI/PageContainer'
 
-// Parâmetros de busca aceitos pela URL — permite compartilhar filtros via link
-const explorarSearchSchema = z.object({
+const searchSchema = z.object({
   busca: z.string().optional().default(''),
   categoria: z.string().optional().default('Todas'),
+  regiao: z.string().optional().default('Todas'),
+  acessibilidade: z.string().optional().default('Todas'),
 })
 
-export const Route = createFileRoute('/explorar')({
-  validateSearch: explorarSearchSchema,
-  component: ExplorarPage,
+export const Route = createFileRoute('/search')({
+  validateSearch: searchSchema,
+  component: SearchPage,
   head: () => ({
-    meta: [{ title: 'Explorar Destinos | Tur.' }],
+    meta: [{ title: 'Buscar Destinos | Tur.' }],
   }),
 })
 
-function ExplorarPage() {
+function SearchPage() {
   const { busca: initialBusca, categoria: initialCategoria } = Route.useSearch()
 
   const { data: spots = [], isLoading, isError, refetch } = useSpots()
@@ -35,6 +37,7 @@ function ExplorarPage() {
   const { data: accessibilityTypes = [] } = useAccessibilityTypes()
   const categoriesList = categoriesData.map((c) => c.name)
   const accessibilityList = accessibilityTypes.map((a) => a.name)
+  const regionsList = ['África', 'América Central', 'América do Norte', 'América do Sul', 'Ásia', 'Europa', 'Oceania']
   const [selectedSpot, setSelectedSpot] = useState<TouristPointResponse | null>(
     null,
   )
@@ -42,53 +45,49 @@ function ExplorarPage() {
   const {
     selectedCategory,
     setSelectedCategory,
+    selectedRegion,
+    setSelectedRegion,
     selectedAccessibility,
     setSelectedAccessibility,
     searchQuery,
     setSearchQuery,
+    viewMode,
+    setViewMode,
     filteredSpots,
     handleResetFilters,
-    activeFilterNames,
     isFilterActive,
   } = useSpotFilters(spots, initialBusca, initialCategoria)
 
   return (
-    <div className="min-h-screen bg-tur-bg pb-20 px-6 md:px-12 py-6">
-      <Header theme="light" />
-
-      <div className="pt-12 md:pt-16">
-        {/* Search Bar */}
-        <div className="mb-8 md:mb-12">
-          <div className="w-full">
-            <input
-              type="text"
-              placeholder="Procurar"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-transparent border-t-0 border-x-0 border-b-2 border-black text-3xl md:text-5xl lg:text-6xl font-dm-sans font-bold text-tur-dark placeholder:text-tur-dark/30 outline-none pb-3 md:pb-5 pl-0 rounded-none focus:border-black transition-colors"
-            />
-          </div>
+    <main className="min-h-screen bg-tur-bg pb-20 pt-6 md:pt-10">
+      <PageContainer className="pt-12 md:pt-16">
+        {/* Header Line */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
+          <h1 className="text-4xl md:text-5xl font-normal tracking-tight text-primary m-0">Buscar</h1>
         </div>
 
-        {/* Filter Bar */}
         <SpotFilterBar
           categoriesList={categoriesList}
+          regionsList={regionsList}
           accessibilityList={accessibilityList}
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
+          selectedRegion={selectedRegion}
+          setSelectedRegion={setSelectedRegion}
           selectedAccessibility={selectedAccessibility}
           setSelectedAccessibility={setSelectedAccessibility}
+          viewMode={viewMode}
+          setViewMode={setViewMode}
           isFilterActive={isFilterActive}
-          activeFilterNames={activeFilterNames}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           handleResetFilters={handleResetFilters}
         />
 
         {/* Gallery Grid */}
-        <div className="mb-6 flex items-end justify-between">
-          <h2 className="font-dm-sans text-3xl md:text-4xl font-bold text-tur-dark m-0">
-            Destinos
+        <div className="mb-6 mt-8 flex items-end justify-between">
+          <h2 className="font-sans text-sm md:text-base font-normal text-primary m-0">
+            Exibindo {filteredSpots.length} resultados
           </h2>
         </div>
 
@@ -123,7 +122,7 @@ function ExplorarPage() {
         {!isLoading && !isError && (
           <>
             {filteredSpots.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-2 md:gap-x-3 lg:gap-x-4 gap-y-10 md:gap-y-12">
+              <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-2 md:gap-x-3 lg:gap-x-4 gap-y-10 md:gap-y-12" : "flex flex-col gap-6"}>
                 {filteredSpots.map((spot) => (
                   <SpotCard
                     key={spot.id}
@@ -166,13 +165,13 @@ function ExplorarPage() {
             )}
           </>
         )}
-      </div>
+      </PageContainer>
 
       <SpotDetailModal
         spot={selectedSpot ? toSpot(selectedSpot) : null}
         isOpen={!!selectedSpot}
         onClose={() => setSelectedSpot(null)}
       />
-    </div>
+    </main>
   )
 }

@@ -9,6 +9,8 @@ import { queryClient } from '#/lib/queryClient'
 import { AuthProvider, useAuth } from '#/contexts/AuthContext'
 import { LoginModal } from '#/components/Auth/LoginModal'
 import { SignUpModal } from '#/components/Auth/SignUpModal'
+import { NavBar } from '#/components/NavBar/NavBar'
+import { Footer } from '#/components/Footer/Footer'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -64,7 +66,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
+            <NavBar />
             {children}
+            <Footer />
             <AppModals />
           </AuthProvider>
         </QueryClientProvider>

@@ -3,13 +3,17 @@ import { useDropdown } from '#/hooks/useDropdown'
 
 interface SpotFilterBarProps {
   categoriesList: string[]
+  regionsList: string[]
   accessibilityList: string[]
   selectedCategory: string
   setSelectedCategory: (cat: string) => void
+  selectedRegion: string
+  setSelectedRegion: (opt: string) => void
   selectedAccessibility: string
   setSelectedAccessibility: (opt: string) => void
+  viewMode: 'grid' | 'list'
+  setViewMode: (mode: 'grid' | 'list') => void
   isFilterActive: boolean
-  activeFilterNames: string[]
   searchQuery: string
   setSearchQuery: (query: string) => void
   handleResetFilters: () => void
@@ -17,49 +21,65 @@ interface SpotFilterBarProps {
 
 export function SpotFilterBar({
   categoriesList,
+  regionsList,
   accessibilityList,
   selectedCategory,
   setSelectedCategory,
+  selectedRegion,
+  setSelectedRegion,
   selectedAccessibility,
   setSelectedAccessibility,
+  viewMode,
+  setViewMode,
   isFilterActive,
-  activeFilterNames,
   searchQuery,
   setSearchQuery,
   handleResetFilters,
 }: SpotFilterBarProps) {
   const categoryMenu = useDropdown()
+  const regionMenu = useDropdown()
   const accessMenu = useDropdown()
-  const activeFiltersMenu = useDropdown()
 
   const handleCategoryToggle = () => {
     categoryMenu.toggle()
+    regionMenu.close()
     accessMenu.close()
-    activeFiltersMenu.close()
+  }
+
+  const handleRegionToggle = () => {
+    regionMenu.toggle()
+    categoryMenu.close()
+    accessMenu.close()
   }
 
   const handleAccessToggle = () => {
     accessMenu.toggle()
     categoryMenu.close()
-    activeFiltersMenu.close()
-  }
-
-  const handleActiveFiltersToggle = () => {
-    activeFiltersMenu.toggle()
-    categoryMenu.close()
-    accessMenu.close()
+    regionMenu.close()
   }
 
   return (
-    <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4 mb-12 w-full">
-      {/* Left Side: Category and Accessibility Filters */}
-      <div className="flex flex-wrap items-center gap-3">
-        {/* Category Filter Custom Popover */}
+    <div className="flex flex-col md:flex-row items-center gap-3 w-full font-sans">
+      
+      {/* Search Input */}
+      <div className="relative flex-1 w-full min-w-[200px]">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary/40"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+        <input
+          type="text"
+          placeholder="Buscar por nome ou local"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full bg-surface border border-primary/20 text-sm text-primary placeholder:text-primary/40 rounded-sm pl-10 pr-4 h-[42px] outline-none focus:border-primary transition-colors font-normal"
+        />
+      </div>
+
+      {/* Category Filter */}
+      <div className="h-[42px]">
         <SearchableDropdown
           options={categoriesList}
-          selectedValues={
-            selectedCategory !== 'Todas' ? [selectedCategory] : []
-          }
+          selectedValues={selectedCategory !== 'Todas' ? [selectedCategory] : []}
           onSelect={(cat) => {
             setSelectedCategory(selectedCategory === cat ? 'Todas' : cat)
             categoryMenu.close()
@@ -68,199 +88,91 @@ export function SpotFilterBar({
           onToggle={handleCategoryToggle}
           onClose={categoryMenu.close}
           placeholder="Buscar categoria..."
-          triggerContent={<span>Categoria</span>}
-          triggerClassName="font-inter text-sm px-3.5 py-2 rounded-none border border-black bg-transparent text-tur-dark hover:bg-black/5 font-medium cursor-pointer transition-all flex items-center gap-2"
+          triggerContent={<span className="font-normal text-primary/80">{selectedCategory === 'Todas' ? 'Todas as Categorias' : selectedCategory}</span>}
+          triggerClassName="font-sans text-sm px-4 h-[42px] rounded-sm border border-primary/20 bg-surface text-primary hover:bg-black/5 cursor-pointer transition-all flex items-center gap-2"
           emptyMessage="Nenhuma categoria encontrada"
           variant="default"
-          popoverWidthClass="w-72"
+          popoverWidthClass="w-56"
         />
+      </div>
 
-        {/* Accessibility Filter Custom Popover */}
+      {/* Region Filter */}
+      <div className="h-[42px]">
+        <SearchableDropdown
+          options={regionsList}
+          selectedValues={selectedRegion !== 'Todas' ? [selectedRegion] : []}
+          onSelect={(opt) => {
+            setSelectedRegion(selectedRegion === opt ? 'Todas' : opt)
+            regionMenu.close()
+          }}
+          isOpen={regionMenu.isOpen}
+          onToggle={handleRegionToggle}
+          onClose={regionMenu.close}
+          placeholder="Buscar região..."
+          triggerContent={<span className="font-normal text-primary/80">{selectedRegion === 'Todas' ? 'Todas as Regiões' : selectedRegion}</span>}
+          triggerClassName="font-sans text-sm px-4 h-[42px] rounded-sm border border-primary/20 bg-surface text-primary hover:bg-black/5 cursor-pointer transition-all flex items-center gap-2"
+          emptyMessage="Nenhuma região encontrada"
+          variant="default"
+          popoverWidthClass="w-56"
+        />
+      </div>
+
+      {/* Accessibility Filter */}
+      <div className="h-[42px]">
         <SearchableDropdown
           options={accessibilityList}
-          selectedValues={
-            selectedAccessibility !== 'Todas' ? [selectedAccessibility] : []
-          }
+          selectedValues={selectedAccessibility !== 'Todas' ? [selectedAccessibility] : []}
           onSelect={(opt) => {
-            setSelectedAccessibility(
-              selectedAccessibility === opt ? 'Todas' : opt,
-            )
+            setSelectedAccessibility(selectedAccessibility === opt ? 'Todas' : opt)
             accessMenu.close()
           }}
           isOpen={accessMenu.isOpen}
           onToggle={handleAccessToggle}
           onClose={accessMenu.close}
           placeholder="Buscar acessibilidade..."
-          triggerContent={<span>Acessibilidade</span>}
-          triggerClassName="font-inter text-sm px-3.5 py-2 rounded-none border border-black bg-transparent text-tur-dark hover:bg-black/5 font-medium cursor-pointer transition-all flex items-center gap-2"
-          emptyMessage="Nenhuma opção encontrada"
+          triggerContent={<span className="font-normal text-primary/80">{selectedAccessibility === 'Todas' ? 'Toda Acessibilidade' : selectedAccessibility}</span>}
+          triggerClassName="font-sans text-sm px-4 h-[42px] rounded-sm border border-primary/20 bg-surface text-primary hover:bg-black/5 cursor-pointer transition-all flex items-center gap-2"
+          emptyMessage="Nenhuma acessibilidade encontrada"
           variant="default"
-          popoverWidthClass="w-72"
+          popoverWidthClass="w-56"
         />
       </div>
 
-      {/* Right Side: Action Buttons */}
-      <div className="flex items-center gap-3 w-full md:w-auto justify-start md:justify-end">
-        {/* Active Filters Custom Popover */}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={handleActiveFiltersToggle}
-            className={`font-inter text-sm font-semibold px-4 py-2.5 rounded-none border border-black transition-all flex items-center gap-2 outline-none cursor-pointer ${
-              isFilterActive
-                ? 'bg-tur-accent text-white'
-                : 'bg-transparent text-tur-dark/60 hover:bg-black/5'
-            }`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="shrink-0"
-            >
-              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-            </svg>
-            <span>Filtros ativos ({activeFilterNames.length})</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className={`transition-transform duration-200 shrink-0 ${activeFiltersMenu.isOpen ? 'rotate-180' : ''}`}
-            >
-              <path d="m6 9 6 6 6-6" />
-            </svg>
-          </button>
+      {/* Reset Filters */}
+      <button
+        type="button"
+        onClick={handleResetFilters}
+        disabled={!isFilterActive}
+        className={`font-sans text-sm font-normal px-4 h-[42px] rounded-sm border border-transparent flex items-center gap-2 transition-all ${
+          isFilterActive 
+            ? 'hover:bg-primary/5 text-primary/60 hover:text-primary cursor-pointer' 
+            : 'text-primary/20 cursor-not-allowed'
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        Limpar filtros
+      </button>
 
-          {/* Backdrop */}
-          {activeFiltersMenu.isOpen && (
-            <div
-              className="fixed inset-0 z-20"
-              onClick={activeFiltersMenu.close}
-            />
-          )}
-
-          {/* Active Filters Dropdown Menu Box */}
-          <div
-            className={`absolute right-0 top-full mt-2 w-72 bg-white border border-black shadow-2xl z-30 p-3 flex flex-col gap-2 rounded-none transition-all duration-200 ease-out transform origin-top-right ${
-              activeFiltersMenu.isOpen
-                ? 'opacity-100 translate-y-0 pointer-events-auto'
-                : 'opacity-0 -translate-y-2 pointer-events-none'
-            }`}
-          >
-            <div className="font-inter text-xs font-bold text-tur-gray-700 uppercase tracking-widest pb-1.5 border-b border-black/10 flex items-center justify-between">
-              <span>Filtros Aplicados</span>
-              <span className="text-[10px] font-semibold text-tur-gray-500">
-                {activeFilterNames.length} ativo(s)
-              </span>
-            </div>
-
-            {isFilterActive ? (
-              <div className="flex flex-col gap-2 py-1">
-                {selectedCategory !== 'Todas' && (
-                  <div className="flex items-center justify-between font-inter text-xs bg-transparent text-tur-dark p-2 border border-black/15 rounded-none hover:bg-black/5 transition-colors">
-                    <div className="flex items-center gap-2 truncate pr-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-tur-accent shrink-0" />
-                      <span className="font-semibold text-tur-dark">
-                        {selectedCategory}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedCategory('Todas')}
-                      className="text-tur-dark font-bold hover:text-tur-accent text-base px-1 leading-none cursor-pointer border-none bg-transparent transition-colors"
-                      title="Remover filtro de categoria"
-                    >
-                      ×
-                    </button>
-                  </div>
-                )}
-
-                {selectedAccessibility !== 'Todas' && (
-                  <div className="flex items-center justify-between font-inter text-xs bg-transparent text-tur-dark p-2 border border-black/15 rounded-none hover:bg-black/5 transition-colors">
-                    <div className="flex items-center gap-2 truncate pr-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-tur-accent shrink-0" />
-                      <span className="font-semibold text-tur-dark">
-                        {selectedAccessibility}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedAccessibility('Todas')}
-                      className="text-tur-dark font-bold hover:text-tur-accent text-base px-1 leading-none cursor-pointer border-none bg-transparent transition-colors"
-                      title="Remover filtro de acessibilidade"
-                    >
-                      ×
-                    </button>
-                  </div>
-                )}
-
-                {searchQuery.trim() !== '' && (
-                  <div className="flex items-center justify-between font-inter text-xs bg-transparent text-tur-dark p-2 border border-black/15 rounded-none hover:bg-black/5 transition-colors">
-                    <div className="flex items-center gap-2 truncate pr-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-tur-accent shrink-0" />
-                      <span className="font-semibold text-tur-dark">
-                        "{searchQuery}"
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setSearchQuery('')}
-                      className="text-tur-dark font-bold hover:text-tur-accent text-base px-1 leading-none cursor-pointer border-none bg-transparent transition-colors"
-                      title="Remover termo de busca"
-                    >
-                      ×
-                    </button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="font-inter text-xs text-tur-gray-500 py-3 text-center">
-                Nenhum filtro ativo no momento.
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Reset Filters Button */}
+      {/* View Toggle */}
+      <div className="flex items-center ml-auto border border-primary/20 rounded-sm p-[3px] bg-surface h-[42px]">
         <button
           type="button"
-          onClick={handleResetFilters}
-          disabled={!isFilterActive}
-          className={`font-inter text-sm font-semibold px-4 py-2.5 rounded-none border transition-all flex items-center gap-2 ${
-            isFilterActive
-              ? 'border-black bg-transparent text-tur-dark hover:bg-black hover:text-white cursor-pointer'
-              : 'border-black/20 bg-transparent text-tur-dark/40 cursor-not-allowed opacity-50'
-          }`}
+          onClick={() => setViewMode('list')}
+          className={`w-[34px] h-[34px] flex items-center justify-center rounded-sm transition-colors cursor-pointer border-none ${viewMode === 'list' ? 'bg-primary text-surface' : 'bg-transparent text-primary/40 hover:text-primary'}`}
+          aria-label="List view"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-            <path d="M3 3v5h5" />
-          </svg>
-          <span>Resetar filtros</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+        <button
+          type="button"
+          onClick={() => setViewMode('grid')}
+          className={`w-[34px] h-[34px] flex items-center justify-center rounded-sm transition-colors cursor-pointer border-none ${viewMode === 'grid' ? 'bg-primary text-surface' : 'bg-transparent text-primary/40 hover:text-primary'}`}
+          aria-label="Grid view"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         </button>
       </div>
+
     </div>
   )
 }

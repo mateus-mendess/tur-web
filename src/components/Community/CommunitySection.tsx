@@ -1,88 +1,68 @@
+import { useIntersectionAnimation } from '#/hooks/useIntersectionAnimation'
+
 export function CommunitySection() {
+  const { ref, isVisible } = useIntersectionAnimation(0.2)
   const stats = [
     {
-      label: 'PONTOS CADASTRADOS',
-      code: 'TUR · BR 001',
+      label: 'Pontos cadastrados',
       value: '1.248',
     },
     {
-      label: 'FOTOS COMPARTILHADAS',
-      code: 'IMG · GLOBAL FR 217',
+      label: 'Fotos compartilhadas',
       value: '8.742',
     },
     {
-      label: 'COLABORADORES',
-      code: 'COMM · CM 042',
+      label: 'Colaboradores',
       value: '642',
     },
   ]
 
   return (
-    <section className="bg-white py-16 md:py-24 px-6 md:px-12 lg:px-24">
-      <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row items-start lg:items-stretch gap-10 lg:gap-16">
-        {/* Left Column */}
-        <div className="flex-1 lg:w-4/12 flex flex-col justify-between items-start gap-8">
-          <div>
-            <h2 className="font-dm-sans text-5xl sm:text-6xl lg:text-7xl font-bold text-tur-dark tracking-tight">
-              Comunidade
-            </h2>
-          </div>
+    <section ref={ref} className="bg-background text-primary py-24 md:py-32 px-6 md:px-12 lg:px-24 font-sans overflow-hidden">
+      <div 
+        className={`max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 transition-all duration-1000 ease-out ${
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}
+      >
+        
+        {/* Left Column (Content) */}
+        <div className="flex flex-col xl:flex-row items-start xl:justify-between gap-12 xl:gap-24 w-full">
+          {/* Header */}
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-normal tracking-tight text-primary whitespace-nowrap">
+            Comunidade
+          </h2>
 
-          {/* "Faça parte" Button (Inspired by Image 1's REACH US button style) */}
-          <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              className="border border-tur-dark px-5 py-2.5 font-inter text-xs font-bold uppercase tracking-widest text-tur-dark hover:bg-tur-dark hover:text-tur-bg transition-colors duration-200 cursor-pointer"
-            >
-              FAÇA PARTE
-            </button>
-            <button
-              type="button"
-              aria-label="Faça parte da comunidade"
-              className="w-10 h-10 rounded-none border border-tur-dark flex items-center justify-center text-tur-dark hover:bg-tur-dark hover:text-tur-bg transition-colors duration-200 cursor-pointer"
-            >
-              <span className="text-base font-medium">→</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Right Column */}
-        <div className="flex-1 lg:w-8/12 w-full flex flex-col lg:border-l border-tur-dark lg:pl-10">
-          {/* Linha Superior (Destaque Principal) */}
-          <div className="border-t border-b border-tur-dark py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="font-inter text-xs font-bold uppercase tracking-wider text-tur-dark">
-              MÉTRICAS DA PLATAFORMA · 2026
-            </div>
-            <div className="font-dm-sans text-xl sm:text-2xl font-bold text-tur-dark tracking-tight">
-              TUR.COMMUNITY // ATIVA
-            </div>
-          </div>
-
-          {/* Linhas de Métricas (Compactas com linhas divisórias) */}
-          <div className="flex flex-col w-full">
+          {/* Metrics List (Bracket style) */}
+          <div className="flex flex-col gap-3 w-full xl:w-auto font-sans text-base md:text-lg xl:mt-20">
             {stats.map((stat, idx) => (
-              <div
-                key={idx}
-                className="py-3.5 border-b border-tur-dark flex items-center justify-between gap-4 w-full"
-              >
-                {/* Lado Esquerdo (Rótulo + Sub-código sutil) */}
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                  <span className="font-inter text-xs sm:text-sm font-bold tracking-wider uppercase text-tur-dark">
-                    {stat.label}
-                  </span>
-                  <span className="font-inter text-[11px] font-semibold text-tur-gray-600 uppercase tracking-widest">
-                    ({stat.code})
-                  </span>
-                </div>
-
-                {/* Lado Direito (Dado em tom #DF4927 / #111111) */}
-                <span className="font-dm-sans text-3xl sm:text-4xl font-bold text-tur-accent tracking-tight">
-                  {stat.value}
+              <div key={idx} className="flex items-center gap-4">
+                <span className="font-mono tracking-widest text-primary/60 w-24 shrink-0">
+                  [{stat.value}]
+                </span>
+                <span className="text-primary whitespace-nowrap">
+                  {stat.label}
                 </span>
               </div>
             ))}
+
+            <button
+              type="button"
+              className="mt-16 self-start border border-primary text-primary px-8 py-2.5 rounded-sm font-normal text-sm md:text-base hover:bg-primary hover:text-surface transition-colors duration-200 cursor-pointer"
+            >
+              Faça parte
+            </button>
           </div>
         </div>
+
+        {/* Right Column (Postal Seal) */}
+        <div className="hidden lg:flex items-center justify-end">
+          <img 
+            src="/assets/images/selo-img.png" 
+            alt="Selo Postal Tur" 
+            className="w-56 h-auto object-contain opacity-90 mix-blend-multiply"
+          />
+        </div>
+
       </div>
     </section>
   )
