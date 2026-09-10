@@ -125,6 +125,11 @@ export const spotsService = {
    * Lança erro com mensagem legível em caso de 404.
    */
   getSpotById: async (id: string): Promise<TouristPointResponse> => {
+    // MOCK TEMPORÁRIO PARA TESTE DE UI
+    const mock = mockSpots.find(s => s.id === id) || { ...mockSpots[0], id }
+    return Promise.resolve(mock)
+
+    /*
     try {
       const { data } = await api.get<TouristPointResponse>(
         `/tourist-points/${id}`,
@@ -136,6 +141,7 @@ export const spotsService = {
       }
       throw new Error('Erro ao carregar o ponto turístico. Tente novamente.')
     }
+    */
   },
 
   /**

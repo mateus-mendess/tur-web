@@ -1,4 +1,5 @@
 import { useIntersectionAnimation } from '#/hooks/useIntersectionAnimation'
+import { PageContainer } from '#/components/UI/PageContainer'
 
 export function CommunitySection() {
   const { ref, isVisible } = useIntersectionAnimation(0.2)
@@ -18,9 +19,9 @@ export function CommunitySection() {
   ]
 
   return (
-    <section ref={ref} className="bg-background text-primary py-24 md:py-32 px-6 md:px-12 lg:px-24 font-sans overflow-hidden">
-      <div 
-        className={`max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 transition-all duration-1000 ease-out ${
+    <section ref={ref} className="bg-background text-primary py-24 md:py-32 font-sans overflow-hidden">
+      <PageContainer 
+        className={`grid grid-cols-1 lg:grid-cols-2 gap-16 transition-all duration-1000 ease-out ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
         }`}
       >
@@ -63,7 +64,7 @@ export function CommunitySection() {
           />
         </div>
 
-      </div>
+      </PageContainer>
     </section>
   )
 }

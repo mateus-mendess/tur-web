@@ -82,7 +82,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     if (!term) return
     onClose()
     setSearchTerm('')
-    void navigate({ to: '/explorar', search: { busca: term } })
+    void navigate({ to: '/search', search: { busca: term } })
   }
 
   const handlePopularSearch = (tag: string) => {
@@ -90,10 +90,10 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     setSearchTerm('')
     if (CATEGORY_TAGS.has(tag)) {
       // É uma categoria — filtra por categoria na página explorar
-      void navigate({ to: '/explorar', search: { categoria: tag } })
+      void navigate({ to: '/search', search: { categoria: tag } })
     } else {
       // Busca de texto genérica
-      void navigate({ to: '/explorar', search: { busca: tag } })
+      void navigate({ to: '/search', search: { busca: tag } })
     }
   }
 

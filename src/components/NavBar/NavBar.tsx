@@ -8,10 +8,11 @@ export function NavBar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const location = useLocation()
 
-  const isHome = location.pathname === '/'
+  const isHeroPage = location.pathname === '/'
+  const isSpotDetailPage = location.pathname.startsWith('/pontos/')
 
   useEffect(() => {
-    if (!isHome) {
+    if (!isHeroPage) {
       setIsScrolled(true)
       return
     }
@@ -24,14 +25,16 @@ export function NavBar() {
 
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [isHome])
+  }, [isHeroPage])
 
-  const positionClass = isHome ? 'fixed top-0 left-0 right-0' : 'sticky top-0'
+  const positionClass = isHeroPage ? 'fixed top-0 left-0 right-0' : 'sticky top-0'
 
   return (
     <header 
       className={`${positionClass} w-full z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white text-black shadow-md' : 'bg-transparent text-surface'
+        isScrolled 
+          ? (isSpotDetailPage ? 'bg-background text-primary border-b border-black/10' : 'bg-white text-black shadow-md')
+          : 'bg-transparent text-surface'
       }`}
     >
       <PageContainer className="flex items-center justify-between py-4">

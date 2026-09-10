@@ -9,7 +9,7 @@ export const Route = createFileRoute('/')({ component: Home })
 function Home() {
   return (
     <main className="min-h-screen bg-background">
-      <HeroCarousel />
+      <HeroCarousel showArrows={false} />
       <AboutSection />
       <FeaturedSpotsSection />
       <CommunitySection />

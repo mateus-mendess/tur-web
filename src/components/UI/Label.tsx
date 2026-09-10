@@ -13,11 +13,11 @@ export function Label({
 }: LabelProps) {
   return (
     <label
-      className={`font-inter text-[11px] font-bold text-tur-gray-600 tracking-[0.8px] uppercase ${className}`}
+      className={`font-sans text-[11px] font-bold text-black/60 tracking-[0.8px] uppercase ${className}`}
       {...props}
     >
       {children}
-      {required && <span className="text-tur-accent ml-0.5">*</span>}
+      {required && <span className="text-error ml-0.5">*</span>}
     </label>
   )
 }

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { toSpot  } from '#/types/spot'
-import type {Spot} from '#/types/spot';
 import { useSpots } from '#/hooks/api/useSpots'
 import { FeaturedSpotSkeleton } from '#/components/UI/Skeleton'
-import { SpotDetailModal } from './SpotDetailModal'
+import { useNavigate } from '@tanstack/react-router'
+import { PageContainer } from '#/components/UI/PageContainer'
 
 export function FeaturedSpotsSection() {
+  const navigate = useNavigate()
   const { data: spots = [], isLoading } = useSpots()
   const sectionRef = useRef<HTMLDivElement>(null)
   const trackContainerRef = useRef<HTMLDivElement>(null)
@@ -13,7 +14,6 @@ export function FeaturedSpotsSection() {
 
   const [translateX, setTranslateX] = useState(0)
   const [isReducedMotion, setIsReducedMotion] = useState(false)
-  const [selectedSpot, setSelectedSpot] = useState<Spot | null>(null)
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -79,11 +79,13 @@ export function FeaturedSpotsSection() {
     return (
       <div className="relative bg-tur-bg h-auto py-20">
         <div className="sticky top-0 h-auto flex items-center overflow-hidden">
-          <div className="flex gap-2 md:gap-3 py-8 pl-6 md:pl-12 lg:pl-20 pr-12 overflow-x-auto">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <FeaturedSpotSkeleton key={i} />
-            ))}
-          </div>
+          <PageContainer className="w-full">
+            <div className="flex gap-2 md:gap-3 py-8 pl-6 md:pl-12 lg:pl-20 pr-12 overflow-x-auto">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <FeaturedSpotSkeleton key={i} />
+              ))}
+            </div>
+          </PageContainer>
         </div>
       </div>
     )
@@ -101,26 +103,27 @@ export function FeaturedSpotsSection() {
         ref={trackContainerRef}
         className={`${
           isReducedMotion
-            ? 'relative h-auto px-6 md:px-12'
+            ? 'relative h-auto'
             : 'sticky top-0 h-screen overflow-hidden'
         } flex items-center`}
       >
-        {/* Full Horizontal Sliding Track (Header Panel + All 6 Cards) */}
-        <div
-          ref={trackContentRef}
-          style={{
-            transform: isReducedMotion
-              ? 'none'
-              : `translateX(-${translateX}px)`,
-          }}
-          className={`flex items-center gap-2 md:gap-3 py-8 pl-6 md:pl-12 lg:pl-20 pr-12 md:pr-24 will-change-transform transition-transform ease-out ${
-            isReducedMotion ? 'overflow-x-auto py-4 w-full' : ''
-          }`}
-        >
+        <PageContainer className="w-full">
+          {/* Full Horizontal Sliding Track (Header Panel + All 6 Cards) */}
+          <div
+            ref={trackContentRef}
+            style={{
+              transform: isReducedMotion
+                ? 'none'
+                : `translateX(-${translateX}px)`,
+            }}
+            className={`flex items-center gap-2 md:gap-3 py-8 pr-12 md:pr-24 will-change-transform transition-transform ease-out ${
+              isReducedMotion ? 'overflow-x-auto py-4 w-full' : ''
+            }`}
+          >
           {/* Header Title Panel (Slides horizontally together with all cards) */}
           <div className="w-[300px] sm:w-[360px] md:w-[420px] lg:w-[460px] shrink-0 flex flex-col justify-center py-6 pr-4">
 
-            <h2 className="font-dm-sans text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-tur-dark leading-[1.05] mb-5">
+            <h2 className="font-dm-sans text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-tur-dark leading-[1.05] mb-5">
               Destinos em Destaque.
             </h2>
             <p className="font-inter text-sm md:text-base text-tur-gray-700 leading-relaxed m-0">
@@ -141,12 +144,12 @@ export function FeaturedSpotsSection() {
           {spots.map((rawSpot) => {
             const spot = toSpot(rawSpot)
             return (
-              <article
+                <article
                 key={spot.id}
                 className="group shrink-0 w-[280px] sm:w-[320px] md:w-[360px] flex flex-col cursor-pointer transition-all duration-300 ease-out hover:scale-105 hover:z-10"
-                onClick={() => setSelectedSpot(spot)}
+                onClick={() => navigate({ to: '/pontos/$spotId', params: { spotId: spot.id } })}
               >
-                {/* Card Container with Image and Overlay Content */}
+                {/* Card Container with Image */}
                 <div className="relative aspect-[3/4] w-full rounded-none overflow-hidden shadow-xs group-hover:shadow-xl transition-shadow bg-tur-dark/5">
                   <img
                     src={spot.imageUrl}
@@ -154,33 +157,22 @@ export function FeaturedSpotsSection() {
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />
-
-                  {/* Gradient Overlay with Name at Top & Location at Bottom (Always Visible) */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/15 to-black/75 p-5 md:p-6 flex flex-col justify-between text-white pointer-events-none">
-                    {/* Top: Tourist Spot Name */}
-                    <div>
-                      <h3 className="font-dm-sans text-base sm:text-lg md:text-xl font-normal tracking-tight text-white leading-snug drop-shadow-md">
-                        {spot.name}
-                      </h3>
-                    </div>
-
-                    {/* Bottom: Location */}
-                    <div className="font-inter text-xs sm:text-sm font-medium text-white/90 drop-shadow-md">
-                      <span>{spot.location}</span>
-                    </div>
+                </div>
+                
+                <div className="mt-4 flex flex-col gap-1 px-1">
+                  <div className="font-inter text-xs sm:text-sm font-normal uppercase tracking-wider text-gray-500">
+                    <span>{spot.location}</span>
                   </div>
+                  <h3 className="font-dm-sans text-base sm:text-lg md:text-xl font-normal tracking-tight text-tur-dark leading-snug">
+                    {spot.name}
+                  </h3>
                 </div>
               </article>
             )
           })}
         </div>
+        </PageContainer>
       </div>
-
-      <SpotDetailModal
-        spot={selectedSpot}
-        isOpen={!!selectedSpot}
-        onClose={() => setSelectedSpot(null)}
-      />
     </div>
   )
 }

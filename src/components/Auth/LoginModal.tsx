@@ -64,16 +64,16 @@ export function LoginModal({
         {/* COLUNA DA ESQUERDA */}
         <div className="relative bg-white p-[50px_40px] max-md:p-[32px_24px] max-md:min-h-[200px] flex flex-col justify-start after:content-[''] after:absolute after:right-0 after:top-[15%] after:bottom-[15%] after:w-px after:bg-black/30 max-md:after:hidden">
           <div className="z-[3] relative mb-6">
-            <h3 className="font-dm-sans text-[26px] font-normal text-tur-gray-600 tracking-[3px] uppercase m-0 leading-[1.2]">
+            <h3 className="font-sans text-[26px] font-normal text-black/60 tracking-[3px] uppercase m-0 leading-[1.2]">
               Bem-vindo
             </h3>
           </div>
 
-          <div className="z-[3] relative font-inter text-[15px] text-tur-gray-700 leading-[1.6] font-normal">
+          <div className="z-[3] relative font-sans text-[15px] text-black/80 leading-[1.6] font-normal">
             Entre na sua conta e continue explorando o Brasil.
           </div>
 
-          <div className="mt-auto pt-8 z-[3] relative font-inter text-sm text-tur-gray-700 leading-normal font-normal">
+          <div className="mt-auto pt-8 z-[3] relative font-sans text-sm text-black/80 leading-normal font-normal">
             Ainda não tem conta?{' '}
             <Button
               variant="ghost"
@@ -99,7 +99,7 @@ export function LoginModal({
           <div className="mb-2 max-md:block hidden">
             <h2
               id="login-title"
-              className="font-dm-sans text-[28px] font-semibold text-tur-dark tracking-[-0.5px] m-0 mb-2"
+              className="font-sans text-[28px] font-semibold text-primary tracking-[-0.5px] m-0 mb-2"
             >
               Acesse sua conta
             </h2>
@@ -111,7 +111,7 @@ export function LoginModal({
           >
             {/* Erro global da API */}
             {errors.root && (
-              <div className="font-inter text-xs text-tur-red mt-0.5">
+              <div className="font-sans text-xs text-error mt-0.5">
                 {errors.root.message}
               </div>
             )}
@@ -129,7 +129,7 @@ export function LoginModal({
                 {...register('email')}
               />
               {errors.email && (
-                <span className="font-inter text-xs text-tur-red font-medium">
+                <span className="font-sans text-xs text-error font-medium">
                   {errors.email.message}
                 </span>
               )}
@@ -149,7 +149,7 @@ export function LoginModal({
                   {...register('senha')}
                 />
                 {errors.senha && (
-                  <span className="font-inter text-xs text-tur-red font-medium">
+                  <span className="font-sans text-xs text-error font-medium">
                     {errors.senha.message}
                   </span>
                 )}
@@ -164,7 +164,7 @@ export function LoginModal({
                   />
                   <label
                     htmlFor="login-remember"
-                    className="font-inter text-[13px] text-tur-gray-700 cursor-pointer select-none"
+                    className="font-sans text-[13px] text-black/80 cursor-pointer select-none"
                   >
                     Manter conectado
                   </label>
@@ -172,7 +172,7 @@ export function LoginModal({
                 
                 <a
                   href="#esqueci-senha"
-                  className="font-inter text-xs text-tur-gray-600 hover:text-tur-accent underline underline-offset-2 transition-colors duration-200"
+                  className="font-sans text-xs text-black/60 hover:text-secondary underline underline-offset-2 transition-colors duration-200"
                   onClick={(e) => {
                     e.preventDefault()
                   }}

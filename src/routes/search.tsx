@@ -1,18 +1,15 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
-import type { TouristPointResponse } from '#/types/api'
-import { toSpot } from '#/types/spot'
 import { useSpots } from '#/hooks/api/useSpots'
 import { useCategories } from '#/hooks/api/useCategories'
 import { useAccessibilityTypes } from '#/hooks/api/useAccessibilityTypes'
 
 import { SpotCard } from '#/components/Spots/SpotCard'
-import { SpotDetailModal } from '#/components/Spots/SpotDetailModal'
 import { SpotFilterBar } from '#/components/Spots/SpotFilterBar'
 import { useSpotFilters } from '#/hooks/useSpotFilters'
 import { SpotCardSkeleton } from '#/components/UI/Skeleton'
 import { PageContainer } from '#/components/UI/PageContainer'
+import { toSpot } from '#/types/spot'
 
 const searchSchema = z.object({
   busca: z.string().optional().default(''),
@@ -38,9 +35,7 @@ function SearchPage() {
   const categoriesList = categoriesData.map((c) => c.name)
   const accessibilityList = accessibilityTypes.map((a) => a.name)
   const regionsList = ['África', 'América Central', 'América do Norte', 'América do Sul', 'Ásia', 'Europa', 'Oceania']
-  const [selectedSpot, setSelectedSpot] = useState<TouristPointResponse | null>(
-    null,
-  )
+  const navigate = useNavigate()
 
   const {
     selectedCategory,
@@ -127,7 +122,7 @@ function SearchPage() {
                   <SpotCard
                     key={spot.id}
                     spot={toSpot(spot)}
-                    onClick={() => setSelectedSpot(spot)}
+                    onClick={() => navigate({ to: '/pontos/$spotId', params: { spotId: spot.id } })}
                   />
                 ))}
               </div>
@@ -166,12 +161,6 @@ function SearchPage() {
           </>
         )}
       </PageContainer>
-
-      <SpotDetailModal
-        spot={selectedSpot ? toSpot(selectedSpot) : null}
-        isOpen={!!selectedSpot}
-        onClose={() => setSelectedSpot(null)}
-      />
     </main>
   )
 }
