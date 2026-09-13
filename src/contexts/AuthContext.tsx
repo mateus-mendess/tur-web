@@ -20,8 +20,10 @@ interface AuthContextValue {
   isInitializing: boolean
   isLoginOpen: boolean
   isSignUpOpen: boolean
+  isCreateSpotOpen: boolean
   openLogin: (defaultEmail?: string) => void
   openSignUp: () => void
+  openCreateSpot: () => void
   closeModals: () => void
   handleLogin: (data: LoginFormData) => Promise<void>
   handleSignUp: (data: SignUpFormData) => Promise<void>
@@ -37,6 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isInitializing, setIsInitializing] = useState(true)
   const [isLoginOpen, setLoginOpen] = useState(false)
   const [isSignUpOpen, setSignUpOpen] = useState(false)
+  const [isCreateSpotOpen, setCreateSpotOpen] = useState(false)
   const [defaultLoginEmail, setDefaultLoginEmail] = useState('')
 
   // Carrega o token inicial de forma segura no client (evita mismatch de hidratação)
@@ -67,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (e.key === 'Escape') {
         setLoginOpen(false)
         setSignUpOpen(false)
+        setCreateSpotOpen(false)
       }
     }
     window.addEventListener('keydown', handleKeyDown)
@@ -82,11 +86,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const openSignUp = useCallback(() => {
     setSignUpOpen(true)
     setLoginOpen(false)
+    setCreateSpotOpen(false)
+  }, [])
+
+  const openCreateSpot = useCallback(() => {
+    setCreateSpotOpen(true)
+    setLoginOpen(false)
+    setSignUpOpen(false)
   }, [])
 
   const closeModals = useCallback(() => {
     setLoginOpen(false)
     setSignUpOpen(false)
+    setCreateSpotOpen(false)
   }, [])
 
   const handleLogin = useCallback(
@@ -128,8 +140,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isInitializing,
         isLoginOpen,
         isSignUpOpen,
+        isCreateSpotOpen,
         openLogin,
         openSignUp,
+        openCreateSpot,
         closeModals,
         handleLogin,
         handleSignUp,

@@ -1,18 +1,12 @@
 import { useFormContext } from 'react-hook-form'
 import type { SpotFormData } from '#/schemas/spotSchema'
 import { Label } from '#/components/UI/Label'
-import { Button } from '#/components/UI/Button'
 import { SearchableDropdown } from '#/components/UI/SearchableDropdown'
 import { useDropdown } from '#/hooks/useDropdown'
 import { useSpotCategories } from './useSpotCategories'
 import { useAccessibilityTypes } from '#/hooks/api/useAccessibilityTypes'
 
-interface Step2CategoriesProps {
-  onBack: () => void
-  onNext: () => void
-}
-
-export function Step2Categories({ onBack, onNext }: Step2CategoriesProps) {
+export function Step2Categories() {
   const {
     setValue,
     watch,
@@ -35,16 +29,9 @@ export function Step2Categories({ onBack, onNext }: Step2CategoriesProps) {
   const acessibilidadesWatch = watch('acessibilidades') // number[]
 
   const categoryMenu = useDropdown()
-  const accessMenu = useDropdown()
 
   const handleCategoryToggle = () => {
     categoryMenu.toggle()
-    accessMenu.close()
-  }
-
-  const handleAccessToggle = () => {
-    accessMenu.toggle()
-    categoryMenu.close()
   }
 
   return (
@@ -120,11 +107,11 @@ export function Step2Categories({ onBack, onNext }: Step2CategoriesProps) {
           </span>
         )}
         {categoriasWatch.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-0.5">
+          <div className="flex flex-wrap gap-2 mt-1.5">
             {categoriasWatch.map((cat) => (
               <span
                 key={cat}
-                className="font-inter text-[11px] bg-tur-dark text-white px-2 py-0.5 rounded-none flex items-center gap-1.5"
+                className="font-sans text-xs bg-surface border border-black/10 text-primary px-2.5 py-1 rounded-sm flex items-center gap-1.5 shadow-sm"
               >
                 <span>{getCategoryName(cat)}</span>
                 <button
@@ -136,7 +123,8 @@ export function Step2Categories({ onBack, onNext }: Step2CategoriesProps) {
                       { shouldValidate: true },
                     )
                   }}
-                  className="hover:text-tur-accent font-bold cursor-pointer"
+                  className="hover:text-tur-red opacity-60 hover:opacity-100 cursor-pointer font-bold transition-all"
+                  aria-label={`Remover ${getCategoryName(cat)}`}
                 >
                   ✕
                 </button>
@@ -148,88 +136,51 @@ export function Step2Categories({ onBack, onNext }: Step2CategoriesProps) {
 
       <div className="flex flex-col gap-1.5 mt-4">
         <Label>Acessibilidade</Label>
-        <SearchableDropdown
-          options={accessibilityTypes.map((a) => a.name)}
-          selectedValues={acessibilidadesWatch.map(
-            (id) => accessibilityTypes.find((a) => a.id === id)?.name ?? String(id),
-          )}
-          isOpen={accessMenu.isOpen}
-          onToggle={handleAccessToggle}
-          onClose={accessMenu.close}
-          onSelect={(name) => {
-            const type = accessibilityTypes.find((a) => a.name === name)
-            if (!type) return
-            const next = acessibilidadesWatch.includes(type.id)
-              ? acessibilidadesWatch.filter((id) => id !== type.id)
-              : [...acessibilidadesWatch, type.id]
-            setValue('acessibilidades', next)
-          }}
-          placeholder="Buscar acessibilidade..."
-          triggerContent={
-            <span className="truncate">
-              {acessibilidadesWatch.length > 0
-                ? `${acessibilidadesWatch.length} opção(ões) selecionada(s)`
-                : 'Selecionar acessibilidade...'}
-            </span>
-          }
-          triggerClassName="w-full font-inter text-xs px-3.5 py-2.5 rounded-none border border-black/30 bg-transparent text-tur-dark hover:border-black font-medium cursor-pointer transition-all flex items-center justify-between gap-2"
-          popoverWidthClass="w-full"
-          emptyMessage="Nenhuma opção encontrada"
-        />
-        {acessibilidadesWatch.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-0.5">
-              {acessibilidadesWatch.map((id) => {
-                const name = accessibilityTypes.find((a) => a.id === id)?.name ?? String(id)
-                return (
-                  <span
-                    key={id}
-                    className="font-inter text-[11px] bg-tur-dark text-white px-2 py-0.5 rounded-none flex items-center gap-1.5"
-                  >
-                    <span>{name}</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setValue(
-                          'acessibilidades',
-                          acessibilidadesWatch.filter((a) => a !== id),
-                        )
-                      }}
-                      className="hover:text-tur-accent font-bold cursor-pointer"
+        <div className="grid grid-cols-3 gap-x-4 gap-y-3 mt-2">
+          {accessibilityTypes.map((type) => {
+            const isSelected = acessibilidadesWatch.includes(type.id)
+            return (
+              <label
+                key={type.id}
+                className="flex items-center gap-2 cursor-pointer group"
+              >
+                <div
+                  className={`w-3.5 h-3.5 rounded-sm border shrink-0 flex items-center justify-center transition-colors ${
+                    isSelected
+                      ? 'bg-primary border-primary'
+                      : 'border-black/30 group-hover:border-black/60 bg-transparent'
+                  }`}
+                >
+                  {isSelected && (
+                    <svg
+                      className="w-2.5 h-2.5 text-surface"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={3}
                     >
-                      ✕
-                    </button>
-                  </span>
-                )
-              })}
-          </div>
-        )}
-      </div>
-
-      <div className="flex items-center justify-between mt-auto pt-6 w-full">
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={onBack}
-          className="px-4"
-        >
-          Voltar
-        </Button>
-        <Button type="button" onClick={onNext} className="px-8">
-          <span>Próximo</span>
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M5 12h14" />
-            <path d="m12 5 7 7-7 7" />
-          </svg>
-        </Button>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+                <span className="font-sans text-xs text-primary leading-tight select-none">
+                  {type.name}
+                </span>
+                <input
+                  type="checkbox"
+                  className="sr-only"
+                  checked={isSelected}
+                  onChange={() => {
+                    const next = isSelected
+                      ? acessibilidadesWatch.filter((id) => id !== type.id)
+                      : [...acessibilidadesWatch, type.id]
+                    setValue('acessibilidades', next)
+                  }}
+                />
+              </label>
+            )
+          })}
+        </div>
       </div>
     </div>
   )

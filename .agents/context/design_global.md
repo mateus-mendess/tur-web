@@ -6,7 +6,7 @@ Global project tokens. Always follow these values ​​when generating or editi
 
 | Token                | Value     | Usage                                                                                                                    |
 | -------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `--color-background` | `#F1F1F1` | General page background                                                                                                  |
+| `--color-background` | `#FFFFFF` | General page background                                                                                                  |
 | `--color-surface`    | `#FFFFFF` | Cards, modals, inputs                                                                                                    |
 | `--color-primary`    | `#000000` | Text, standard buttons, icons                                                                                            |
 | `--color-secondary`  | `#B85C37` | Details only (highlight icons, focus borders, badges, accents). Never use for text — low contrast against the background |
@@ -16,7 +16,7 @@ Global project tokens. Always follow these values ​​when generating or editi
 
 ```css
 :root {
-  --color-background: #f1f1f1;
+  --color-background: #ffffff;
   --color-surface: #ffffff;
   --color-primary: #000000;
   --color-secondary: #b85c37;

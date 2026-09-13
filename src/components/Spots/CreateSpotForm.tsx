@@ -8,6 +8,7 @@ import { useCreateSpot } from '#/hooks/api/useCreateSpot'
 import { Step1BasicInfo } from './CreateSpotForm/Step1BasicInfo'
 import { Step2Categories } from './CreateSpotForm/Step2Categories'
 import { Step3Address } from './CreateSpotForm/Step3Address'
+import { Button } from '#/components/UI/Button'
 
 export interface CreateSpotFormProps {
   onSuccess?: (data: SpotFormData) => void
@@ -34,18 +35,29 @@ export function CreateSpotForm({ onSuccess, onCancel }: CreateSpotFormProps) {
     },
   })
 
-  const { handleSubmit, trigger } = methods
+  const { handleSubmit, trigger, clearErrors } = methods
 
+  // Avança para Etapa 2 — valida SOMENTE campos da Etapa 1
   const handleNextStep1 = async () => {
-    const isStep1Valid = await trigger(['nome', 'descricao'])
-    if (isStep1Valid) setStep(2)
+    const valid = await trigger(['nome', 'descricao'])
+    if (valid) {
+      // Limpa quaisquer erros que o resolver possa ter gerado para etapas futuras
+      clearErrors(['categorias', 'acessibilidades', 'cep', 'rua', 'bairro', 'cidade', 'stateId'])
+      setStep(2)
+    }
   }
 
+  // Avança para Etapa 3 — valida SOMENTE campos da Etapa 2
   const handleNextStep2 = async () => {
-    const isStep2Valid = await trigger(['categorias', 'acessibilidades'])
-    if (isStep2Valid) setStep(3)
+    const valid = await trigger(['categorias'])
+    if (valid) {
+      // Limpa quaisquer erros que o resolver possa ter gerado para etapa 3
+      clearErrors(['cep', 'rua', 'bairro', 'cidade', 'stateId'])
+      setStep(3)
+    }
   }
 
+  // Submit real — só é chamado pelo botão "Cadastrar" (type="submit") na Etapa 3
   const onSubmit = (data: SpotFormData) => {
     createSpot.mutate(data, {
       onSuccess: () => {
@@ -57,7 +69,7 @@ export function CreateSpotForm({ onSuccess, onCancel }: CreateSpotFormProps) {
 
   return (
     <FormProvider {...methods}>
-      <div className="w-full bg-white rounded-none overflow-hidden shadow-[0_24px_48px_-12px_rgba(0,0,0,0.3),0_0_0_1px_rgba(0,0,0,0.05)] grid grid-cols-[1fr_1.15fr] max-md:grid-cols-1 min-h-[520px]">
+      <div className="w-full bg-white rounded-none overflow-hidden shadow-[0_24px_48px_-12px_rgba(0,0,0,0.3),0_0_0_1px_rgba(0,0,0,0.05)] grid grid-cols-[1fr_1.15fr] max-md:grid-cols-1 min-h-[600px]">
         {/* COLUNA DA ESQUERDA (INSTRUÇÕES E PASSO A PASSO) */}
         <div className="relative bg-white p-[45px_40px] max-md:p-[32px_24px] flex flex-col justify-between after:content-[''] after:absolute after:right-0 after:top-[10%] after:bottom-[10%] after:w-px after:bg-black/20 max-md:after:hidden">
           <div>
@@ -113,7 +125,7 @@ export function CreateSpotForm({ onSuccess, onCancel }: CreateSpotFormProps) {
           </div>
 
           {/* Stepper Footer (3 etapas) */}
-          <div className="mt-auto pt-4 flex items-center justify-between">
+          <div className="mt-auto pt-4 flex items-center justify-between h-11">
             <div className="flex items-center gap-2">
               <span
                 className={`h-1.5 rounded-full transition-all duration-300 ${step === 1 ? 'w-6 bg-tur-dark' : 'w-2 bg-tur-gray-300'}`}
@@ -132,7 +144,7 @@ export function CreateSpotForm({ onSuccess, onCancel }: CreateSpotFormProps) {
         </div>
 
         {/* COLUNA DA DIREITA (FORMULÁRIO) */}
-        <div className="relative bg-white p-[45px_40px_36px_40px] max-md:p-[32px_24px] flex flex-col justify-between">
+        <div className="relative bg-white p-[45px_40px] max-md:p-[32px_24px] flex flex-col justify-between">
           <div className="absolute top-6 right-8 max-md:hidden">
             <img
               src="/assets/images/selo-img.png"
@@ -145,19 +157,52 @@ export function CreateSpotForm({ onSuccess, onCancel }: CreateSpotFormProps) {
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-5 flex-1 justify-between mt-[115px] max-md:mt-6"
           >
-            {step === 1 && <Step1BasicInfo onNext={handleNextStep1} />}
-            {step === 2 && (
-              <Step2Categories
-                onBack={() => setStep(1)}
-                onNext={handleNextStep2}
-              />
-            )}
-            {step === 3 && (
-              <Step3Address
-                onBack={() => setStep(2)}
-                isSubmitting={createSpot.isPending}
-              />
-            )}
+            <div className="flex-1">
+              {step === 1 && <Step1BasicInfo />}
+              {step === 2 && <Step2Categories />}
+              {step === 3 && <Step3Address />}
+            </div>
+
+            <div className="mt-auto pt-4 flex items-center justify-between h-11">
+              {step > 1 ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setStep((s) => (s - 1) as 1 | 2)}
+                  className="px-4"
+                >
+                  Voltar
+                </Button>
+              ) : (
+                <div />
+              )}
+              
+              {step === 1 && (
+                <Button type="button" onClick={handleNextStep1} className="px-8">
+                  <span>Próximo</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </Button>
+              )}
+
+              {step === 2 && (
+                <Button type="button" onClick={handleNextStep2} className="px-8">
+                  <span>Próximo</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </Button>
+              )}
+
+              {step === 3 && (
+                <Button type="submit" className="px-6" disabled={createSpot.isPending}>
+                  {createSpot.isPending ? 'Cadastrando...' : 'Cadastrar'}
+                </Button>
+              )}
+            </div>
           </form>
         </div>
       </div>

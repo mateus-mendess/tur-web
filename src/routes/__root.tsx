@@ -1,4 +1,4 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRoute, useLocation } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { Toaster } from 'sonner'
@@ -9,6 +9,7 @@ import { queryClient } from '#/lib/queryClient'
 import { AuthProvider, useAuth } from '#/contexts/AuthContext'
 import { LoginModal } from '#/components/Auth/LoginModal'
 import { SignUpModal } from '#/components/Auth/SignUpModal'
+import { CreateSpotModal } from '#/components/Spots/CreateSpotModal'
 import { NavBar } from '#/components/NavBar/NavBar'
 import { Footer } from '#/components/Footer/Footer'
 
@@ -37,7 +38,7 @@ export const Route = createRootRoute({
 })
 
 function AppModals() {
-  const { isLoginOpen, isSignUpOpen, closeModals, handleLogin, handleSignUp, openLogin, openSignUp } = useAuth()
+  const { isLoginOpen, isSignUpOpen, isCreateSpotOpen, closeModals, handleLogin, handleSignUp, openLogin, openSignUp } = useAuth()
   
   return (
     <>
@@ -53,7 +54,22 @@ function AppModals() {
         onSignUp={handleSignUp}
         onSwitchToLogin={openLogin}
       />
+      <CreateSpotModal
+        isOpen={isCreateSpotOpen}
+        onClose={closeModals}
+        onSuccess={closeModals}
+      />
     </>
+  )
+}
+
+function PageWrapper({ children }: { children: React.ReactNode }) {
+  const pathname = useLocation({ select: (loc) => loc.pathname })
+  
+  return (
+    <main key={pathname} className="page-transition-enter flex-1 flex flex-col">
+      {children}
+    </main>
   )
 }
 
@@ -67,7 +83,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <NavBar />
-            {children}
+            <PageWrapper>
+              {children}
+            </PageWrapper>
             <Footer />
             <AppModals />
           </AuthProvider>

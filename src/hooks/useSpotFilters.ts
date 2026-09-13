@@ -5,11 +5,12 @@ export function useSpotFilters(
   spots: TouristPointResponse[],
   initialBusca: string,
   initialCategoria: string,
+  initialRegiao: string = 'Todas',
 ) {
   const [selectedCategory, setSelectedCategory] =
     useState<string>(initialCategoria)
   const [selectedRegion, setSelectedRegion] =
-    useState<string>('Todas')
+    useState<string>(initialRegiao)
   const [selectedAccessibility, setSelectedAccessibility] =
     useState<string>('Todas')
   const [searchQuery, setSearchQuery] = useState<string>(initialBusca)
@@ -18,7 +19,8 @@ export function useSpotFilters(
   useEffect(() => {
     setSearchQuery(initialBusca)
     setSelectedCategory(initialCategoria)
-  }, [initialBusca, initialCategoria])
+    setSelectedRegion(initialRegiao)
+  }, [initialBusca, initialCategoria, initialRegiao])
 
   const filteredSpots = useMemo(() => {
     return spots.filter((spot) => {

@@ -2,13 +2,8 @@ import { useFormContext } from 'react-hook-form'
 import type { SpotFormData } from '#/schemas/spotSchema'
 import { Input } from '#/components/UI/Input'
 import { Label } from '#/components/UI/Label'
-import { Button } from '#/components/UI/Button'
 
-interface Step1BasicInfoProps {
-  onNext: () => void
-}
-
-export function Step1BasicInfo({ onNext }: Step1BasicInfoProps) {
+export function Step1BasicInfo() {
   const {
     register,
     formState: { errors },
@@ -40,7 +35,7 @@ export function Step1BasicInfo({ onNext }: Step1BasicInfoProps) {
         <textarea
           id="spot-descricao"
           rows={3}
-          className={`w-full p-2.5 font-inter text-xs text-tur-dark bg-transparent border rounded-none outline-none transition-colors duration-200 focus:border-tur-dark placeholder-tur-gray-400 resize-none ${errors.descricao ? 'border-tur-red' : 'border-tur-gray-300'}`}
+          className={`w-full p-2 font-sans text-sm text-primary bg-transparent border-b border-x-0 border-t-0 rounded-none outline-none transition-colors duration-200 focus:border-primary focus:ring-0 placeholder-black/40 resize-none ${errors.descricao ? 'border-error' : 'border-black/20'}`}
           placeholder="Descreva as atrações e características do local..."
           {...register('descricao')}
         />
@@ -51,24 +46,6 @@ export function Step1BasicInfo({ onNext }: Step1BasicInfoProps) {
         )}
       </div>
 
-      <div className="flex justify-end mt-auto pt-6">
-        <Button type="button" onClick={onNext} className="px-8">
-          <span>Próximo</span>
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M5 12h14" />
-            <path d="m12 5 7 7-7 7" />
-          </svg>
-        </Button>
-      </div>
     </div>
   )
 }

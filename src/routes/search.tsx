@@ -27,7 +27,7 @@ export const Route = createFileRoute('/search')({
 })
 
 function SearchPage() {
-  const { busca: initialBusca, categoria: initialCategoria } = Route.useSearch()
+  const { busca: initialBusca, categoria: initialCategoria, regiao: initialRegiao } = Route.useSearch()
 
   const { data: spots = [], isLoading, isError, refetch } = useSpots()
   const { data: categoriesData = [] } = useCategories()
@@ -51,7 +51,7 @@ function SearchPage() {
     filteredSpots,
     handleResetFilters,
     isFilterActive,
-  } = useSpotFilters(spots, initialBusca, initialCategoria)
+  } = useSpotFilters(spots, initialBusca, initialCategoria, initialRegiao)
 
   return (
     <main className="min-h-screen bg-tur-bg pb-20 pt-6 md:pt-10">

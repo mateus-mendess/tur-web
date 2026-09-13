@@ -9,6 +9,7 @@ import { Button } from '#/components/UI/Button'
 import { Checkbox } from '#/components/UI/Checkbox'
 import { signUpSchema } from '#/schemas/authSchema'
 import type { SignUpFormData } from '#/schemas/authSchema'
+import { GoogleIcon, GitHubIcon } from '#/components/UI/Icons'
 
 export interface SignUpModalProps {
   isOpen: boolean
@@ -80,11 +81,11 @@ export function SignUpModal({
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} ariaLabel="signup-title">
-      <div className="w-full bg-white rounded-none overflow-hidden shadow-[0_24px_48px_-12px_rgba(0,0,0,0.3),0_0_0_1px_rgba(0,0,0,0.05)] grid grid-cols-[1fr_1.15fr] max-md:grid-cols-1 min-h-[560px] max-md:max-h-[80vh] max-md:overflow-y-auto">
+      <div className="w-full bg-white rounded-none overflow-hidden shadow-[0_24px_48px_-12px_rgba(0,0,0,0.3),0_0_0_1px_rgba(0,0,0,0.05)] grid grid-cols-[1fr_1.15fr] max-md:grid-cols-1 min-h-[580px] max-md:max-h-[80vh] max-md:overflow-y-auto">
         {/* COLUNA DA ESQUERDA */}
         <div className="relative bg-white p-[50px_40px] max-md:p-[32px_24px] max-md:min-h-[200px] flex flex-col justify-start after:content-[''] after:absolute after:right-0 after:top-[15%] after:bottom-[15%] after:w-px after:bg-black/30 max-md:after:hidden">
           <div className="z-[3] relative mb-6">
-            <h3 className="font-sans text-[26px] font-normal text-black/60 tracking-[3px] uppercase m-0 leading-[1.2]">
+            <h3 className="font-sans text-[26px] font-normal text-black/60 tracking-[3px] m-0 leading-[1.2]">
               Bem-vindo
             </h3>
           </div>
@@ -277,6 +278,21 @@ export function SignUpModal({
                   </svg>
                 )}
               </Button>
+            </div>
+
+            {/* Social Signup */}
+            <div className="mt-6 flex flex-col items-center">
+              <span className="font-sans text-[13px] text-black/50 mb-3">Ou cadastre-se com</span>
+              <div className="flex gap-3 w-full justify-center">
+                 <button type="button" className="flex items-center justify-center gap-2 border border-black/10 bg-surface rounded-[4px] py-2 px-4 hover:bg-black/5 transition-colors w-[140px]">
+                    <GoogleIcon />
+                    <span className="font-sans text-sm text-primary font-normal">Google</span>
+                 </button>
+                 <button type="button" className="flex items-center justify-center gap-2 border border-black/10 bg-surface rounded-[4px] py-2 px-4 hover:bg-black/5 transition-colors w-[140px]">
+                    <GitHubIcon />
+                    <span className="font-sans text-sm text-primary font-normal">GitHub</span>
+                 </button>
+              </div>
             </div>
           </form>
         </div>

@@ -10,7 +10,7 @@
 
 @theme {
   --font-sans: 'PP Neue Montreal', sans-serif;
-  --color-background: #f1f1f1;
+  --color-background: #ffffff;
   --color-surface: #ffffff;
   --color-primary: #000000;
   --color-secondary: #b85c37;
@@ -130,5 +130,22 @@ body {
   }
   100% {
     transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .page-transition-enter {
+    animation: pageFadeIn 0.3s ease-out 0.05s both;
+  }
+}
+
+@keyframes pageFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

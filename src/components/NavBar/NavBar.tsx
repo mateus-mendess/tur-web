@@ -1,10 +1,12 @@
 import { Link, useLocation } from '@tanstack/react-router'
 import { useAuth } from '#/contexts/AuthContext'
+import { UserMenu } from './UserMenu'
+import { DestinosDropdown } from './DestinosDropdown'
 import { useState, useEffect } from 'react'
 import { PageContainer } from '#/components/UI/PageContainer'
 
 export function NavBar() {
-  const { openLogin, openSignUp } = useAuth()
+  const { isAuthenticated, openLogin, openSignUp, openCreateSpot } = useAuth()
   const [isScrolled, setIsScrolled] = useState(false)
   const location = useLocation()
 
@@ -44,9 +46,19 @@ export function NavBar() {
 
         <nav className="flex items-center gap-8 font-normal text-lg">
           <Link to="/search" className="hover:opacity-80 transition-opacity">Buscar</Link>
-          <Link to="/destinos" className="hover:opacity-80 transition-opacity">Destinos</Link>
-          <button onClick={() => openLogin()} className="hover:opacity-80 transition-opacity cursor-pointer">Login</button>
-          <button onClick={() => openSignUp()} className="hover:opacity-80 transition-opacity cursor-pointer">Cadastrar-se</button>
+          <DestinosDropdown />
+          
+          {isAuthenticated ? (
+            <>
+              <button onClick={() => openCreateSpot()} className="hover:opacity-80 transition-opacity cursor-pointer">Cadastrar Ponto</button>
+              <UserMenu />
+            </>
+          ) : (
+            <>
+              <button onClick={() => openLogin()} className="hover:opacity-80 transition-opacity cursor-pointer">Login</button>
+              <button onClick={() => openSignUp()} className="hover:opacity-80 transition-opacity cursor-pointer">Cadastrar-se</button>
+            </>
+          )}
         </nav>
       </PageContainer>
     </header>

@@ -2,16 +2,10 @@ import { useFormContext } from 'react-hook-form'
 import type { SpotFormData } from '#/schemas/spotSchema'
 import { Input } from '#/components/UI/Input'
 import { Label } from '#/components/UI/Label'
-import { Button } from '#/components/UI/Button'
 import { useDropdown } from '#/hooks/useDropdown'
 import { useStates } from '#/hooks/api/useStates'
 
-interface Step3AddressProps {
-  onBack: () => void
-  isSubmitting: boolean
-}
-
-export function Step3Address({ onBack, isSubmitting }: Step3AddressProps) {
+export function Step3Address() {
   const {
     register,
     watch,
@@ -184,23 +178,6 @@ export function Step3Address({ onBack, isSubmitting }: Step3AddressProps) {
         />
       </div>
 
-      <div className="flex items-center justify-between mt-auto pt-6 w-full">
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={onBack}
-          className="px-4"
-        >
-          Voltar
-        </Button>
-        <Button
-          type="submit"
-          className="px-6"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Cadastrando...' : 'Cadastrar'}
-        </Button>
-      </div>
     </div>
   )
 }
