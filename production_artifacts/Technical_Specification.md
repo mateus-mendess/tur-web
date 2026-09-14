@@ -1,58 +1,54 @@
-# Technical Specification: Padronização Visual dos Modais de Edição
+# Technical Specification: Action Buttons Loading State with Backend Request
 
 ## Executive Summary
-O objetivo desta refatoração é extrair o layout base do modal de Cadastro (duas colunas, selo "tur.", botão X externo) e aplicá-lo uniformemente nos modais de edição: "Editar Informações", "Editar Localização" e "Editar Imagens". O intuito é garantir total coerência visual em todos os formulários e evitar duplicação de CSS.
+This document outlines the technical specification for implementing a reusable loading state on action buttons that trigger backend requests. The goal is to provide visual feedback (loading, success, error) to the user and prevent double submissions.
 
-## Solução Arquitetural: `SplitModalLayout`
+## Requirements
+1. **Reusable Component**: Create a wrapper or a new `Button` component that accepts a `status: 'idle' | 'loading' | 'success' | 'error'` or integrates with a hook/React Query.
+2. **Visual Feedback**:
+   - Loading: Spinner replacing text/icon, or beside it (without width changes).
+   - Success: Check icon briefly (800ms-1s).
+   - Error: X icon briefly, followed by error message display (using Sonner toast or existing error handling).
+3. **Behavior**:
+   - Button disables on click.
+   - Remains disabled until the request resolves (success or error).
+   - Prevents multiple clicks/requests.
+   - No artificial latency (no fake `setTimeout`).
+4. **Scope of Application**:
+   - User Registration
+   - Authentication (Login)
+   - Tourist Spot Registration ("Cadastrar" step 3)
+   - Category Registration ("+" button)
+   - Update Tourist Spot Info ("Salvar")
+   - Update Location ("Salvar")
+   - Image Upload
+   - Image Removal
+   - Delete Tourist Spot (confirmation)
 
-Vamos criar um novo componente reutilizável `SplitModalLayout.tsx` (dentro de `src/components/UI/`) que encapsulará a marcação HTML de 2 colunas e o CSS do "Wizard". 
+## Architecture & Tech Stack
+- **Framework**: React 19, Vite.
+- **Styling**: Tailwind CSS v4.
+- **State Management / Data Fetching**: `@tanstack/react-query` mutations (`isPending`, `isSuccess`, `isError`).
+- **Icons**: Standard SVG/Icon library used in the project (e.g. Radix Icons or Lucide, to be verified).
+- **Notifications**: `sonner` for error toasts.
 
-### Assinatura do `SplitModalLayout`
-```tsx
-interface SplitModalLayoutProps {
-  leftNumberOrIcon?: React.ReactNode;
-  title: string;
-  description: string;
-  subDescription?: string;
-  children: React.ReactNode; // Conteúdo do form (coluna direita)
-  footer: React.ReactNode;   // Botões (Cancelar/Salvar, etc)
-}
-```
+## State Management
+- Utilize the native states provided by `@tanstack/react-query`'s `useMutation` hook:
+  - `isPending` maps to the `loading` status.
+  - `isSuccess` maps to the `success` status (which triggers a brief UI change, then cleanup).
+  - `isError` maps to the `error` status.
+- **Implementation Strategy**:
+  - We can create an `AsyncButton` component that accepts a `mutation` object or boolean flags (`isPending`, `isSuccess`, `isError`).
+  - Example Prop Signature:
+    ```tsx
+    interface AsyncButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+      isPending?: boolean;
+      isSuccess?: boolean;
+      isError?: boolean;
+    }
+    ```
+  - For the temporary success/error icon display, the `AsyncButton` will manage an internal state (e.g. `showSuccessIcon`, `showErrorIcon`) with a `useEffect` that sets a timeout to revert to idle after 1s.
 
-### O que o componente encapsulará:
-- O contêiner pai `w-full bg-white rounded-none ... grid grid-cols-[1fr_1.15fr]`
-- Coluna da esquerda com a estilização padronizada de título (`font-dm-sans text-[26px]`), descrição e o número/ícone gigante (`text-[72px]`).
-- Coluna da direita com o posicionamento absoluto do selo (`selo-img.png`).
-- O rodapé com flexbox para alinhar os botões.
-- Como ele renderizará dentro de `BaseModal`, ele herdará o botão (X) de fechamento automático fora do card e o `maxWidthClass`.
-
-## Modificações por Arquivo
-
-### 1. Extracão do `CreateSpotForm`
-- Atualizar o `CreateSpotForm.tsx` para passar a renderizar seu formulário utilizando o `SplitModalLayout`, repassando dinamicamente os títulos (`step === 1`, etc.) para o componente. 
-
-### 2. `EditSpotModal.tsx` (Editar Informações)
-- Passará a usar o `SplitModalLayout`.
-- **leftNumberOrIcon**: Um ícone de documento ou lápis (grande) em vez de números.
-- **title**: "Editar Informações".
-- **description**: "Atualize o nome e uma breve descrição detalhando as principais atrações do local."
-- **footer**: Botões de `Cancelar` (variante secundária/outline) e `Salvar` (variante default/preto).
-
-### 3. `EditAddressModal.tsx` (Editar Localização)
-- Passará a usar o `SplitModalLayout`.
-- **leftNumberOrIcon**: Ícone de mapa (MapPinIcon grande).
-- **title**: "Editar Localização".
-- **description**: "Atualize o endereço completo para que os visitantes encontrem o ponto turístico."
-- **footer**: Botões `Cancelar` e `Salvar`.
-
-### 4. `UploadPhotosModal.tsx` (Editar Imagens)
-- Passará a usar o `SplitModalLayout`.
-- **leftNumberOrIcon**: Ícone de Galeria (ImageIcon grande).
-- **title**: "Editar Imagens".
-- **description**: "Adicione ou remova fotos do ponto turístico para manter a galeria atualizada."
-- **footer**: Botões `Cancelar` e `Salvar/Concluir`.
-
-A base visual será estritamente idêntica à do cadastro, cumprindo integralmente as exigências visuais reportadas.
-
----
-Do you approve of this tech stack and specification?
+## User Review Required
+> [!IMPORTANT]
+> - Do you approve of this tech stack and specification?

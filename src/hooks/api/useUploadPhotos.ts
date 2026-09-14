@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+
 import { photosService } from '#/services/photosService'
 import { queryKeys } from '#/lib/queryKeys'
 
@@ -81,23 +81,8 @@ export function useUploadPhotos() {
       })
     }
 
-    // Show consolidated toast
-    if (successCount === files.length) {
-      toast.success(
-        `${successCount} ${successCount === 1 ? 'foto enviada' : 'fotos enviadas'} com sucesso!`,
-      )
-    } else if (successCount > 0) {
-      toast.warning(
-        `${successCount} de ${files.length} fotos enviadas com sucesso.`,
-      )
-    } else {
-      toast.error(
-        `Falha ao enviar ${files.length === 1 ? 'a foto' : 'as fotos'}.`,
-      )
-    }
-
     if (successCount > 0) {
-      setTimeout(() => window.location.reload(), 500)
+      setTimeout(() => window.location.reload(), 1000)
     }
 
     return { successCount, totalFiles: files.length }

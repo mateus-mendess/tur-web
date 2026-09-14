@@ -5,6 +5,7 @@ import { SearchableDropdown } from '#/components/UI/SearchableDropdown'
 import { useDropdown } from '#/hooks/useDropdown'
 import { useSpotCategories } from './useSpotCategories'
 import { useAccessibilityTypes } from '#/hooks/api/useAccessibilityTypes'
+import { Button } from '#/components/UI/Button'
 
 export function Step2Categories() {
   const {
@@ -23,6 +24,8 @@ export function Step2Categories() {
     handleAddCategory,
     isCategoriesLoading,
     isCreatingCategory,
+    createCategorySuccess,
+    createCategoryError,
   } = useSpotCategories()
 
   const { data: accessibilityTypes = [] } = useAccessibilityTypes()
@@ -78,11 +81,13 @@ export function Step2Categories() {
                 }}
                 className="flex-1 font-inter text-xs border border-black/30 px-2 py-1 rounded-none outline-none focus:border-black"
               />
-              <button
+              <Button
                 type="button"
                 onClick={() => { void handleAddCategory() }}
-                disabled={isCreatingCategory}
-                className="bg-black text-white px-2 py-1 border border-black font-bold hover:bg-tur-accent transition-colors cursor-pointer rounded-none shrink-0 disabled:opacity-50"
+                isLoading={isCreatingCategory}
+                isSuccess={createCategorySuccess}
+                isError={createCategoryError}
+                className="bg-black text-white px-2 py-1 border border-black font-bold hover:bg-tur-accent transition-colors cursor-pointer rounded-none shrink-0"
               >
                 <svg
                   width="12"
@@ -97,7 +102,7 @@ export function Step2Categories() {
                   <line x1="12" y1="5" x2="12" y2="19" />
                   <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
-              </button>
+              </Button>
             </div>
           }
         />

@@ -24,6 +24,7 @@ export function UploadPhotosModal({
   const deletePhoto = useDeletePhoto(spot.id)
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [deletingPhotoId, setDeletingPhotoId] = useState<string | null>(null)
+  const [uploadButtonStatus, setUploadButtonStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
   // Calculate limits using spot.photos directly
   const currentPhotoCount = spot.photos?.length || 0
@@ -61,10 +62,13 @@ export function UploadPhotosModal({
     const { successCount, totalFiles } = await uploadFiles(spot.id, selectedFiles, currentPhotoCount)
     
     if (successCount === totalFiles) {
-      // All successful, close modal
-      onClose()
+      setUploadButtonStatus('success')
+      setTimeout(() => {
+        onClose()
+      }, 700)
+    } else {
+      setUploadButtonStatus('error')
     }
-    // Else, keep modal open to show errors
   }
 
   const handleDeletePhoto = (photoId: string) => {
@@ -106,9 +110,11 @@ export function UploadPhotosModal({
               <Button
                 type="button"
                 onClick={handleUpload}
-                disabled={isAnyActionPending || selectedFiles.length === 0 || remainingSlots === 0 || progress.length > 0}
+                isLoading={isPending}
+                isSuccess={uploadButtonStatus === 'success'}
+                isError={uploadButtonStatus === 'error'}
               >
-                {isPending ? 'Enviando...' : 'Fazer Upload'}
+                Fazer Upload
               </Button>
             )}
           </>
@@ -130,22 +136,17 @@ export function UploadPhotosModal({
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
                         onClick={() => handleDeletePhoto(photo.id)}
-                        disabled={isAnyActionPending}
+                        disabled={isAnyActionPending && deletingPhotoId !== photo.id}
+                        isLoading={deletingPhotoId === photo.id}
                         className="p-2 bg-white text-red-600 rounded-none hover:bg-red-50 transition-colors disabled:opacity-50 cursor-pointer"
                         title="Excluir foto"
                       >
-                        {deletingPhotoId === photo.id ? (
-                          <svg className="animate-spin h-5 w-5 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                        ) : (
-                          <TrashIcon className="w-5 h-5" />
-                        )}
-                      </button>
+                        <TrashIcon className="w-5 h-5" />
+                      </Button>
                     </div>
                   </div>
                 ))}

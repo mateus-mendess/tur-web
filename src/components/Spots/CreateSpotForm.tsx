@@ -62,8 +62,10 @@ export function CreateSpotForm({ onSuccess, onCancel }: CreateSpotFormProps) {
   const onSubmit = (data: SpotFormData) => {
     createSpot.mutate(data, {
       onSuccess: () => {
-        onSuccess?.(data)
-        onCancel()
+        setTimeout(() => {
+          onSuccess?.(data)
+          onCancel()
+        }, 1000)
       },
     })
   }
@@ -147,8 +149,14 @@ export function CreateSpotForm({ onSuccess, onCancel }: CreateSpotFormProps) {
             )}
 
             {step === 3 && (
-              <Button type="submit" className="px-6" disabled={createSpot.isPending}>
-                {createSpot.isPending ? 'Cadastrando...' : 'Cadastrar'}
+              <Button
+                type="submit"
+                className="px-6"
+                isLoading={createSpot.isPending}
+                isSuccess={createSpot.isSuccess}
+                isError={createSpot.isError}
+              >
+                Cadastrar
               </Button>
             )}
           </>

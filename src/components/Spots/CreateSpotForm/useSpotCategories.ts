@@ -81,5 +81,7 @@ export function useSpotCategories() {
     handleAddCategory,
     isCategoriesLoading,
     isCreatingCategory: createCategoryMutation.isPending,
+    createCategorySuccess: createCategoryMutation.isSuccess,
+    createCategoryError: createCategoryMutation.isError,
   }
 }

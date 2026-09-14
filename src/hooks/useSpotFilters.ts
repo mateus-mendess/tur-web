@@ -27,8 +27,7 @@ export function useSpotFilters(
       const matchCategory =
         selectedCategory === 'Todas' ||
         spot.categories.some((c) => c.name === selectedCategory)
-      const matchRegion =
-        selectedRegion === 'Todas' || true // Substituir por lógica de região real quando API suportar
+      const matchRegion = true // TODO: Substituir por lógica de região real quando API suportar
       const matchAccessibility =
         selectedAccessibility === 'Todas' ||
         spot.accessibilityTypes.some((a) => a.name === selectedAccessibility)
@@ -36,8 +35,7 @@ export function useSpotFilters(
         searchQuery.trim() === '' ||
         spot.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         spot.address.city.toLowerCase().includes(searchQuery.toLowerCase())
-
-      return matchCategory && matchRegion && matchAccessibility && matchSearch
+      return matchCategory && matchAccessibility && matchSearch
     })
   }, [spots, selectedCategory, selectedRegion, selectedAccessibility, searchQuery])
 

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
@@ -48,6 +48,8 @@ export function EditAddressModal({ isOpen, onClose, spot }: EditAddressModalProp
   const stateIdWatch = watch('stateId')
   const selectedStateLabel = states.find((s) => s.id === stateIdWatch)?.abbreviation ?? ''
 
+  const [buttonStatus, setButtonStatus] = useState<'idle' | 'success' | 'error'>('idle')
+
   // Initialize form when modal opens and rawSpot is available
   useEffect(() => {
     if (isOpen && states.length > 0 && rawSpot) {
@@ -61,6 +63,7 @@ export function EditAddressModal({ isOpen, onClose, spot }: EditAddressModalProp
         cep: rawSpot.address.zipcode || '',
         stateId: foundState ? foundState.id : undefined,
       })
+      setButtonStatus('idle')
     }
   }, [isOpen, rawSpot, states, reset])
 
@@ -76,9 +79,13 @@ export function EditAddressModal({ isOpen, onClose, spot }: EditAddressModalProp
         stateId: data.stateId
       })
       await queryClient.invalidateQueries({ queryKey: ['spots'] })
-      onClose()
-      setTimeout(() => window.location.reload(), 500)
+      setButtonStatus('success')
+      setTimeout(() => {
+        onClose()
+        window.location.reload()
+      }, 1000)
     } catch (err: unknown) {
+      setButtonStatus('error')
       const message = err instanceof Error ? err.message : 'Erro ao atualizar o endereço.'
       setError('root', {
         message,
@@ -104,10 +111,12 @@ export function EditAddressModal({ isOpen, onClose, spot }: EditAddressModalProp
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
               onClick={onSubmit}
+              isLoading={isSubmitting}
+              isSuccess={buttonStatus === 'success'}
+              isError={buttonStatus === 'error'}
             >
-              {isSubmitting ? 'Salvando...' : 'Salvar'}
+              Salvar
             </Button>
           </>
         }

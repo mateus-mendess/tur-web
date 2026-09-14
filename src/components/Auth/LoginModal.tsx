@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { BaseModal } from '#/components/UI/BaseModal'
@@ -41,18 +41,26 @@ export function LoginModal({
     },
   })
 
+  const [buttonStatus, setButtonStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  
   const manterConectado = watch('manterConectado')
 
   useEffect(() => {
     if (isOpen && defaultEmail) {
       setValue('email', defaultEmail)
     }
+    if (!isOpen) {
+      setButtonStatus('idle')
+    }
   }, [isOpen, defaultEmail, setValue])
 
   const onSubmit = handleSubmit(async (data) => {
     try {
       await onLogin(data)
+      setButtonStatus('success')
+      setTimeout(() => onClose(), 1000)
     } catch {
+      setButtonStatus('error')
       setError('root', {
         message: 'E-mail ou senha incorretos. Verifique seus dados.',
       })
@@ -185,8 +193,14 @@ export function LoginModal({
 
             {/* CTA */}
             <div className="flex justify-center mt-3">
-              <Button type="submit" className="w-[180px]" disabled={isSubmitting}>
-                {isSubmitting ? 'Entrando...' : 'Entrar'}
+              <Button
+                type="submit"
+                className="w-[180px]"
+                isLoading={isSubmitting}
+                isSuccess={buttonStatus === 'success'}
+                isError={buttonStatus === 'error'}
+              >
+                Entrar
               </Button>
             </div>
 

@@ -2,7 +2,7 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { useState } from 'react'
 import { Button } from '#/components/UI/Button'
 import { spotsService } from '#/services/spotsService'
-import { toast } from 'sonner'
+
 import { useQueryClient } from '@tanstack/react-query'
 import type { Spot } from '#/types/spot'
 
@@ -16,6 +16,7 @@ interface DeleteSpotModalProps {
 export function DeleteSpotModal({ isOpen, onClose, spot, onDeleted }: DeleteSpotModalProps) {
   const queryClient = useQueryClient()
   const [isDeleting, setIsDeleting] = useState(false)
+  const [buttonStatus, setButtonStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [error, setError] = useState<string | null>(null)
 
   const handleDelete = async () => {
@@ -25,10 +26,11 @@ export function DeleteSpotModal({ isOpen, onClose, spot, onDeleted }: DeleteSpot
     try {
       await spotsService.deleteSpot(spot.id)
       await queryClient.invalidateQueries({ queryKey: ['spots'] })
-      toast.success('Ponto turístico excluído com sucesso.')
+      setButtonStatus('success')
       onDeleted()
-      setTimeout(() => window.location.reload(), 500)
+      setTimeout(() => window.location.reload(), 1000)
     } catch (err: unknown) {
+      setButtonStatus('error')
       const message = err instanceof Error ? err.message : 'Erro ao excluir o ponto turístico.'
       setError(message)
       setIsDeleting(false)
@@ -68,10 +70,12 @@ export function DeleteSpotModal({ isOpen, onClose, spot, onDeleted }: DeleteSpot
               <Button
                 type="button"
                 onClick={handleDelete}
-                disabled={isDeleting}
+                isLoading={isDeleting}
+                isSuccess={buttonStatus === 'success'}
+                isError={buttonStatus === 'error'}
                 className="bg-red-600 border-red-600 hover:bg-red-700 hover:border-red-700 text-white"
               >
-                {isDeleting ? 'Excluindo...' : 'Excluir'}
+                Excluir
               </Button>
             </div>
           </Dialog.Content>

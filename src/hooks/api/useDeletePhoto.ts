@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+
 import { photosService } from '#/services/photosService'
 import { queryKeys } from '#/lib/queryKeys'
 
@@ -12,11 +12,9 @@ export function useDeletePhoto(touristPointId: string) {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.spots.detail(touristPointId),
       })
-      toast.success('Foto removida com sucesso!')
-      setTimeout(() => window.location.reload(), 500)
+      setTimeout(() => window.location.reload(), 1000)
     },
-    onError: (error: Error) => {
-      toast.error(error.message)
+    onError: () => {
     },
   })
 }

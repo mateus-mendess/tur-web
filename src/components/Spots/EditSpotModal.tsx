@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
@@ -35,6 +35,8 @@ export function EditSpotModal({ isOpen, onClose, spot }: EditSpotModalProps) {
     },
   })
 
+  const [buttonStatus, setButtonStatus] = useState<'idle' | 'success' | 'error'>('idle')
+
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
@@ -42,6 +44,7 @@ export function EditSpotModal({ isOpen, onClose, spot }: EditSpotModalProps) {
         nome: spot.name,
         descricao: spot.description || '',
       })
+      setButtonStatus('idle')
     }
   }, [isOpen, spot, reset])
 
@@ -52,9 +55,13 @@ export function EditSpotModal({ isOpen, onClose, spot }: EditSpotModalProps) {
         description: data.descricao
       })
       await queryClient.invalidateQueries({ queryKey: ['spots'] })
-      onClose()
-      setTimeout(() => window.location.reload(), 500)
+      setButtonStatus('success')
+      setTimeout(() => {
+        onClose()
+        window.location.reload()
+      }, 1000)
     } catch (err: unknown) {
+      setButtonStatus('error')
       const message = err instanceof Error ? err.message : 'Erro ao atualizar o ponto turístico.'
       setError('root', {
         message,
@@ -80,10 +87,12 @@ export function EditSpotModal({ isOpen, onClose, spot }: EditSpotModalProps) {
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting}
               onClick={onSubmit}
+              isLoading={isSubmitting}
+              isSuccess={buttonStatus === 'success'}
+              isError={buttonStatus === 'error'}
             >
-              {isSubmitting ? 'Salvando...' : 'Salvar'}
+              Salvar
             </Button>
           </>
         }
