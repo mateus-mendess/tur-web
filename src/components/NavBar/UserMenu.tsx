@@ -69,7 +69,7 @@ export function UserMenu() {
               Meus Pontos
             </Link>
             <Link 
-              to="/favoritos" 
+              to="/meus-favoritos" 
               className="px-5 py-2.5 flex items-center gap-2 text-sm font-normal hover:bg-black/5 transition-colors duration-200"
             >
               <HeartIcon className="w-4 h-4" />

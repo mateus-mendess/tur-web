@@ -1,42 +1,58 @@
-# Technical Specification: Spot Details Page Layout Reorganization
+# Technical Specification: Padronização Visual dos Modais de Edição
 
 ## Executive Summary
-This specification outlines the structural and layout adjustments for the Tourist Point Detail Page (`/pontos/$spotId`). The goal is to optimize the visual flow and user experience by repositioning the Information block and the Comments section, adhering to a new structural reference provided by the user. 
+O objetivo desta refatoração é extrair o layout base do modal de Cadastro (duas colunas, selo "tur.", botão X externo) e aplicá-lo uniformemente nos modais de edição: "Editar Informações", "Editar Localização" e "Editar Imagens". O intuito é garantir total coerência visual em todos os formulários e evitar duplicação de CSS.
 
-## Requirements
-1. **Information Block Reorganization (New Position & Layout)**
-   - **Position**: Move the information block to appear immediately below the image gallery (`HeroCarousel`).
-   - **Layout**: It must feature a horizontal single-line structure containing 5 distinct columns.
-   - **Columns**:
-     1. Localização (Address/Neighborhood/City)
-     2. Nota Média (Stars + numeric rating)
-     3. Categoria (Category badges)
-     4. Acessibilidade (Accessibility badges)
-     5. Autor da publicação (Author avatar + name)
-   - **Styling**: Short uppercase labels (weight 600) with a light letter-spacing, followed by regular text (weight 400). Columns must be separated by thin vertical lines. 
+## Solução Arquitetural: `SplitModalLayout`
 
-2. **Comments Section Reorganization (New Position & Layout)**
-   - **Position**: Move the comments section to the location previously occupied by the Information block (alongside the map).
-   - **Layout**: Transition from a card grid layout to a vertical list format.
-   - **Integration**: The left column will contain the list of comments, and the right column will retain the map placeholder.
-   - **Styling**: Maintain the existing visual elements for individual comments (avatar, star rating, author name, truncated text with a "View more" button).
+Vamos criar um novo componente reutilizável `SplitModalLayout.tsx` (dentro de `src/components/UI/`) que encapsulará a marcação HTML de 2 colunas e o CSS do "Wizard". 
 
-3. **Page Flow Order**
-   1. Header (Global, auto-hidden on scroll as already implemented)
-   2. Photo Gallery (`HeroCarousel`)
-   3. Information Block (5 horizontal columns)
-   4. Description Block (About section layout)
-   5. Comments List & Map Placeholder (Side-by-side)
-   6. Footer (Global)
+### Assinatura do `SplitModalLayout`
+```tsx
+interface SplitModalLayoutProps {
+  leftNumberOrIcon?: React.ReactNode;
+  title: string;
+  description: string;
+  subDescription?: string;
+  children: React.ReactNode; // Conteúdo do form (coluna direita)
+  footer: React.ReactNode;   // Botões (Cancelar/Salvar, etc)
+}
+```
 
-## Architecture & Tech Stack
-- **Framework**: React via TanStack Router (`pontos.$spotId.tsx`).
-- **Styling**: Tailwind CSS (Utility classes) heavily utilizing Flexbox and CSS Grid.
-  - The 5-column info block will utilize `grid-cols-5` on medium/large screens with `divide-x` utilities for the vertical lines.
-  - The Comments & Map section will utilize a `flex-col lg:flex-row` container to balance the list and map.
-- **Components**: Reusing existing UI components (`MapPinIcon`, `HeroCarousel`, etc.). No new component files are strictly necessary; modifications will occur entirely within the `SpotDetailPage` component structure.
+### O que o componente encapsulará:
+- O contêiner pai `w-full bg-white rounded-none ... grid grid-cols-[1fr_1.15fr]`
+- Coluna da esquerda com a estilização padronizada de título (`font-dm-sans text-[26px]`), descrição e o número/ícone gigante (`text-[72px]`).
+- Coluna da direita com o posicionamento absoluto do selo (`selo-img.png`).
+- O rodapé com flexbox para alinhar os botões.
+- Como ele renderizará dentro de `BaseModal`, ele herdará o botão (X) de fechamento automático fora do card e o `maxWidthClass`.
 
-## State Management
-- No new state logic is required.
-- Existing React Query hooks (`useSpot`, `useComments`) will continue supplying data to the restructured components.
-- Existing local UI state (e.g., modals for editing) remains unaffected.
+## Modificações por Arquivo
+
+### 1. Extracão do `CreateSpotForm`
+- Atualizar o `CreateSpotForm.tsx` para passar a renderizar seu formulário utilizando o `SplitModalLayout`, repassando dinamicamente os títulos (`step === 1`, etc.) para o componente. 
+
+### 2. `EditSpotModal.tsx` (Editar Informações)
+- Passará a usar o `SplitModalLayout`.
+- **leftNumberOrIcon**: Um ícone de documento ou lápis (grande) em vez de números.
+- **title**: "Editar Informações".
+- **description**: "Atualize o nome e uma breve descrição detalhando as principais atrações do local."
+- **footer**: Botões de `Cancelar` (variante secundária/outline) e `Salvar` (variante default/preto).
+
+### 3. `EditAddressModal.tsx` (Editar Localização)
+- Passará a usar o `SplitModalLayout`.
+- **leftNumberOrIcon**: Ícone de mapa (MapPinIcon grande).
+- **title**: "Editar Localização".
+- **description**: "Atualize o endereço completo para que os visitantes encontrem o ponto turístico."
+- **footer**: Botões `Cancelar` e `Salvar`.
+
+### 4. `UploadPhotosModal.tsx` (Editar Imagens)
+- Passará a usar o `SplitModalLayout`.
+- **leftNumberOrIcon**: Ícone de Galeria (ImageIcon grande).
+- **title**: "Editar Imagens".
+- **description**: "Adicione ou remova fotos do ponto turístico para manter a galeria atualizada."
+- **footer**: Botões `Cancelar` e `Salvar/Concluir`.
+
+A base visual será estritamente idêntica à do cadastro, cumprindo integralmente as exigências visuais reportadas.
+
+---
+Do you approve of this tech stack and specification?

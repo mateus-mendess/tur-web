@@ -28,8 +28,7 @@ export function useSpotFilters(
         selectedCategory === 'Todas' ||
         spot.categories.some((c) => c.name === selectedCategory)
       const matchRegion =
-        selectedRegion === 'Todas' ||
-        (selectedRegion === 'América do Sul') // Todos os nossos mocks são do Brasil
+        selectedRegion === 'Todas' || true // Substituir por lógica de região real quando API suportar
       const matchAccessibility =
         selectedAccessibility === 'Todas' ||
         spot.accessibilityTypes.some((a) => a.name === selectedAccessibility)

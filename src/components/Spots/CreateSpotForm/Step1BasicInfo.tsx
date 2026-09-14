@@ -35,7 +35,9 @@ export function Step1BasicInfo() {
         <textarea
           id="spot-descricao"
           rows={3}
-          className={`w-full p-2 font-sans text-sm text-primary bg-transparent border-b border-x-0 border-t-0 rounded-none outline-none transition-colors duration-200 focus:border-primary focus:ring-0 placeholder-black/40 resize-none ${errors.descricao ? 'border-error' : 'border-black/20'}`}
+          className={`w-full border rounded-none bg-transparent px-3 py-2 font-inter text-sm text-tur-dark placeholder:text-tur-gray-400 outline-none focus:border-black min-h-[120px] resize-y ${
+            errors.descricao ? 'border-tur-red' : 'border-black/20'
+          }`}
           placeholder="Descreva as atrações e características do local..."
           {...register('descricao')}
         />

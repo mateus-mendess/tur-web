@@ -1,9 +1,11 @@
 import type { Spot } from '#/types/spot'
 import { useState } from 'react'
 
+
 interface SpotCardProps {
   spot: Spot
   onClick?: () => void
+  layout?: 'grid' | 'list'
 }
 
 export function SpotCard({ spot, onClick }: SpotCardProps) {
@@ -77,13 +79,15 @@ export function SpotCard({ spot, onClick }: SpotCardProps) {
       </div>
 
       {/* Info Section (Outside Image) */}
-      <div className="flex flex-col mt-3 gap-0.5">
-        <span className="font-sans text-xs uppercase text-primary/60 font-normal tracking-wide">
-          {spot.location}
-        </span>
-        <h3 className="font-sans text-base text-primary m-0 font-normal mt-1">
-          {spot.name}
-        </h3>
+      <div className="flex flex-col mt-3 gap-0.5 relative">
+        <div className="pr-12">
+          <span className="font-sans text-xs uppercase text-primary/60 font-normal tracking-wide">
+            {spot.location}
+          </span>
+          <h3 className="font-sans text-base text-primary m-0 font-normal mt-1">
+            {spot.name}
+          </h3>
+        </div>
       </div>
     </article>
   )

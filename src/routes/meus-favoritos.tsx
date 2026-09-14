@@ -1,0 +1,159 @@
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { z } from 'zod'
+import { useFavoriteSpots } from '#/hooks/api/useFavoriteSpots'
+import { useCategories } from '#/hooks/api/useCategories'
+import { useAccessibilityTypes } from '#/hooks/api/useAccessibilityTypes'
+
+import { SpotCard } from '#/components/Spots/SpotCard'
+import { SpotFilterBar } from '#/components/Spots/SpotFilterBar'
+import { useSpotFilters } from '#/hooks/useSpotFilters'
+import { SpotCardSkeleton } from '#/components/UI/Skeleton'
+import { PageContainer } from '#/components/UI/PageContainer'
+import { toSpot } from '#/types/spot'
+import { useAuth } from '#/contexts/AuthContext'
+import { useEffect } from 'react'
+
+const searchSchema = z.object({
+  busca: z.string().optional().default(''),
+  categoria: z.string().optional().default('Todas'),
+  regiao: z.string().optional().default('Todas'),
+  acessibilidade: z.string().optional().default('Todas'),
+})
+
+export const Route = createFileRoute('/meus-favoritos')({
+  validateSearch: searchSchema,
+  component: MeusFavoritosPage,
+  head: () => ({
+    meta: [{ title: 'Meus Favoritos | Tur.' }],
+  }),
+})
+
+function MeusFavoritosPage() {
+  const { busca: initialBusca, categoria: initialCategoria, regiao: initialRegiao } = Route.useSearch()
+  
+  const { user, openLogin } = useAuth()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!user) {
+      openLogin()
+      navigate({ to: '/' })
+    }
+  }, [user, openLogin, navigate])
+
+  const { data: spots = [], isLoading, isError } = useFavoriteSpots(user?.id)
+  const { data: categoriesData = [] } = useCategories()
+  const { data: accessibilityTypes = [] } = useAccessibilityTypes()
+  
+  const categoriesList = categoriesData.map((c) => c.name)
+  const accessibilityList = accessibilityTypes.map((a) => a.name)
+  const regionsList = ['África', 'América Central', 'América do Norte', 'América do Sul', 'Ásia', 'Europa', 'Oceania']
+
+  const {
+    selectedCategory,
+    setSelectedCategory,
+    selectedRegion,
+    setSelectedRegion,
+    selectedAccessibility,
+    setSelectedAccessibility,
+    searchQuery,
+    setSearchQuery,
+    viewMode,
+    setViewMode,
+    filteredSpots,
+    handleResetFilters,
+    isFilterActive,
+  } = useSpotFilters(spots, initialBusca, initialCategoria, initialRegiao)
+
+  if (!user) return null
+
+  return (
+    <main className="min-h-screen bg-tur-bg pb-20 pt-6 md:pt-10">
+      <PageContainer className="pt-12 md:pt-16">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
+          <h1 className="text-4xl md:text-5xl font-normal tracking-tight text-primary m-0">Pontos Favoritados</h1>
+        </div>
+
+        <SpotFilterBar
+          categoriesList={categoriesList}
+          regionsList={regionsList}
+          accessibilityList={accessibilityList}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          selectedRegion={selectedRegion}
+          setSelectedRegion={setSelectedRegion}
+          selectedAccessibility={selectedAccessibility}
+          setSelectedAccessibility={setSelectedAccessibility}
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+          isFilterActive={isFilterActive}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          handleResetFilters={handleResetFilters}
+        />
+
+        <div className="mb-6 mt-8 flex items-end justify-between">
+          <h2 className="font-sans text-sm md:text-base font-normal text-primary m-0">
+            Exibindo {filteredSpots.length} resultados
+          </h2>
+        </div>
+
+        {isLoading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-2 md:gap-x-3 lg:gap-x-4 gap-y-10 md:gap-y-12">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SpotCardSkeleton key={i} />
+            ))}
+          </div>
+        )}
+
+        {isError && (
+          <div className="w-full py-20 flex flex-col items-center justify-center text-center">
+            <p className="text-xl font-medium text-primary mb-2">Ops! Algo deu errado.</p>
+            <p className="text-sm text-black/60">Não foi possível carregar os seus favoritos.</p>
+          </div>
+        )}
+
+        {!isLoading && !isError && filteredSpots.length === 0 && (
+          <div className="w-full py-20 flex flex-col items-center justify-center text-center">
+            <p className="text-xl font-medium text-primary mb-2">Nenhum ponto encontrado.</p>
+            <p className="text-sm text-black/60">
+              {isFilterActive
+                ? 'Tente ajustar os filtros de busca.'
+                : 'Você ainda não tem nenhum ponto turístico favorito.'}
+            </p>
+            {isFilterActive && (
+              <button
+                onClick={handleResetFilters}
+                className="mt-6 px-6 py-2 bg-primary text-white rounded-md hover:bg-black/80 transition-colors"
+              >
+                Limpar Filtros
+              </button>
+            )}
+          </div>
+        )}
+
+        {!isLoading && !isError && filteredSpots.length > 0 && (
+          <div
+            className={`
+              grid gap-x-2 md:gap-x-3 lg:gap-x-4 gap-y-10 md:gap-y-12
+              ${
+                viewMode === 'grid'
+                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                  : 'grid-cols-1 max-w-4xl mx-auto'
+              }
+            `}
+          >
+            {filteredSpots.map((spot) => (
+              <SpotCard 
+                key={spot.id} 
+                spot={toSpot(spot)} 
+                layout={viewMode}
+                onClick={() => navigate({ to: '/pontos/$spotId', params: { spotId: spot.id } })}
+              />
+            ))}
+          </div>
+        )}
+      </PageContainer>
+    </main>
+  )
+}

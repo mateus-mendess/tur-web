@@ -3,10 +3,11 @@ import { useSpot } from '#/hooks/api/useSpot'
 import { toSpot } from '#/types/spot'
 import type { HeroLocation } from '#/components/HeroCarousel/HeroCarousel'
 import { HeroCarousel } from '#/components/HeroCarousel/HeroCarousel'
-import { ShareIcon } from '#/components/UI/Icons'
+import { HeartOutlineIcon, HeartFilledIcon } from '#/components/UI/Icons'
 import { PageContainer } from '#/components/UI/PageContainer'
 
 import { useComments } from '#/hooks/api/useComments'
+import { useSpotFavoriteStatus } from '#/hooks/api/useFavorites'
 
 import { useAuth } from '#/contexts/AuthContext'
 import { useSpotDetailModals } from '#/components/Spots/useSpotDetailModals'
@@ -26,8 +27,10 @@ function SpotDetailPage() {
   const spot = rawSpot ? toSpot(rawSpot) : null
   const { data: comments = [], isLoading: isLoadingComments } = useComments(spotId)
   
-  const { user } = useAuth()
+  const { user, openLogin } = useAuth()
   const navigate = useNavigate()
+
+  const { isFavorite, toggleFavorite, isToggling } = useSpotFavoriteStatus(spotId, user?.id)
 
   const {
     isEditSpotOpen,
@@ -80,6 +83,14 @@ function SpotDetailPage() {
     return paragraphs.map((p, idx) => <p key={idx}>{p}</p>)
   }
 
+  const handleFavoriteClick = () => {
+    if (!user) {
+      openLogin()
+      return
+    }
+    toggleFavorite()
+  }
+
   return (
     <main className="min-h-screen bg-background text-primary">
       
@@ -91,10 +102,30 @@ function SpotDetailPage() {
         <h1 className="text-[80px] md:text-[130px] font-light tracking-tight text-primary font-sans max-w-6xl leading-[1.1]">
           {spot.name}
         </h1>
-        <button className="mt-10 flex items-center gap-2 text-sm font-normal text-black/80 hover:text-black transition-colors">
-          <ShareIcon className="w-4 h-4" />
-          Compartilhar
-        </button>
+        <div className="mt-10 flex items-center justify-center gap-4">
+          <button 
+            onClick={handleFavoriteClick}
+            disabled={isToggling}
+            className="group flex items-center gap-3 text-lg font-normal text-black/80 hover:text-secondary transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            {isFavorite ? (
+              <HeartFilledIcon className="w-6 h-6 text-secondary" />
+            ) : (
+              <HeartOutlineIcon className="w-6 h-6 text-primary group-hover:text-secondary transition-colors" />
+            )}
+            <span className="text-black group-hover:text-secondary transition-colors">Favoritar</span>
+          </button>
+          {isOwner && (
+            <div className="relative z-50">
+              <SpotEditMenu
+                onEditPhotos={() => setIsUploadPhotosOpen(true)}
+                onEditInfo={() => setIsEditSpotOpen(true)}
+                onEditAddress={() => setIsEditAddressOpen(true)}
+                onDelete={() => setIsDeleteModalOpen(true)}
+              />
+            </div>
+          )}
+        </div>
       </section>
 
       <HeroCarousel locations={gallery} autoplay={false} />
@@ -169,16 +200,6 @@ function SpotDetailPage() {
             <h2 className="text-base md:text-lg font-medium text-secondary m-0 leading-tight">
               Descrição
             </h2>
-            {isOwner && (
-              <div className="mt-4">
-                <SpotEditMenu
-                  onEditPhotos={() => setIsUploadPhotosOpen(true)}
-                  onEditInfo={() => setIsEditSpotOpen(true)}
-                  onEditAddress={() => setIsEditAddressOpen(true)}
-                  onDelete={() => setIsDeleteModalOpen(true)}
-                />
-              </div>
-            )}
           </div>
           <div className="max-w-2xl flex flex-col gap-6 text-lg md:text-xl font-normal leading-relaxed text-balance text-black/90">
             {renderDescription()}
@@ -255,7 +276,7 @@ function SpotDetailPage() {
       <EditAddressModal
         isOpen={isEditAddressOpen}
         onClose={() => setIsEditAddressOpen(false)}
-        rawSpot={rawSpot}
+        spot={spot}
       />
       <DeleteSpotModal
         isOpen={isDeleteModalOpen}

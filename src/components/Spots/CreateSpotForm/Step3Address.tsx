@@ -147,9 +147,9 @@ export function Step3Address() {
                       setValue('stateId', state.id, { shouldValidate: true })
                       estadoMenu.close()
                     }}
-                    className={`text-center font-inter text-xs py-1 px-2 transition-colors rounded-none hover:bg-black/5 cursor-pointer ${
+                    className={`text-center font-inter text-xs py-1 px-2 transition-colors rounded-none cursor-pointer ${
                       stateIdWatch === state.id
-                        ? 'bg-tur-dark text-white font-bold'
+                        ? 'bg-secondary text-white font-bold'
                         : 'text-tur-dark'
                     }`}
                   >

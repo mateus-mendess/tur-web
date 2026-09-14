@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { EditIcon } from '#/components/UI/Icons'
+import { EditIcon, MapPinIcon, ImageIcon, TrashIcon } from '#/components/UI/Icons'
 import { useDropdown } from '#/hooks/useDropdown'
 
 interface SpotEditMenuProps {
@@ -41,10 +41,11 @@ export function SpotEditMenu({
       <button
         type="button"
         onClick={() => editMenu.toggle()}
-        className="p-2.5 rounded-none bg-tur-dark/5 text-tur-dark hover:bg-tur-dark hover:text-white transition-colors cursor-pointer self-start"
+        className="group flex items-center gap-3 text-lg font-normal text-black/80 hover:text-secondary transition-colors cursor-pointer bg-transparent border-none p-0"
         title="Opções de Edição"
       >
-        <EditIcon className="w-6 h-6" />
+        <EditIcon className="w-6 h-6 text-primary group-hover:text-secondary transition-colors" />
+        <span className="text-black group-hover:text-secondary transition-colors">Editar</span>
       </button>
 
       <div
@@ -59,8 +60,9 @@ export function SpotEditMenu({
             editMenu.close()
             onEditPhotos()
           }}
-          className="block w-full px-4 py-2 text-sm text-tur-gray-700 hover:bg-black/5 hover:text-tur-accent transition-colors text-left bg-transparent border-none font-medium cursor-pointer"
+          className="w-full px-4 py-2 text-sm text-tur-gray-700 hover:bg-black/5 hover:text-tur-accent transition-colors text-left bg-transparent border-none font-medium cursor-pointer flex items-center gap-2"
         >
+          <ImageIcon className="w-4 h-4" />
           Editar imagens
         </button>
         <button
@@ -68,8 +70,9 @@ export function SpotEditMenu({
             editMenu.close()
             onEditInfo()
           }}
-          className="block w-full px-4 py-2 text-sm text-tur-gray-700 hover:bg-black/5 hover:text-tur-accent transition-colors text-left bg-transparent border-none font-medium cursor-pointer"
+          className="w-full px-4 py-2 text-sm text-tur-gray-700 hover:bg-black/5 hover:text-tur-accent transition-colors text-left bg-transparent border-none font-medium cursor-pointer flex items-center gap-2"
         >
+          <EditIcon className="w-4 h-4" />
           Editar informações
         </button>
         <button
@@ -77,17 +80,20 @@ export function SpotEditMenu({
             editMenu.close()
             onEditAddress()
           }}
-          className="block w-full px-4 py-2 text-sm text-tur-gray-700 hover:bg-black/5 hover:text-tur-accent transition-colors text-left bg-transparent border-none font-medium cursor-pointer"
+          className="w-full px-4 py-2 text-sm text-tur-gray-700 hover:bg-black/5 hover:text-tur-accent transition-colors text-left bg-transparent border-none font-medium cursor-pointer flex items-center gap-2"
         >
+          <MapPinIcon className="w-4 h-4" />
           Editar localização
         </button>
+        <hr className="my-1 border-black/5" />
         <button
           onClick={() => {
             editMenu.close()
             onDelete()
           }}
-          className="block w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors text-left bg-transparent border-none font-medium cursor-pointer"
+          className="w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors text-left bg-transparent border-none font-medium cursor-pointer flex items-center gap-2"
         >
+          <TrashIcon className="w-4 h-4" />
           Excluir ponto
         </button>
       </div>

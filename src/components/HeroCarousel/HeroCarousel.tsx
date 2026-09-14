@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from '#/components/UI/Icons'
 import { PageContainer } from '#/components/UI/PageContainer'
+import { useQuery } from '@tanstack/react-query'
+import { spotsService } from '#/services/spotsService'
+import { toSpot } from '#/types/spot'
+import { queryKeys } from '#/lib/queryKeys'
 
 export interface HeroLocation {
   id: string | number
@@ -9,20 +13,32 @@ export interface HeroLocation {
   image: string
 }
 
-const MOCK_LOCATIONS: HeroLocation[] = [
-  { id: 1, name: 'Zannier Île de Bendor', location: 'Bandol, France', image: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&q=80' },
-  { id: 2, name: 'Cristo Redentor', location: 'Rio de Janeiro, Brasil', image: 'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?auto=format&fit=crop&q=80' },
-  { id: 3, name: 'Lençóis Maranhenses', location: 'Maranhão, Brasil', image: 'https://images.unsplash.com/photo-1544640166-735c029b3a0f?auto=format&fit=crop&q=80' }
-]
-
 interface HeroCarouselProps {
   locations?: HeroLocation[]
   autoplay?: boolean
   showArrows?: boolean
 }
 
-export function HeroCarousel({ locations = MOCK_LOCATIONS, autoplay = true, showArrows = true }: HeroCarouselProps) {
+export function HeroCarousel({ locations: overrideLocations, autoplay = true, showArrows = true }: HeroCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
+
+  const { data: spots = [] } = useQuery({
+    queryKey: queryKeys.spots.all,
+    queryFn: spotsService.getSpots,
+    enabled: !overrideLocations,
+  })
+
+  const defaultLocations: HeroLocation[] = spots.slice(0, 5).map(tp => {
+    const spot = toSpot(tp)
+    return {
+      id: spot.id,
+      name: spot.name,
+      location: spot.location,
+      image: spot.imageUrl,
+    }
+  })
+
+  const locations = overrideLocations || defaultLocations
 
   useEffect(() => {
     if (!autoplay || locations.length <= 1) return
