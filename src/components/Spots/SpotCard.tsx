@@ -38,7 +38,7 @@ export function SpotCard({ spot, onClick }: SpotCardProps) {
       {/* Card Container with Image */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-tur-dark/5">
         <img
-          src={images[currentImageIndex]}
+          src={images[currentImageIndex] || undefined}
           alt={spot.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"

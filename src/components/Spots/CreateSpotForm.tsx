@@ -151,6 +151,7 @@ export function CreateSpotForm({ onSuccess, onCancel }: CreateSpotFormProps) {
             {step === 3 && (
               <Button
                 type="submit"
+                form="create-spot-form"
                 className="px-6"
                 isLoading={createSpot.isPending}
                 isSuccess={createSpot.isSuccess}

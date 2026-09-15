@@ -31,41 +31,45 @@ export function useUploadPhotos() {
     }))
     setProgress(initialProgress)
 
-    let successCount = 0
-    let currentCount = initialPhotoCount
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]
-
-      // Update status to uploading
+    const uploadPromises = files.map(async (file, i) => {
+      // Set to uploading
       setProgress((prev) =>
         prev.map((item, index) =>
-          index === i ? { ...item, status: 'uploading' } : item,
-        ),
+          index === i ? { ...item, status: 'uploading' } : item
+        )
       )
 
       try {
-        await photosService.uploadPhoto(touristPointId, file, currentCount)
-        successCount++
-        currentCount++ // Increment count so the next validation knows about this new photo
-
+        await photosService.uploadPhoto(touristPointId, file, initialPhotoCount + i)
+        
+        // On Success
         setProgress((prev) =>
           prev.map((item, index) =>
-            index === i ? { ...item, status: 'success' } : item,
-          ),
+            index === i ? { ...item, status: 'success' } : item
+          )
         )
+        return { success: true }
       } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : 'Erro desconhecido'
+        const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido'
+        
+        // On Error
         setProgress((prev) =>
           prev.map((item, index) =>
             index === i
               ? { ...item, status: 'error', error: errorMessage }
-              : item,
-          ),
+              : item
+          )
         )
+        return { success: false }
       }
-    }
+    })
+
+    const results = await Promise.allSettled(uploadPromises)
+    
+    // Count how many succeeded
+    const successCount = results.filter(
+      (res) => res.status === 'fulfilled' && res.value.success
+    ).length
 
     // After all files are processed
     setIsPending(false)

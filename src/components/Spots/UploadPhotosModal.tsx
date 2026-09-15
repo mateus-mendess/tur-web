@@ -41,19 +41,42 @@ export function UploadPhotosModal({
     }
   }, [isOpen])
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) return
-    
-    const files = Array.from(e.target.files)
-    
-    if (files.length > remainingSlots) {
-      toast.error(`Você já tem ${currentPhotoCount} fotos. Pode adicionar no máximo ${remainingSlots} agora.`)
-      // Limpar seleção inválida
+  const handleFileSelect = (files: File[]) => {
+    if (files.length === 0) return
+
+    // Filter by allowed types
+    const validFiles = files.filter(f => 
+      f.type === 'image/jpeg' || f.type === 'image/png' || f.type === 'image/webp'
+    )
+
+    if (validFiles.length < files.length) {
+      toast.error('Alguns arquivos não são imagens (apenas JPEG, PNG, WebP).')
+    }
+
+    if (selectedFiles.length + validFiles.length > remainingSlots) {
+      toast.error(`Você já tem ${currentPhotoCount} fotos cadastradas. Pode adicionar no máximo ${remainingSlots} novas (faltam ${remainingSlots - selectedFiles.length} slots livres na fila).`)
       if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
     
-    setSelectedFiles(files)
+    setSelectedFiles(prev => [...prev, ...validFiles])
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (isPending || remainingSlots === 0 || progress.length > 0) return
+    handleFileSelect(Array.from(e.dataTransfer.files))
+  }
+
+  const handleRemoveSelectedFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index))
   }
 
   const handleUpload = async () => {
@@ -155,63 +178,109 @@ export function UploadPhotosModal({
           )}
 
           <div>
-            <h4 className="font-dm-sans font-bold text-sm uppercase text-tur-dark mb-2">
-              Adicionar Novas Fotos
-            </h4>
-            <p className="text-tur-gray-700 font-inter text-sm mb-4">
-              Você pode enviar até 4 fotos do seu ponto turístico. (Atuais: {currentPhotoCount}/4)
-            </p>
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="font-dm-sans font-bold text-sm uppercase text-tur-dark">
+                Adicionar Novas Fotos
+              </h4>
+              <span className="text-tur-gray-700 font-inter text-xs font-medium">
+                Atuais: {currentPhotoCount}/4
+              </span>
+            </div>
 
+            <div
+              onDragOver={onDragOver}
+              onDrop={onDrop}
+              onClick={() => {
+                if (!(isAnyActionPending || remainingSlots === 0 || progress.length > 0)) {
+                  fileInputRef.current?.click()
+                }
+              }}
+              className={`mt-2 border-2 border-dashed rounded-md flex flex-col items-center justify-center p-8 transition-colors ${isAnyActionPending || remainingSlots === 0 || progress.length > 0 ? 'opacity-50 cursor-not-allowed border-black/20 bg-black/5' : 'border-black/30 bg-transparent hover:bg-black/5 hover:border-black/50 cursor-pointer'}`}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-tur-dark mb-4">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              <p className="font-sans text-sm text-tur-dark font-medium mb-1 text-center">
+                Solte seus arquivos aqui ou clique para buscar
+              </p>
+              <p className="font-inter text-xs text-tur-gray-500 text-center">
+                Tamanho máximo por arquivo: 2 MB
+              </p>
+            </div>
+            
             <input
               ref={fileInputRef}
               type="file"
               multiple
               accept="image/jpeg,image/png,image/webp"
-              onChange={handleFileSelect}
-              className="block w-full text-sm text-tur-dark bg-white border border-black/20 rounded-none
-                file:mr-4 file:py-2.5 file:px-4
-                file:rounded-none file:border-0 file:border-r file:border-black/20
-                file:text-xs file:font-bold file:uppercase file:tracking-widest
-                file:bg-tur-dark file:text-white
-                hover:file:bg-tur-accent hover:file:cursor-pointer transition-colors"
-              disabled={isAnyActionPending || remainingSlots === 0 || progress.length > 0}
+              onChange={(e) => handleFileSelect(Array.from(e.target.files || []))}
+              className="hidden"
             />
           </div>
 
           {/* Selected files preview / Progress list */}
           {(selectedFiles.length > 0 || progress.length > 0) && (
-            <div className="border border-black/10 p-4 space-y-3">
+            <div className="mt-2 space-y-3">
               <h4 className="font-dm-sans font-bold text-sm uppercase text-tur-dark">
-                {progress.length > 0 ? 'Progresso do Envio' : 'Arquivos Selecionados'}
+                {progress.length > 0 ? 'Progresso do Envio' : 'Uploads'}
               </h4>
-              <ul className="space-y-2">
+              <ul className="space-y-3">
                 {(progress.length > 0 ? progress : selectedFiles).map((item, idx) => {
                   const file = 'file' in item ? item.file : item
                   const status = 'status' in item ? item.status : 'waiting'
                   const error = 'error' in item ? item.error : undefined
 
                   return (
-                    <li key={idx} className="flex flex-col text-sm font-inter">
-                      <div className="flex items-center justify-between">
-                        <span className="text-tur-dark truncate max-w-[200px] sm:max-w-[300px]">
-                          {file.name}
-                        </span>
-                        <span className={`font-semibold text-xs uppercase tracking-wider ${
-                          status === 'success' ? 'text-green-600' :
-                          status === 'error' ? 'text-red-600' :
-                          status === 'uploading' ? 'text-tur-accent animate-pulse' :
-                          'text-tur-gray-500'
-                        }`}>
-                          {status === 'waiting' && 'Aguardando'}
-                          {status === 'uploading' && 'Enviando...'}
-                          {status === 'success' && 'Enviado'}
-                          {status === 'error' && 'Falha'}
-                        </span>
+                    <li key={idx} className="flex flex-col border border-black/10 rounded-sm p-3 bg-white">
+                      <div className="flex items-center gap-4">
+                        {/* Thumbnail */}
+                        <div className="w-12 h-12 shrink-0 bg-tur-gray-100 border border-black/10 flex items-center justify-center overflow-hidden rounded-sm">
+                          <img src={URL.createObjectURL(file)} alt="preview" className="w-full h-full object-cover" onLoad={(e) => URL.revokeObjectURL((e.target as HTMLImageElement).src)} />
+                        </div>
+                        
+                        {/* File Info */}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-sans text-sm text-tur-dark font-medium truncate">
+                            {file.name}
+                          </p>
+                          <p className="font-inter text-xs text-tur-gray-500 mt-0.5">
+                            {(file.size / (1024 * 1024)).toFixed(2)} MB
+                          </p>
+                        </div>
+                        
+                        {/* Actions / Status */}
+                        <div className="shrink-0 pl-2">
+                          {status === 'waiting' && progress.length === 0 && (
+                             <button type="button" onClick={() => handleRemoveSelectedFile(idx)} className="p-2 text-tur-gray-500 hover:text-red-600 transition-colors bg-tur-gray-100 hover:bg-red-50 border border-transparent hover:border-red-100 rounded-sm cursor-pointer" aria-label="Remover">
+                                <TrashIcon className="w-4 h-4" />
+                             </button>
+                          )}
+                          {status === 'waiting' && progress.length > 0 && (
+                            <span className="font-inter text-xs text-tur-gray-500 font-semibold uppercase tracking-wider">Aguardando</span>
+                          )}
+                          {status === 'success' && (
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-green-600"><polyline points="20 6 9 17 4 12" /></svg>
+                          )}
+                          {status === 'error' && (
+                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-red-600"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                          )}
+                        </div>
                       </div>
+
+                      {/* Progress Bar */}
+                      {status === 'uploading' && (
+                        <div className="w-full h-1 bg-tur-gray-200 mt-4 rounded-full overflow-hidden">
+                           <div className="h-full bg-tur-accent animate-[pulse_1s_ease-in-out_infinite]" style={{ width: '80%' }}></div>
+                        </div>
+                      )}
+                      
+                      {/* Error Message */}
                       {error && (
-                        <span className="text-red-600 text-xs mt-1">
-                          Motivo: {error}
-                        </span>
+                        <p className="font-inter text-xs text-red-600 mt-3 border-t border-red-100 pt-2">
+                          <strong className="font-semibold">Erro:</strong> {error}
+                        </p>
                       )}
                     </li>
                   )
