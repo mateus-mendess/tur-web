@@ -1,4 +1,4 @@
-import { HeadContent, Scripts, createRootRoute, useLocation } from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRoute, useLocation, useMatches } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
 import { Toaster } from 'sonner'
@@ -12,6 +12,8 @@ import { SignUpModal } from '#/components/Auth/SignUpModal'
 import { CreateSpotModal } from '#/components/Spots/CreateSpotModal'
 import { NavBar } from '#/components/NavBar/NavBar'
 import { Footer } from '#/components/Footer/Footer'
+
+import { NotFoundPage } from '#/components/Pages/NotFoundPage'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -35,6 +37,7 @@ export const Route = createRootRoute({
     ],
   }),
   shellComponent: RootDocument,
+  notFoundComponent: () => <NotFoundPage />,
 })
 
 function AppModals() {
@@ -74,6 +77,12 @@ function PageWrapper({ children }: { children: React.ReactNode }) {
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const matches = useMatches()
+  // No TanStack Router, quando uma rota não é encontrada, o array de matches
+  // contém apenas a rota raiz (length === 1). Se alguma rota for encontrada
+  // (mesmo a index), length será > 1.
+  const isNotFound = matches.length === 1
+
   return (
     <html lang="pt-BR">
       <head>
@@ -86,7 +95,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             <PageWrapper>
               {children}
             </PageWrapper>
-            <Footer />
+            {!isNotFound && <Footer />}
             <AppModals />
           </AuthProvider>
         </QueryClientProvider>
