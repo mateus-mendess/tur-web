@@ -112,7 +112,12 @@ export function Step2Categories() {
         )}
         {categoriasWatch.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-1.5">
-            {categoriasWatch.map((cat) => (
+            {categoriasWatch
+              .filter((cat) => {
+                const name = getCategoryName(cat);
+                return name && name.trim() !== '' && name !== cat;
+              })
+              .map((cat) => (
               <span
                 key={cat}
                 className="font-sans text-xs bg-surface border border-black/10 text-primary px-2.5 py-1 rounded-sm flex items-center gap-1.5 shadow-sm"

@@ -12,7 +12,7 @@ import { useCreateCategory } from '#/hooks/api/useCreateCategory'
  * - O form armazena UUIDs (categorias[]); exibição usa o nome do mapa id→name
  */
 export function useSpotCategories() {
-  const { watch, setValue } = useFormContext<SpotFormData>()
+  const { watch } = useFormContext<SpotFormData>()
   const categoriasWatch = watch('categorias') // string[] de UUIDs
 
   const { data: categoriesData = [], isLoading: isCategoriesLoading } =
@@ -57,18 +57,12 @@ export function useSpotCategories() {
     if (!trimmed) return
 
     try {
-      const newCategory = await createCategoryMutation.mutateAsync(trimmed)
-      // Adiciona o UUID retornado pelo backend ao form
-      if (!categoriasWatch.includes(newCategory.id)) {
-        setValue('categorias', [...categoriasWatch, newCategory.id], {
-          shouldValidate: true,
-        })
-      }
+      await createCategoryMutation.mutateAsync(trimmed)
       setNewCategoryInput('')
     } catch {
       // Erro já tratado via toast no useCreateCategory
     }
-  }, [newCategoryInput, categoriasWatch, setValue, createCategoryMutation])
+  }, [newCategoryInput, createCategoryMutation])
 
   return {
     categoriesOptions,
