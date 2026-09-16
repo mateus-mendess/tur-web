@@ -3,7 +3,7 @@ import { useSpot } from '#/hooks/api/useSpot'
 import { toSpot } from '#/types/spot'
 import type { HeroLocation } from '#/components/HeroCarousel/HeroCarousel'
 import { HeroCarousel } from '#/components/HeroCarousel/HeroCarousel'
-import { HeartOutlineIcon, HeartFilledIcon } from '#/components/UI/Icons'
+import { HeartOutlineIcon, HeartFilledIcon, EditIcon, TrashIcon } from '#/components/UI/Icons'
 import { PageContainer } from '#/components/UI/PageContainer'
 
 import { useComments } from '#/hooks/api/useComments'
@@ -11,7 +11,6 @@ import { useSpotFavoriteStatus } from '#/hooks/api/useFavorites'
 
 import { useAuth } from '#/contexts/AuthContext'
 import { useSpotDetailModals } from '#/components/Spots/useSpotDetailModals'
-import { SpotEditMenu } from '#/components/Spots/SpotEditMenu'
 import { EditSpotModal } from '#/components/Spots/EditSpotModal'
 import { EditAddressModal } from '#/components/Spots/EditAddressModal'
 import { UploadPhotosModal } from '#/components/Spots/UploadPhotosModal'
@@ -116,19 +115,38 @@ function SpotDetailPage() {
             <span className="text-black group-hover:text-secondary transition-colors">Favoritar</span>
           </button>
           {isOwner && (
-            <div className="relative z-50">
-              <SpotEditMenu
-                onEditPhotos={() => setIsUploadPhotosOpen(true)}
-                onEditInfo={() => setIsEditSpotOpen(true)}
-                onEditAddress={() => setIsEditAddressOpen(true)}
-                onDelete={() => setIsDeleteModalOpen(true)}
-              />
-            </div>
+            <>
+              <button 
+                onClick={() => setIsEditSpotOpen(true)}
+                className="group flex items-center gap-3 text-lg font-normal text-black/80 hover:text-secondary transition-colors cursor-pointer"
+              >
+                <EditIcon className="w-6 h-6 text-primary group-hover:text-secondary transition-colors" />
+                <span className="text-black group-hover:text-secondary transition-colors">Editar</span>
+              </button>
+              <button 
+                onClick={() => setIsDeleteModalOpen(true)}
+                className="group flex items-center gap-3 text-lg font-normal text-black/80 hover:text-secondary transition-colors cursor-pointer"
+              >
+                <TrashIcon className="w-6 h-6 text-primary group-hover:text-secondary transition-colors" />
+                <span className="text-black group-hover:text-secondary transition-colors">Excluir</span>
+              </button>
+            </>
           )}
         </div>
       </section>
 
-      <HeroCarousel locations={gallery} autoplay={false} />
+      <div className="relative">
+        <HeroCarousel locations={gallery} autoplay={false} />
+        {isOwner && (
+          <button
+            onClick={() => setIsUploadPhotosOpen(true)}
+            className="absolute top-4 right-4 md:top-8 md:right-8 z-[60] bg-white/80 backdrop-blur-sm p-3 rounded-full shadow-md hover:bg-white transition-colors cursor-pointer group"
+            aria-label="Editar imagens"
+          >
+            <EditIcon className="w-5 h-5 text-primary group-hover:text-secondary transition-colors" />
+          </button>
+        )}
+      </div>
 
       {/* Info Block (5 Columns) */}
       <section className="bg-background text-primary border-b border-black/10 px-8 md:px-16 lg:px-24 py-8 md:py-12 font-sans">

@@ -1,54 +1,31 @@
-# Technical Specification: Action Buttons Loading State with Backend Request
+# Technical Specification: Email Verification in Sign Up Flow
 
-## Executive Summary
-This document outlines the technical specification for implementing a reusable loading state on action buttons that trigger backend requests. The goal is to provide visual feedback (loading, success, error) to the user and prevent double submissions.
+## 1. Executive Summary
+The goal of this cycle is to introduce a seamless e-mail verification step into the user registration process. Instead of reloading the page or closing the modal immediately upon successful registration, the existing `SignUpModal` will transition to a new verification view. This guarantees a fluid user experience while encouraging immediate validation of the created account.
 
-## Requirements
-1. **Reusable Component**: Create a wrapper or a new `Button` component that accepts a `status: 'idle' | 'loading' | 'success' | 'error'` or integrates with a hook/React Query.
-2. **Visual Feedback**:
-   - Loading: Spinner replacing text/icon, or beside it (without width changes).
-   - Success: Check icon briefly (800ms-1s).
-   - Error: X icon briefly, followed by error message display (using Sonner toast or existing error handling).
-3. **Behavior**:
-   - Button disables on click.
-   - Remains disabled until the request resolves (success or error).
-   - Prevents multiple clicks/requests.
-   - No artificial latency (no fake `setTimeout`).
-4. **Scope of Application**:
-   - User Registration
-   - Authentication (Login)
-   - Tourist Spot Registration ("Cadastrar" step 3)
-   - Category Registration ("+" button)
-   - Update Tourist Spot Info ("Salvar")
-   - Update Location ("Salvar")
-   - Image Upload
-   - Image Removal
-   - Delete Tourist Spot (confirmation)
+## 2. Requirements
+- **Modal View State**: The `SignUpModal` will implement an internal view state (`'signup' | 'verification'`). After a successful registration, it transitions to the `'verification'` state.
+- **Background Action Simulation**: Upon transitioning to the verification view, the application will simulate the dispatch of a 6-digit verification code to the registered e-mail address.
+- **Verification UI**: 
+  - A clear instruction message will prompt the user to check their e-mail.
+  - A 6-digit code input will be presented using a split-input design (6 individual text boxes) that automatically focus-advances upon typing.
+- **Mocked Verification Submission**: Since the API endpoint for this validation does not exist yet, the "Verify" button will simply simulate a successful check and then close the modal, optionally logging the user in or navigating them to the success state.
 
-## Architecture & Tech Stack
-- **Framework**: React 19, Vite.
-- **Styling**: Tailwind CSS v4.
-- **State Management / Data Fetching**: `@tanstack/react-query` mutations (`isPending`, `isSuccess`, `isError`).
-- **Icons**: Standard SVG/Icon library used in the project (e.g. Radix Icons or Lucide, to be verified).
-- **Notifications**: `sonner` for error toasts.
+## 3. Architecture & Tech Stack
+- **Component Modifications (`src/components/Auth/SignUpModal.tsx`)**:
+  - Add a state variable: `const [view, setView] = useState<'signup' | 'verification'>('signup')`
+  - Modify `onSubmit` to switch to the `verification` view instead of closing the modal.
+  - Render conditionally: If `view === 'signup'`, show the existing form. If `view === 'verification'`, render the new OTP verification UI.
+- **New Component (`src/components/UI/OtpInput.tsx`) (Optional/Inline)**:
+  - We can build the 6-digit OTP input directly inside the `SignUpModal` or as a reusable component. Given the design guidelines, it will use an array of 6 refs attached to standard unstyled inputs styled to match the Design System (square borders, minimalist).
+  - The logic will handle `onChange` to move focus to the next input, and `onKeyDown` (Backspace) to move to the previous input.
+- **Design Tokens**: The new view will strictly follow the `.agents/context/design_global.md` guidelines, utilizing `--color-primary` for text and borders, with no border-radius for the input squares to match the "card" style.
 
-## State Management
-- Utilize the native states provided by `@tanstack/react-query`'s `useMutation` hook:
-  - `isPending` maps to the `loading` status.
-  - `isSuccess` maps to the `success` status (which triggers a brief UI change, then cleanup).
-  - `isError` maps to the `error` status.
-- **Implementation Strategy**:
-  - We can create an `AsyncButton` component that accepts a `mutation` object or boolean flags (`isPending`, `isSuccess`, `isError`).
-  - Example Prop Signature:
-    ```tsx
-    interface AsyncButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-      isPending?: boolean;
-      isSuccess?: boolean;
-      isError?: boolean;
-    }
-    ```
-  - For the temporary success/error icon display, the `AsyncButton` will manage an internal state (e.g. `showSuccessIcon`, `showErrorIcon`) with a `useEffect` that sets a timeout to revert to idle after 1s.
+## 4. State Management
+- **Local State**: `view` will toggle between screens.
+- **Verification Code State**: A `code` state variable (`string[]` of length 6) will hold the typed digits.
+- **Simulated Action**: A `setTimeout` will mock the validation delay. Once successful, the flow will mimic the prior behavior (closing the modal and invoking `onSwitchToLogin`).
 
-## User Review Required
-> [!IMPORTANT]
-> - Do you approve of this tech stack and specification?
+## 5. Next Steps
+- Approval of this technical specification.
+- Execution by the Front-End Engineer to update `SignUpModal.tsx` and implement the 6-digit input view.

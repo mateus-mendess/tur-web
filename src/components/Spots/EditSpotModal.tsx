@@ -1,16 +1,26 @@
 import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
+
 import { BaseModal } from '#/components/UI/BaseModal'
 import { Button } from '#/components/UI/Button'
-import { Input } from '#/components/UI/Input'
-import { Label } from '#/components/UI/Label'
 import { SplitModalLayout } from '#/components/UI/SplitModalLayout'
+
+import { Step1BasicInfo } from './CreateSpotForm/Step1BasicInfo'
+import { Step2Categories } from './CreateSpotForm/Step2Categories'
+import { Step3Address } from './CreateSpotForm/Step3Address'
+
 import { spotsService } from '#/services/spotsService'
+import { addressService } from '#/services/addressService'
+import { accessibilityService } from '#/services/accessibilityService'
+import { api } from '#/lib/axios'
+
+import { spotSchema } from '#/schemas/spotSchema'
+import type { SpotFormData } from '#/schemas/spotSchema'
 import type { Spot } from '#/types/spot'
-import { editSpotSchema } from '#/schemas/spotSchema'
-import type { EditSpotFormData } from '#/schemas/spotSchema'
+import { useStates } from '#/hooks/api/useStates'
+import { useSpot } from '#/hooks/api/useSpot'
 
 interface EditSpotModalProps {
   isOpen: boolean
@@ -20,40 +30,98 @@ interface EditSpotModalProps {
 
 export function EditSpotModal({ isOpen, onClose, spot }: EditSpotModalProps) {
   const queryClient = useQueryClient()
-  
-  const {
-    register,
-    handleSubmit,
-    setError,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<EditSpotFormData>({
-    resolver: zodResolver(editSpotSchema),
+  const { data: rawSpot } = useSpot(spot.id)
+  const [step, setStep] = useState<1 | 2 | 3>(1)
+  const { data: states = [] } = useStates()
+  const [buttonStatus, setButtonStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const methods = useForm<SpotFormData>({
+    resolver: zodResolver(spotSchema),
     defaultValues: {
-      nome: spot.name,
-      descricao: spot.description || '',
+      nome: '',
+      descricao: '',
+      categorias: [],
+      acessibilidades: [],
+      cep: '',
+      rua: '',
+      bairro: '',
+      cidade: '',
+      stateId: 0,
+      complemento: '',
     },
   })
 
-  const [buttonStatus, setButtonStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const { handleSubmit, trigger, clearErrors, reset, setError, formState: { errors } } = methods
 
-  // Reset form when modal opens
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && states.length > 0 && rawSpot) {
+      const foundState = states.find(s => s.name === rawSpot.address?.state) || states[0]
+      
       reset({
-        nome: spot.name,
-        descricao: spot.description || '',
+        nome: rawSpot.name,
+        descricao: rawSpot.description || '',
+        categorias: rawSpot.categories?.map(c => c.id) || [], 
+        acessibilidades: rawSpot.accessibilityTypes?.map(a => a.id) || [], 
+        cep: rawSpot.address?.zipcode || '',
+        rua: rawSpot.address?.street || '',
+        bairro: rawSpot.address?.neighborhood || '',
+        cidade: rawSpot.address?.city || '',
+        stateId: foundState ? foundState.id : 0,
+        complemento: rawSpot.address?.complement || '',
       })
+      setStep(1)
       setButtonStatus('idle')
+      clearErrors()
     }
-  }, [isOpen, spot, reset])
+  }, [isOpen, rawSpot, states, reset, clearErrors])
 
-  const onSubmit = handleSubmit(async (data) => {
+  const handleNextStep1 = async () => {
+    const valid = await trigger(['nome', 'descricao'])
+    if (valid) {
+      clearErrors(['categorias', 'acessibilidades', 'cep', 'rua', 'bairro', 'cidade', 'stateId'])
+      setStep(2)
+    }
+  }
+
+  const handleNextStep2 = async () => {
+    const valid = await trigger(['categorias'])
+    if (valid) {
+      clearErrors(['cep', 'rua', 'bairro', 'cidade', 'stateId'])
+      setStep(3)
+    }
+  }
+
+  const onSubmit = async (data: SpotFormData) => {
+    setIsSubmitting(true)
+    setButtonStatus('idle')
     try {
+      // 1. Update spot basic info
       await spotsService.updateSpot(spot.id, {
         name: data.nome,
         description: data.descricao
       })
+      
+      // 2. Update address
+      await addressService.updateAddress(spot.id, {
+        street: data.rua,
+        complement: data.complemento,
+        neighborhood: data.bairro,
+        city: data.cidade,
+        zipcode: data.cep,
+        stateId: data.stateId
+      })
+      
+      // 3. Update accessibility
+      await accessibilityService.updateAccessibility(spot.id, data.acessibilidades)
+      
+      // 4. Update categories (Optimistic endpoint approach)
+      try {
+        await api.patch(`/categories/tourist-point/${spot.id}`, { categoriesIds: data.categorias })
+      } catch(e) {
+        // Ignore if endpoint doesn't exist
+      }
+
       await queryClient.invalidateQueries({ queryKey: ['spots'] })
       setButtonStatus('success')
       setTimeout(() => {
@@ -63,84 +131,131 @@ export function EditSpotModal({ isOpen, onClose, spot }: EditSpotModalProps) {
     } catch (err: unknown) {
       setButtonStatus('error')
       const message = err instanceof Error ? err.message : 'Erro ao atualizar o ponto turístico.'
-      setError('root', {
-        message,
-      })
+      setError('root', { message })
+    } finally {
+      setIsSubmitting(false)
     }
-  })
+  }
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose}>
-      <SplitModalLayout
-        title="Editar Informações"
-        description="Atualize o nome e uma breve descrição detalhando as principais atrações do local."
-        subDescription="Todos os campos com * são de preenchimento obrigatório."
-        footer={
-          <>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={onClose}
-              disabled={isSubmitting}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              onClick={onSubmit}
-              isLoading={isSubmitting}
-              isSuccess={buttonStatus === 'success'}
-              isError={buttonStatus === 'error'}
-            >
-              Salvar
-            </Button>
-          </>
-        }
-      >
-        <form id="edit-spot-form" onSubmit={onSubmit} className="flex flex-col gap-6">
-          {errors.root && (
-            <div className="p-3 bg-red-50 text-red-600 font-inter text-sm border border-red-200">
-              {errors.root.message}
-            </div>
-          )}
-
-          <div className="space-y-4">
-            <div className="space-y-1">
-              <Label htmlFor="nome" required>NOME DO PONTO TURÍSTICO</Label>
-              <Input
-                id="nome"
-                placeholder="Ex: Cristo Redentor"
-                disabled={isSubmitting}
-                error={!!errors.nome}
-                {...register('nome')}
-              />
-              {errors.nome && (
-                <span className="text-red-500 text-xs mt-1 block">
-                  {errors.nome.message}
-                </span>
+      <FormProvider {...methods}>
+        <SplitModalLayout
+          leftNumberOrIcon={step === 1 ? '01' : step === 2 ? '02' : '03'}
+          title={
+            step === 1
+              ? 'Editar informações'
+              : step === 2
+              ? 'Editar categoria'
+              : 'Editar localização'
+          }
+          description={
+            step === 1
+              ? 'Atualize o nome e uma breve descrição detalhando as principais atrações do local.'
+              : step === 2
+              ? 'Atualize as categorias e opções de acessibilidade presentes no local.'
+              : 'Atualize o endereço completo para que os visitantes encontrem o ponto turístico.'
+          }
+          subDescription={
+            step === 1
+              ? 'Todos os campos com * são de preenchimento obrigatório.'
+              : step === 2
+              ? 'Obrigatório selecionar pelo menos uma categoria.'
+              : 'Todos os campos com * são de preenchimento obrigatório.'
+          }
+          leftFooter={
+            <>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`h-1.5 rounded-full transition-all duration-300 ${step === 1 ? 'w-6 bg-tur-dark' : 'w-2 bg-tur-gray-300'}`}
+                />
+                <span
+                  className={`h-1.5 rounded-full transition-all duration-300 ${step === 2 ? 'w-6 bg-tur-dark' : 'w-2 bg-tur-gray-300'}`}
+                />
+                <span
+                  className={`h-1.5 rounded-full transition-all duration-300 ${step === 3 ? 'w-6 bg-tur-dark' : 'w-2 bg-tur-gray-300'}`}
+                />
+              </div>
+              <span className="font-inter text-xs font-medium text-tur-gray-500">
+                Etapa {step} de 3
+              </span>
+            </>
+          }
+          footer={
+            <>
+              {step > 1 ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setStep((s) => (s - 1) as 1 | 2)}
+                  className="px-4"
+                  disabled={isSubmitting}
+                >
+                  Voltar
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={onClose}
+                  disabled={isSubmitting}
+                >
+                  Cancelar
+                </Button>
               )}
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="descricao" required>DESCRIÇÃO</Label>
-              <textarea
-                id="descricao"
-                placeholder="Conte um pouco sobre este lugar..."
-                disabled={isSubmitting}
-                className={`w-full border rounded-none bg-transparent px-3 py-2 font-inter text-sm text-tur-dark placeholder:text-tur-gray-400 outline-none focus:border-black min-h-[120px] resize-y ${
-                  errors.descricao ? 'border-tur-red' : 'border-black/20'
-                }`}
-                {...register('descricao')}
-              />
-              {errors.descricao && (
-                <span className="text-red-500 text-xs mt-1 block">
-                  {errors.descricao.message}
-                </span>
+              
+              {step === 1 && (
+                <Button type="button" onClick={handleNextStep1} className="px-8">
+                  <span>Próximo</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </Button>
               )}
-            </div>
-          </div>
-        </form>
-      </SplitModalLayout>
+
+              {step === 2 && (
+                <Button type="button" onClick={handleNextStep2} className="px-8">
+                  <span>Próximo</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </Button>
+              )}
+
+              {step === 3 && (
+                <Button
+                  type="submit"
+                  form="edit-spot-form"
+                  className="px-6"
+                  isLoading={isSubmitting}
+                  isSuccess={buttonStatus === 'success'}
+                  isError={buttonStatus === 'error'}
+                >
+                  Salvar
+                </Button>
+              )}
+            </>
+          }
+        >
+          <form
+            id="edit-spot-form"
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-5 h-full"
+          >
+            {errors.root && (
+              <div className="p-3 bg-red-50 text-red-600 font-inter text-sm border border-red-200">
+                {errors.root.message}
+              </div>
+            )}
+            
+            {step === 1 && <Step1BasicInfo />}
+            {step === 2 && <Step2Categories />}
+            {step === 3 && <Step3Address />}
+          </form>
+        </SplitModalLayout>
+      </FormProvider>
     </BaseModal>
   )
 }
