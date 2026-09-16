@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, useLocation } from '@tanstack/react-router'
-import { UserIcon, MapPinIcon, HeartIcon, CloseIcon } from '#/components/UI/Icons'
+import { UserIcon, MapPinIcon, HeartIcon, CloseIcon, LockIcon } from '#/components/UI/Icons'
 import { useAuth } from '#/contexts/AuthContext'
+import { ChangePasswordModal } from '#/components/Auth/ChangePasswordModal'
 
 export function UserMenu() {
   const [isOpen, setIsOpen] = useState(false)
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const location = useLocation()
   const { logout } = useAuth()
@@ -75,6 +77,16 @@ export function UserMenu() {
               <HeartIcon className="w-4 h-4" />
               Meus Favoritos
             </Link>
+            <button 
+              onClick={() => {
+                setIsOpen(false)
+                setIsChangePasswordModalOpen(true)
+              }}
+              className="w-full text-left px-5 py-2.5 flex items-center gap-2 text-sm font-normal hover:bg-black/5 transition-colors duration-200 cursor-pointer"
+            >
+              <LockIcon className="w-4 h-4" />
+              Alterar Senha
+            </button>
           </div>
           
           <div className="border-t border-black/10 py-3">
@@ -88,6 +100,11 @@ export function UserMenu() {
           </div>
         </div>
       )}
+
+      <ChangePasswordModal 
+        isOpen={isChangePasswordModalOpen} 
+        onClose={() => setIsChangePasswordModalOpen(false)} 
+      />
     </div>
   )
 }

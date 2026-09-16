@@ -1,37 +1,39 @@
-# Technical Specification: Forgot Password Flow
+# Technical Specification: Change Password Modal
 
 ## 1. Executive Summary
-The goal of this cycle is to implement a seamless "Forgot Password" flow directly within the authentication modal (`LoginModal`). Following the continuous state transition architecture established in the registration flow, this process will not close or reload the modal. Instead, it will dynamically update the internal view to guide the user through password recovery.
+The objective of this cycle is to implement a new "Change Password" functionality for authenticated users. This includes adding a new option in the user's dropdown menu and creating a dedicated modal for the password update process. The modal will strictly follow the established two-column layout of the `SignUpModal` for visual consistency.
 
-## 2. Requirements & Steps
-- **Modal View States**: The `LoginModal` will introduce an internal state to control the views: `'login' | 'forgot_email' | 'forgot_code' | 'forgot_reset'`.
-- **Step 1: Request Email** (`forgot_email`):
-  - Triggered by clicking "Esqueceu a senha?" in the login view.
-  - Displays a single email input and a submission button ("Enviar código").
-- **Step 2: Code Validation** (`forgot_code`):
-  - Triggered after successfully submitting the email in Step 1.
-  - Reuses the exact same `OtpInput` (6 digits) component used in the sign-up flow.
-  - Displays a message indicating the code was sent to the requested email.
-- **Step 3: Define New Password** (`forgot_reset`):
-  - Triggered after successfully validating the 6-digit code.
-  - Displays two fields: "Nova senha" and "Confirmar nova senha".
-  - Includes a submission button ("Salvar Nova Senha").
-  - On success, transitions back to the `'login'` view and displays a success message, or logs the user in immediately.
+## 2. Requirements & UI/UX Design
 
-## 3. Architecture & Tech Stack
-- **Component Modifications (`src/components/Auth/LoginModal.tsx`)**:
-  - Introduce new states: `const [view, setView] = useState<'login' | 'forgot_email' | 'forgot_code' | 'forgot_reset'>('login')`
-  - Introduce state variables to hold data between steps: `forgotEmail`, `otpValue`, `newPassword`, `confirmNewPassword`.
-  - Conditional rendering for the left column (title/instructions) and right column (forms) based on the current `view`.
-- **UI Components**:
-  - Reuse `<Input>`, `<Label>`, `<Button>`, and `<OtpInput>` from the `src/components/UI` folder to ensure visual consistency.
-- **API Simulation**:
-  - As the backend endpoints for password reset do not exist yet, API calls for sending the email, verifying the code, and saving the password will be mocked using `setTimeout`.
+### 2.1 Navigation Update
+- **Component**: `src/components/NavBar/UserMenu.tsx`
+- **Action**: Add a new menu item labeled "Alterar Senha".
+- **Position**: It must be placed after "Meus Favoritos" and before "Sair".
+- **Trigger**: Clicking this option will open the new `ChangePasswordModal`.
 
-## 4. State Management & Validation
-- **Validation**: Inline validation or manual error states will be used for the new steps, maintaining a clean form submission process without complicating the primary login `react-hook-form` instance.
-- **Navigation**: "Voltar ao login" buttons will be present in the new views (in the left column) to allow users to cancel the recovery process.
+### 2.2 Modal Structure & Layout
+- **Component**: `src/components/Auth/ChangePasswordModal.tsx`
+- **Layout**: It will reuse the two-column structure (split layout) present in the authentication modals.
+  - **Left Column**: Informational text guiding the user (e.g., "Segurança", "Atualize sua senha para manter sua conta protegida.").
+  - **Right Column (Form)**: The form area containing only the required fields.
 
-## 5. Next Steps
-- User approval of this technical specification.
-- Execution by the Front-End Engineer to update `LoginModal.tsx` and implement the 3 new views.
+### 2.3 Form Specifications
+The form will exclusively contain the following fields:
+1. **Senha Atual**: Password input for the current password.
+2. **Nova Senha**: Password input for the new password.
+3. **Confirme nova senha**: Password input to confirm the new password.
+4. **CTA Button**: A submission button labeled "Salvar Senha".
+
+## 3. Architecture & State Management
+
+- **Form Management**: The form will be managed using `react-hook-form` integrated with `zod` for validation.
+- **Validation Rules**:
+  - `senhaAtual`: Must not be empty.
+  - `novaSenha`: Must have a minimum of 6 characters.
+  - `confirmaNovaSenha`: Must match `novaSenha`.
+- **API Integration Simulation**: Similar to previous flows, the actual API call for changing the password will be simulated using a `setTimeout` function to reflect loading states (`idle`, `loading`, `success`, `error`) before closing the modal.
+- **Modal Control**: The visibility state of the modal (`isOpen`, `onClose`) will be managed either locally in `UserMenu.tsx` or via a global Auth context, depending on the current architecture for user-specific modals.
+
+## 4. Next Steps
+- Await user approval of this technical specification.
+- Proceed to implementation as the Front-End Engineer.
