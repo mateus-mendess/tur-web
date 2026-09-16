@@ -49,7 +49,7 @@ export function SpotEditMenu({
       </button>
 
       <div
-        className={`absolute right-0 top-full mt-2 w-48 bg-white rounded-none shadow-[0_4px_12px_rgba(0,0,0,0.1)] py-1.5 z-50 border border-black/5 flex flex-col font-inter transition-all duration-200 ease-out origin-top ${
+        className={`absolute right-0 top-full mt-2 w-48 bg-white rounded-xl rounded-tr-none shadow-[0_4px_12px_rgba(0,0,0,0.1)] py-1.5 z-50 border border-black/5 flex flex-col font-inter transition-all duration-200 ease-out origin-top ${
           editMenu.isOpen
             ? 'opacity-100 translate-y-0 pointer-events-auto'
             : 'opacity-0 -translate-y-2 pointer-events-none'

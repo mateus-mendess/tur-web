@@ -49,7 +49,7 @@ export function DestinosDropdown() {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-[40px] left-1/2 -translate-x-1/2 w-64 bg-surface rounded-sm shadow-md border border-black/5 overflow-hidden animate-fade-in font-sans text-primary">
+        <div className="absolute top-[40px] left-1/2 -translate-x-1/2 w-64 bg-surface rounded-xl rounded-tr-none shadow-md border border-black/5 overflow-hidden animate-fade-in font-sans text-primary">
           <div className="px-5 py-4 border-b border-black/10 flex items-center gap-2">
             <span className="text-[11px] font-bold text-black/50 uppercase tracking-widest mt-0.5">
               Explorar Regiões

@@ -99,7 +99,7 @@ function MeusPontosPage() {
         </div>
 
         {isLoading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-2 md:gap-x-3 lg:gap-x-4 gap-y-10 md:gap-y-12">
+          <div className="grid grid-cols-3 gap-x-[2rem] gap-y-[9.5rem] max-md:grid-cols-1 max-md:gap-y-[4rem]">
             {Array.from({ length: 6 }).map((_, i) => (
               <SpotCardSkeleton key={i} />
             ))}
@@ -134,14 +134,11 @@ function MeusPontosPage() {
 
         {!isLoading && !isError && filteredSpots.length > 0 && (
           <div
-            className={`
-              grid gap-x-2 md:gap-x-3 lg:gap-x-4 gap-y-10 md:gap-y-12
-              ${
-                viewMode === 'grid'
-                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-                  : 'grid-cols-1 max-w-4xl mx-auto'
-              }
-            `}
+            className={
+              viewMode === 'grid'
+                ? "grid grid-cols-3 gap-x-[2rem] gap-y-[9.5rem] max-md:grid-cols-1 max-md:gap-y-[4rem]"
+                : "flex flex-col gap-6 max-w-4xl mx-auto"
+            }
           >
             {filteredSpots.map((spot) => (
               <SpotCard 

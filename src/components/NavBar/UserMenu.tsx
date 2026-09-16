@@ -52,7 +52,7 @@ export function UserMenu() {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-[40px] right-0 w-72 bg-surface rounded-sm shadow-md border border-black/5 overflow-hidden animate-fade-in font-sans text-primary">
+        <div className="absolute top-[40px] right-0 w-72 bg-surface rounded-xl rounded-tr-none shadow-md border border-black/5 overflow-hidden animate-fade-in font-sans text-primary">
           <div className="px-5 py-4 border-b border-black/10 flex items-center gap-2">
             <UserIcon className="w-4 h-4 text-secondary" />
             <span className="text-[11px] font-bold text-secondary uppercase tracking-widest mt-0.5">

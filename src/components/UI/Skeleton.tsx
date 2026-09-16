@@ -16,6 +16,8 @@ export function SpotCardSkeleton() {
   return (
     <div className="w-full flex flex-col gap-2">
       <Skeleton className="aspect-square w-full" />
+      <Skeleton className="w-1/3 h-4 mt-0" />
+      <Skeleton className="w-3/4 h-6 mt-1" />
     </div>
   )
 }

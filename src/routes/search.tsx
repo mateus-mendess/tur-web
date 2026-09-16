@@ -88,7 +88,7 @@ function SearchPage() {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-2 md:gap-x-3 lg:gap-x-4 gap-y-10 md:gap-y-12">
+          <div className="grid grid-cols-3 gap-x-[2rem] gap-y-[9.5rem] max-md:grid-cols-1 max-md:gap-y-[4rem]">
             {Array.from({ length: 6 }).map((_, i) => (
               <SpotCardSkeleton key={i} />
             ))}
@@ -117,7 +117,7 @@ function SearchPage() {
         {!isLoading && !isError && (
           <>
             {filteredSpots.length > 0 ? (
-              <div className={viewMode === 'grid' ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-2 md:gap-x-3 lg:gap-x-4 gap-y-10 md:gap-y-12" : "flex flex-col gap-6"}>
+              <div className={viewMode === 'grid' ? "grid grid-cols-3 gap-x-[2rem] gap-y-[9.5rem] max-md:grid-cols-1 max-md:gap-y-[4rem]" : "flex flex-col gap-6"}>
                 {filteredSpots.map((spot) => (
                   <SpotCard
                     key={spot.id}

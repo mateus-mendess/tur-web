@@ -36,7 +36,7 @@ export function SpotCard({ spot, onClick }: SpotCardProps) {
       onClick={onClick}
     >
       {/* Card Container with Image */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-tur-dark/5">
+      <div className="relative aspect-square w-full overflow-hidden bg-tur-dark/5">
         <img
           src={images[currentImageIndex] || undefined}
           alt={spot.name}
@@ -79,9 +79,9 @@ export function SpotCard({ spot, onClick }: SpotCardProps) {
       </div>
 
       {/* Info Section (Outside Image) */}
-      <div className="flex flex-col mt-3 gap-0.5 relative">
+      <div className="flex flex-col mt-0 gap-0.5 relative">
         <div className="pr-12">
-          <span className="font-sans text-xs uppercase text-primary/60 font-normal tracking-wide">
+          <span className="font-sans text-xs uppercase text-primary font-normal tracking-wide">
             {spot.location}
           </span>
           <h3 className="font-sans text-base text-primary m-0 font-normal mt-1">
