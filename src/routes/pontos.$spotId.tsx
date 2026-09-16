@@ -71,7 +71,7 @@ function SpotDetailPage() {
       }))
     : [{
         id: 'default',
-        image: spot.imageUrl || 'https://placehold.co/1200x800/eeeeee/999999?text=Sem+Foto',
+        image: spot.imageUrl || '',
       }]
 
   const renderDescription = () => {

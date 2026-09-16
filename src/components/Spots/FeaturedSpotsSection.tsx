@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { toSpot  } from '#/types/spot'
 import { useSpots } from '#/hooks/api/useSpots'
 import { FeaturedSpotSkeleton } from '#/components/UI/Skeleton'
-import { useNavigate } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import { PageContainer } from '#/components/UI/PageContainer'
+import { ImagePlaceholder } from '#/components/UI/ImagePlaceholder'
 
 export function FeaturedSpotsSection() {
-  const navigate = useNavigate()
   const { data: spots = [], isLoading } = useSpots()
   const sectionRef = useRef<HTMLDivElement>(null)
   const trackContainerRef = useRef<HTMLDivElement>(null)
@@ -144,20 +144,26 @@ export function FeaturedSpotsSection() {
           {spots.map((rawSpot) => {
             const spot = toSpot(rawSpot)
             return (
-                <article
+              <Link
                 key={spot.id}
-                className="group shrink-0 w-[280px] sm:w-[320px] md:w-[360px] flex flex-col cursor-pointer transition-all duration-300 ease-out hover:scale-105 hover:z-10"
-                onClick={() => navigate({ to: '/pontos/$spotId', params: { spotId: spot.id } })}
+                to="/pontos/$spotId"
+                params={{ spotId: spot.id }}
+                className="group shrink-0 w-[280px] sm:w-[320px] md:w-[360px] flex flex-col cursor-pointer transition-all duration-300 ease-out hover:scale-105 hover:z-10 focus:outline-none"
               >
-                {/* Card Container with Image */}
-                <div className="relative aspect-[3/4] w-full rounded-none overflow-hidden shadow-xs group-hover:shadow-xl transition-shadow bg-tur-dark/5">
-                  <img
-                    src={spot.imageUrl}
-                    alt={spot.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </div>
+                <article className="w-full flex flex-col h-full">
+                  {/* Card Container with Image */}
+                  <div className="relative aspect-[3/4] w-full rounded-none overflow-hidden shadow-xs group-hover:shadow-xl transition-shadow bg-tur-dark/5">
+                    {spot.imageUrl ? (
+                      <img
+                        src={spot.imageUrl}
+                        alt={spot.name}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <ImagePlaceholder />
+                    )}
+                  </div>
                 
                 <div className="mt-4 flex flex-col gap-1 px-1">
                   <div className="font-inter text-xs sm:text-sm font-normal uppercase tracking-wider text-gray-500">
@@ -167,7 +173,8 @@ export function FeaturedSpotsSection() {
                     {spot.name}
                   </h3>
                 </div>
-              </article>
+                </article>
+              </Link>
             )
           })}
         </div>

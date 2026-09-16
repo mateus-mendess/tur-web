@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from '#/components/UI/Icons'
 import { PageContainer } from '#/components/UI/PageContainer'
+import { Link } from '@tanstack/react-router'
+import { ImagePlaceholder } from '#/components/UI/ImagePlaceholder'
 import { useQuery } from '@tanstack/react-query'
 import { spotsService } from '#/services/spotsService'
 import { toSpot } from '#/types/spot'
@@ -63,10 +65,21 @@ export function HeroCarousel({ locations: overrideLocations, autoplay = true, sh
       {locations.map((loc, idx) => (
         <div
           key={loc.id}
-          className={`absolute inset-0 transition-opacity duration-1000 ${idx === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+          className={`absolute inset-0 transition-opacity duration-1000 ${idx === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}`}
         >
-          <img src={loc.image} alt={loc.name || 'Carousel Image'} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-black/30" />
+          <Link
+            to="/pontos/$spotId"
+            params={{ spotId: loc.id.toString() }}
+            className="w-full h-full block relative focus:outline-none"
+            aria-label={`Ver detalhes de ${loc.name}`}
+          >
+            {loc.image ? (
+              <img src={loc.image} alt={loc.name || 'Carousel Image'} className="w-full h-full object-cover" />
+            ) : (
+              <ImagePlaceholder />
+            )}
+            <div className="absolute inset-0 bg-black/30" />
+          </Link>
         </div>
       ))}
       
@@ -92,12 +105,16 @@ export function HeroCarousel({ locations: overrideLocations, autoplay = true, sh
 
       <div className="absolute bottom-16 inset-x-0 z-20 pointer-events-none">
         <PageContainer className="flex items-end justify-between w-full">
-          <div>
+          <div className="pointer-events-auto">
             {(locations[currentIndex].name || locations[currentIndex].location) && (
-              <div className="text-surface">
+              <Link
+                to="/pontos/$spotId"
+                params={{ spotId: locations[currentIndex].id.toString() }}
+                className="text-surface block hover:opacity-90 transition-opacity"
+              >
                 {locations[currentIndex].name && <h1 className="text-5xl font-normal mb-2 drop-shadow-md">{locations[currentIndex].name}</h1>}
                 {locations[currentIndex].location && <p className="text-xl opacity-90 drop-shadow-md">{locations[currentIndex].location}</p>}
-              </div>
+              </Link>
             )}
           </div>
 

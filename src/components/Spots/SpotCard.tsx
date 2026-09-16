@@ -1,5 +1,6 @@
 import type { Spot } from '#/types/spot'
 import { useState } from 'react'
+import { ImagePlaceholder } from '#/components/UI/ImagePlaceholder'
 
 
 interface SpotCardProps {
@@ -37,12 +38,16 @@ export function SpotCard({ spot, onClick }: SpotCardProps) {
     >
       {/* Card Container with Image */}
       <div className="relative aspect-square w-full overflow-hidden bg-tur-dark/5">
-        <img
-          src={images[currentImageIndex] || undefined}
-          alt={spot.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
-        />
+        {images[currentImageIndex] ? (
+          <img
+            src={images[currentImageIndex]}
+            alt={spot.name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
+        ) : (
+          <ImagePlaceholder className="transition-transform duration-500 group-hover:scale-105" />
+        )}
 
         {/* Navigation Arrows */}
         {hasMultipleImages && (

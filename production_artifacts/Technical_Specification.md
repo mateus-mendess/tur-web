@@ -1,32 +1,29 @@
-# Technical Specification: Unified Image Management Interface
+# Technical Specification: Hero Section Navigation & Image Placeholder
 
 ## 1. Executive Summary
-The goal of this cycle is to refactor the `UploadPhotosModal` to provide a unified visual experience for image management. Currently, the modal segregates previously saved images ("Fotos atuais") from newly selected images ("Uploads") using distinct layouts. This update will remove the segregation, displaying all images—both saved and staged—within a single, consistent list layout.
+This cycle will address two usability and aesthetic improvements:
+1. **Interactive Hero Section**: Transform the static destination cards in the Hero Section into clickable elements that navigate directly to their respective detail pages.
+2. **Refined Image Placeholder**: Replace the basic missing-image state with a sophisticated, CSS-based geometric placeholder inspired by the default LinkedIn cover photo, eliminating any reliance on broken image tags or plain gray boxes.
 
 ## 2. Requirements & UI/UX Design
 
-### 2.1 Removal of Segregated Layout
-- **Target Component**: `src/components/Spots/UploadPhotosModal.tsx`
-- **Action**: Completely remove the "Fotos Atuais" title (currently around line 151) and its `grid grid-cols-2` container.
+### 2.1 Hero Section Navigation
+- **Component**: `src/components/Spots/FeaturedSpotsSection.tsx`
+- **Action**: Enhance the `article` tags representing the destination cards.
+- **Implementation**: The cards currently have an `onClick` handler, but to ensure proper web semantics, accessibility, and robust routing, we will wrap them in a `<Link>` component from `@tanstack/react-router` pointing to `/pontos/$spotId`.
 
-### 2.2 Visual Unification
-- **Layout Reference**: All images will use the row-based layout currently implemented for the "Uploads" section (thumbnail on the left, file name and size in the center, and a trash icon button on the right).
-- **Existing Photos Integration**:
-  - The `spot.photos` array will be mapped into this unified list structure.
-  - Since existing photos only have a URL (and no local `File` object with size/name), a placeholder name (e.g., "Imagem salva") and a placeholder/empty size will be displayed to maintain structural consistency with the design reference.
-  - The delete action (trash icon) for existing photos will trigger the existing `handleDeletePhoto` logic (calling the deletion API).
-- **Staged Photos**:
-  - Newly selected files (`selectedFiles`) will continue to render in the same list, visually indistinguishable in structure from the existing photos.
-  - Their delete action will trigger `handleRemoveSelectedFile` (removing them from the upload queue).
+### 2.2 Sophisticated Image Placeholder (Empty State)
+- **Components Affected**: `FeaturedSpotsSection.tsx` and `SpotCard.tsx`.
+- **Design Reference**: The placeholder will strictly follow the provided LinkedIn default cover pattern.
+- **Visual Structure**: 
+  - A container with a light gray background (e.g., `#E3E4E5`).
+  - A large, slightly darker geometric circle/ellipse (`#D0D3D6`) positioned absolutely (e.g., overflowing from the top-left or center-left) to create the signature abstract aesthetic.
+- **Behavior**: This placeholder will conditionally render whenever a spot lacks a valid `imageUrl` or `gallery`, completely replacing the `<img>` tag to prevent browser broken-image icons.
+- **Reusable Component**: We will abstract this into a small reusable component (e.g., `ImagePlaceholder`) to maintain DRY principles across the `SpotCard` and the `FeaturedSpotsSection`.
 
-### 2.3 Single Gallery Flow
-- The UI will present a unified section (e.g., under a single title "Uploads" or similar) listing all images.
-- The drag-and-drop / file selector box will remain available as long as the total number of images (existing + staged) is below the maximum limit (4).
-
-## 3. Architecture & Implementation Plan
-- **State Management**: No changes to the underlying state logic. `selectedFiles` and `spot.photos` remain separate in state but are merged visually during rendering.
-- **Render Logic**: Create a single `<ul>` element. First, map over `spot.photos` and render the list items. Then, map over `progress` (or `selectedFiles` if progress is empty) and render their respective list items.
-- **Delete Logic Mapping**: The delete button's `onClick` handler will intelligently call either the API delete mutation (for existing photos) or the state removal function (for staged files) based on the item type being rendered.
+## 3. Architecture & State Management
+- No new state or API modifications are required.
+- The routing will utilize the existing `@tanstack/react-router` configuration.
 
 ## 4. Next Steps
 - Await user approval of this technical specification.
