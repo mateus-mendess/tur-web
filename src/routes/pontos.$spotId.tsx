@@ -127,7 +127,7 @@ function SpotDetailPage() {
                 onClick={() => setIsDeleteModalOpen(true)}
                 className="group flex items-center gap-3 text-lg font-normal text-black/80 hover:text-secondary transition-colors cursor-pointer"
               >
-                <TrashIcon className="w-6 h-6 text-primary group-hover:text-secondary transition-colors" />
+                <TrashIcon className="w-5 h-5 text-primary group-hover:text-secondary transition-colors" />
                 <span className="text-black group-hover:text-secondary transition-colors">Excluir</span>
               </button>
             </>
