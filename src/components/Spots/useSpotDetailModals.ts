@@ -5,6 +5,7 @@ export function useSpotDetailModals() {
   const [isEditAddressOpen, setIsEditAddressOpen] = useState(false)
   const [isUploadPhotosOpen, setIsUploadPhotosOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false)
 
   return {
     isEditSpotOpen,
@@ -15,5 +16,7 @@ export function useSpotDetailModals() {
     setIsUploadPhotosOpen,
     isDeleteModalOpen,
     setIsDeleteModalOpen,
+    isReviewModalOpen,
+    setIsReviewModalOpen,
   }
 }

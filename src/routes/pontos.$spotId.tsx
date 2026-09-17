@@ -15,6 +15,7 @@ import { EditSpotModal } from '#/components/Spots/EditSpotModal'
 import { EditAddressModal } from '#/components/Spots/EditAddressModal'
 import { UploadPhotosModal } from '#/components/Spots/UploadPhotosModal'
 import { DeleteSpotModal } from '#/components/Spots/DeleteSpotModal'
+import { ReviewModal } from '#/components/Spots/ReviewModal'
 
 export const Route = createFileRoute('/pontos/$spotId')({
   component: SpotDetailPage,
@@ -40,6 +41,8 @@ function SpotDetailPage() {
     setIsUploadPhotosOpen,
     isDeleteModalOpen,
     setIsDeleteModalOpen,
+    isReviewModalOpen,
+    setIsReviewModalOpen,
   } = useSpotDetailModals()
 
 
@@ -237,6 +240,7 @@ function SpotDetailPage() {
               <h2 className="text-3xl font-normal">Comentários</h2>
               <button
                 type="button"
+                onClick={() => setIsReviewModalOpen(true)}
                 className="border border-primary text-primary px-6 py-2 rounded-sm font-normal text-sm hover:bg-primary hover:text-surface transition-colors duration-200 cursor-pointer"
               >
                 Avaliar
@@ -306,6 +310,12 @@ function SpotDetailPage() {
           setIsDeleteModalOpen(false)
           navigate({ to: '/' })
         }}
+      />
+      <ReviewModal
+        isOpen={isReviewModalOpen}
+        onClose={() => setIsReviewModalOpen(false)}
+        spotId={spot.id}
+        spotName={spot.name}
       />
     </main>
   )
