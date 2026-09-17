@@ -94,14 +94,15 @@ function SpotDetailPage() {
     <main className="min-h-screen bg-background text-primary">
       
       {/* Bloco de Título */}
-      <section className="bg-background py-16 md:py-24 flex flex-col items-center justify-center text-center px-6">
-        <span className="text-[10px] md:text-xs font-semibold uppercase tracking-widest text-black/60 mb-6 md:mb-8">
-          {spot.location}
-        </span>
-        <h1 className="text-[80px] md:text-[130px] font-light tracking-tight text-primary font-sans max-w-6xl leading-[1.1]">
-          {spot.name}
-        </h1>
-        <div className="mt-10 flex items-center justify-center gap-4">
+      <section className="bg-background py-16 md:py-24">
+        <PageContainer className="flex flex-col items-center justify-center text-center">
+          <span className="text-[10px] md:text-xs font-semibold uppercase tracking-widest text-black/60 mb-6 md:mb-8">
+            {spot.location}
+          </span>
+          <h1 className="text-5xl md:text-7xl lg:text-[90px] font-light tracking-tight text-primary font-sans max-w-full leading-[1.1] line-clamp-2">
+            {spot.name}
+          </h1>
+          <div className="mt-10 flex items-center justify-center gap-4">
           <button 
             onClick={handleFavoriteClick}
             disabled={isToggling}
@@ -133,6 +134,7 @@ function SpotDetailPage() {
             </>
           )}
         </div>
+        </PageContainer>
       </section>
 
       <div className="relative">
