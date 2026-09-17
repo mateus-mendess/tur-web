@@ -178,7 +178,8 @@ function SpotDetailPage() {
             <h3 className="text-xs font-semibold uppercase tracking-widest text-black/60">Categoria</h3>
             <div className="flex flex-wrap gap-2">
               {(spot.tags?.length ? spot.tags : [spot.category || 'Turismo']).map((cat, idx) => (
-                <span key={idx} className="font-sans text-sm bg-surface border border-black/10 text-primary px-3 py-1 rounded-sm shadow-sm">
+                <span key={idx} className="font-sans text-sm bg-surface border border-black/10 text-primary px-3 py-1 rounded-sm shadow-sm flex items-center gap-2 w-fit">
+                  <span className="w-1.5 h-1.5 rounded-full bg-secondary shrink-0" />
                   {cat.replace(/^#/, '')}
                 </span>
               ))}
