@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useMemo } from 'react'
 import { z } from 'zod'
 import { useSpots } from '#/hooks/api/useSpots'
 import { useCategories } from '#/hooks/api/useCategories'
@@ -52,6 +53,8 @@ function SearchPage() {
     handleResetFilters,
     isFilterActive,
   } = useSpotFilters(spots, initialBusca, initialCategoria, initialRegiao)
+
+  const mappedSpots = useMemo(() => filteredSpots.map(toSpot), [filteredSpots])
 
   return (
     <main className="min-h-screen bg-tur-bg pb-20 pt-6 md:pt-10">
@@ -118,10 +121,10 @@ function SearchPage() {
           <>
             {filteredSpots.length > 0 ? (
               <div className={viewMode === 'grid' ? "grid grid-cols-3 gap-x-[2rem] gap-y-[9.5rem] max-md:grid-cols-1 max-md:gap-y-[4rem]" : "flex flex-col gap-6"}>
-                {filteredSpots.map((spot) => (
+                {mappedSpots.map((spot) => (
                   <SpotCard
                     key={spot.id}
-                    spot={toSpot(spot)}
+                    spot={spot}
                     onClick={() => navigate({ to: '/pontos/$spotId', params: { spotId: spot.id } })}
                   />
                 ))}

@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { useMemo, useEffect } from 'react'
 import { z } from 'zod'
 import { useFavoriteSpots } from '#/hooks/api/useFavoriteSpots'
 import { useCategories } from '#/hooks/api/useCategories'
@@ -11,7 +12,6 @@ import { SpotCardSkeleton } from '#/components/UI/Skeleton'
 import { PageContainer } from '#/components/UI/PageContainer'
 import { toSpot } from '#/types/spot'
 import { useAuth } from '#/contexts/AuthContext'
-import { useEffect } from 'react'
 
 const searchSchema = z.object({
   busca: z.string().optional().default(''),
@@ -30,7 +30,7 @@ export const Route = createFileRoute('/meus-favoritos')({
 
 function MeusFavoritosPage() {
   const { busca: initialBusca, categoria: initialCategoria, regiao: initialRegiao } = Route.useSearch()
-  
+
   const { user, openLogin } = useAuth()
   const navigate = useNavigate()
 
@@ -44,26 +44,23 @@ function MeusFavoritosPage() {
   const { data: spots = [], isLoading, isError } = useFavoriteSpots(user?.id)
   const { data: categoriesData = [] } = useCategories()
   const { data: accessibilityTypes = [] } = useAccessibilityTypes()
-  
-  const categoriesList = categoriesData.map((c) => c.name)
-  const accessibilityList = accessibilityTypes.map((a) => a.name)
+
+  const categoriesList = useMemo(() => categoriesData.map((c) => c.name), [categoriesData])
+  const accessibilityList = useMemo(() => accessibilityTypes.map((a) => a.name), [accessibilityTypes])
   const regionsList = ['África', 'América Central', 'América do Norte', 'América do Sul', 'Ásia', 'Europa', 'Oceania']
 
   const {
-    selectedCategory,
-    setSelectedCategory,
-    selectedRegion,
-    setSelectedRegion,
-    selectedAccessibility,
-    setSelectedAccessibility,
-    searchQuery,
-    setSearchQuery,
-    viewMode,
-    setViewMode,
+    selectedCategory, setSelectedCategory,
+    selectedRegion, setSelectedRegion,
+    selectedAccessibility, setSelectedAccessibility,
+    searchQuery, setSearchQuery,
+    viewMode, setViewMode,
     filteredSpots,
     handleResetFilters,
     isFilterActive,
   } = useSpotFilters(spots, initialBusca, initialCategoria, initialRegiao)
+
+  const mappedSpots = useMemo(() => filteredSpots.map(toSpot), [filteredSpots])
 
   if (!user) return null
 
@@ -117,9 +114,7 @@ function MeusFavoritosPage() {
           <div className="w-full py-20 flex flex-col items-center justify-center text-center">
             <p className="text-xl font-medium text-primary mb-2">Nenhum ponto encontrado.</p>
             <p className="text-sm text-black/60">
-              {isFilterActive
-                ? 'Tente ajustar os filtros de busca.'
-                : 'Você ainda não tem nenhum ponto turístico favorito.'}
+              {isFilterActive ? 'Tente ajustar os filtros de busca.' : 'Você ainda não tem nenhum ponto turístico favorito.'}
             </p>
             {isFilterActive && (
               <button
@@ -132,18 +127,15 @@ function MeusFavoritosPage() {
           </div>
         )}
 
-        {!isLoading && !isError && filteredSpots.length > 0 && (
-          <div
-            className={
-              viewMode === 'grid'
-                ? "grid grid-cols-3 gap-x-[2rem] gap-y-[9.5rem] max-md:grid-cols-1 max-md:gap-y-[4rem]"
-                : "flex flex-col gap-6 max-w-4xl mx-auto"
-            }
-          >
-            {filteredSpots.map((spot) => (
-              <SpotCard 
-                key={spot.id} 
-                spot={toSpot(spot)} 
+        {!isLoading && !isError && mappedSpots.length > 0 && (
+          <div className={viewMode === 'grid'
+            ? 'grid grid-cols-3 gap-x-[2rem] gap-y-[9.5rem] max-md:grid-cols-1 max-md:gap-y-[4rem]'
+            : 'flex flex-col gap-6 max-w-4xl mx-auto'
+          }>
+            {mappedSpots.map((spot) => (
+              <SpotCard
+                key={spot.id}
+                spot={spot}
                 layout={viewMode}
                 onClick={() => navigate({ to: '/pontos/$spotId', params: { spotId: spot.id } })}
               />

@@ -64,18 +64,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsInitializing(false)
   }, [])
 
-  // Fecha ambos os modais ao pressionar Escape
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setLoginOpen(false)
-        setSignUpOpen(false)
-        setCreateSpotOpen(false)
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
 
   const openLogin = useCallback((email?: string) => {
     if (typeof email === 'string') setDefaultLoginEmail(email)

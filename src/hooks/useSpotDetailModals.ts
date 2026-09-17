@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+/** Manages the open/closed state of all modals on the spot detail page. */
 export function useSpotDetailModals() {
   const [isEditSpotOpen, setIsEditSpotOpen] = useState(false)
   const [isEditAddressOpen, setIsEditAddressOpen] = useState(false)

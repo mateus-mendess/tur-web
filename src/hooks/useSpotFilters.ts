@@ -7,12 +7,9 @@ export function useSpotFilters(
   initialCategoria: string,
   initialRegiao: string = 'Todas',
 ) {
-  const [selectedCategory, setSelectedCategory] =
-    useState<string>(initialCategoria)
-  const [selectedRegion, setSelectedRegion] =
-    useState<string>(initialRegiao)
-  const [selectedAccessibility, setSelectedAccessibility] =
-    useState<string>('Todas')
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategoria)
+  const [selectedRegion, setSelectedRegion] = useState<string>(initialRegiao)
+  const [selectedAccessibility, setSelectedAccessibility] = useState<string>('Todas')
   const [searchQuery, setSearchQuery] = useState<string>(initialBusca)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
@@ -36,7 +33,8 @@ export function useSpotFilters(
         spot.address.city.toLowerCase().includes(searchQuery.toLowerCase())
       return matchCategory && matchAccessibility && matchSearch
     })
-  }, [spots, selectedCategory, selectedRegion, selectedAccessibility, searchQuery])
+  }, [spots, selectedCategory, selectedAccessibility, searchQuery])
+  // NOTE: selectedRegion intentionally omitted — region filter is not yet implemented in the API.
 
   const handleResetFilters = () => {
     setSelectedCategory('Todas')
@@ -54,11 +52,14 @@ export function useSpotFilters(
     return names
   }, [selectedCategory, selectedRegion, selectedAccessibility, searchQuery])
 
-  const isFilterActive =
-    selectedCategory !== 'Todas' ||
-    selectedRegion !== 'Todas' ||
-    selectedAccessibility !== 'Todas' ||
-    searchQuery !== ''
+  const isFilterActive = useMemo(
+    () =>
+      selectedCategory !== 'Todas' ||
+      selectedRegion !== 'Todas' ||
+      selectedAccessibility !== 'Todas' ||
+      searchQuery !== '',
+    [selectedCategory, selectedRegion, selectedAccessibility, searchQuery],
+  )
 
   return {
     selectedCategory,

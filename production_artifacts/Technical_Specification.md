@@ -1,22 +1,72 @@
-# Technical Specification: Correção do Bug de SSR no Mapa (Leaflet)
+# Technical Specification: Refatoração de Código — Organização e Qualidade
 
 ## 1. Executive Summary
-Esta especificação aborda um erro de "ReferenceError: window is not defined" que ocorre devido ao comportamento de renderização SSR do TanStack Start e do comportamento da biblioteca Leaflet (que tenta acessar a propriedade `window` em tempo de importação). O objetivo é isolar a importação e renderização do `SpotMiniMap` para que ocorra estritamente do lado do cliente, sem comprometer o SSR global da rota de detalhes do ponto turístico.
+Esta especificação descreve uma refatoração interna do frontend, sem nenhuma alteração de design, layout, textos ou comportamento de UX. O objetivo é elevar a qualidade do código ao padrão de um desenvolvedor front-end sênior, corrigindo bugs de lógica silenciosos, quebrando "God Components", movendo arquivos para seus locais semânticos corretos e otimizando renders desnecessários.
+
+> **REGRA CRÍTICA**: Nenhuma classe Tailwind, texto de UI, layout ou comportamento visual pode ser alterado. Apenas código interno.
+
+---
 
 ## 2. Requirements
-- **Manutenção do SSR Global**: A rota `pontos.$spotId.tsx` deve continuar sendo processada e renderizada via SSR em todas as seções (cabeçalho, descrição, comentários).
-- **Isolamento Client-Side (Client-Only)**: Apenas o componente responsável por renderizar o Leaflet (`SpotMiniMap.tsx`) deve ser executado no navegador.
-- **Carregamento Assíncrono (Lazy Loading)**: O import do `SpotMiniMap.tsx` na rota principal deve utilizar `React.lazy()` para impedir que a instrução de importação do Leaflet seja resolvida no servidor Node.js.
-- **Prevenção de Quebras no Fallback**: Durante o carregamento/hidratação inicial, o mapa deve ser ocultado por meio de um `ClientOnly` wrapper que aguarda o mount do React e, através de um bloco `Suspense`, substitui a lacuna na UI por um *Skeleton* de mapa sutil (ex: div com um spinner suave) antes do mapa real ser carregado.
-- **Fallback de Coordenadas Ausentes**: A mensagem atual "Localização exata não disponível no momento." deve ser usada *exclusivamente* quando a latitude ou longitude não existirem, não durante as transições de carregamento.
+
+### 2.1 Extração de Utilitários (Organização de Arquivos)
+| Ação | De | Para |
+|------|----|------|
+| Mover/criar `ClientOnly` | `routes/pontos.$spotId.tsx` (inline) | `src/components/UI/ClientOnly.tsx` |
+| Mover `MapSkeleton` | `routes/pontos.$spotId.tsx` (inline) | `src/components/Spots/SpotMiniMap.tsx` (colocado junto ao mapa) |
+| Mover `useSpotDetailModals` | `src/components/Spots/useSpotDetailModals.ts` | `src/hooks/useSpotDetailModals.ts` |
+
+### 2.2 Decomposição do God Component (`pontos.$spotId.tsx`)
+A rota atual tem 350 linhas. Extrair seções para componentes dedicados em `src/components/Spots/`:
+
+| Componente a criar | Conteúdo |
+|--------------------|----------|
+| `SpotHeroSection.tsx` | Título, localização e botões (Favoritar, Editar, Excluir) |
+| `SpotInfoBar.tsx` | Barra de 5 colunas (localização, nota, categoria, acessibilidade, autor) |
+| `SpotCommentsSection.tsx` | Lista de comentários + botão "Avaliar" + mini mapa |
+
+Após a extração, o arquivo `pontos.$spotId.tsx` deve ter no máximo ~80 linhas, atuando apenas como orquestrador de dados e modais.
+
+### 2.3 Correções de Bugs de Lógica
+1. **`SpotMiniMap.tsx`**: Remover o estado `mounted` e o `useEffect` interno — são código morto, pois o componente já é protegido pelo `ClientOnly` externo.
+2. **`useSpotFilters.ts`**: Remover `selectedRegion` do array de dependências do `useMemo` de `filteredSpots` (dead dependency — região não é usada no `.filter()`).
+3. **`useSpotFilters.ts`**: Converter `isFilterActive` de variável calculada no render para `useMemo`, eliminando o cálculo duplicado já existente em `activeFilterNames`.
+4. **`pontos.$spotId.tsx`**: Remover o fallback hardcoded `'4.8'` da nota média. Exibir `'–'` quando `spot.rating` for nulo/ausente.
+5. **`AuthContext.tsx`**: Remover o listener de `keydown` para `Escape` — o Radix UI `Dialog` já gerencia isso nativamente, resultando em comportamento duplicado.
+
+### 2.4 Otimizações de Render
+1. **`renderDescription`** em `pontos.$spotId.tsx`: Converter de função inline (`const renderDescription = () => ...`) para `useMemo`.
+2. **Páginas de listagem** (`meus-pontos.tsx`, `meus-favoritos.tsx`, `search.tsx`): Envolver o `spots.map(toSpot)` em `useMemo` para evitar reconversão a cada re-render.
+
+### 2.5 Higienização de Código
+1. **`key={idx}`**: Substituir por IDs estáveis onde disponíveis (ex: `key={cat}` nas categorias, `key={review.authorName + idx}` nos comentários).
+2. **Avatar inline**: Substituir o SVG inline de avatar nos comentários pelo `UserIcon` já existente em `components/UI/Icons.tsx`.
+3. **Caracteres especiais**: Extrair `★`, `☆` para uma constante ou componente `StarRating` colocado em `components/UI/`.
+
+---
 
 ## 3. Architecture & Tech Stack
-- **Componentização Estratégica**:
-  - `SpotMiniMap.tsx`: Já existe e deve ser exportado com `export default` (requisito do `React.lazy()` sem gambiarras extras).
-  - `ClientOnly`: Criação de um utilitário wrapper na rota que controla o ciclo de vida via `useEffect` limitando a renderização apenas ao navegador.
-- **Tratamento de Assincronicidade**: Utilização das APIs padrão do React:
-  - `React.lazy` (Importação Dinâmica Client-Side).
-  - `React.Suspense` (Gerenciador do estado pendente do módulo).
+- Sem novas dependências.
+- Toda a refatoração utiliza React, TypeScript e os padrões já estabelecidos no projeto (hooks customizados, `useMemo`, componentes funcionais).
+
+---
 
 ## 4. State Management
-- **Lifecycle Control**: Utilizar a variável de estado `mounted` no `ClientOnly` hook, configurando para `true` estritamente na chamada do `useEffect()`. A renderização de `children` só avança caso `mounted === true`. Caso contrário, renderiza-se o componente de *fallback* (Skeleton). O componente original de mapa já cuida sozinho do ciclo de vida Leaflet sem alterações severas.
+- Nenhuma mudança de estado global.
+- Os novos componentes filhos receberão props estritamente tipadas derivadas do estado já existente na rota pai.
+- O `useSpotDetailModals` continuará sendo consumido da mesma forma, apenas importado de um novo caminho.
+
+---
+
+## 5. Verification Plan
+
+### Automated Tests
+```bash
+npx tsc --noEmit
+```
+Zero erros de TypeScript após a refatoração.
+
+### Manual Verification
+- Navegar pela página de detalhes de um ponto turístico e confirmar que o layout, mapa, comentários e modais funcionam identicamente ao estado anterior.
+- Confirmar que o login/logout ainda funciona e que fechar modais via Escape ainda funciona (agora gerenciado exclusivamente pelo Radix).
+- Confirmar que as páginas `meus-pontos`, `meus-favoritos` e `search` ainda filtram corretamente.
