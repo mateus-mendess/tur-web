@@ -166,10 +166,10 @@ export function FeaturedSpotsSection() {
                   </div>
                 
                 <div className="mt-4 flex flex-col gap-1 px-1">
-                  <div className="font-inter text-xs sm:text-sm font-normal uppercase tracking-wider text-gray-500">
+                  <div className="font-inter text-[11px] sm:text-xs font-normal uppercase tracking-wider text-black">
                     <span>{spot.location}</span>
                   </div>
-                  <h3 className="font-dm-sans text-base sm:text-lg md:text-xl font-normal tracking-tight text-tur-dark leading-snug">
+                  <h3 className="font-dm-sans text-[15px] sm:text-base md:text-lg font-normal tracking-tight text-tur-dark leading-snug">
                     {spot.name}
                   </h3>
                 </div>
