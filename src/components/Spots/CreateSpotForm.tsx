@@ -96,38 +96,40 @@ export function CreateSpotForm({ onSuccess, onCancel }: CreateSpotFormProps) {
             : 'Todos os campos com * são de preenchimento obrigatório.'
         }
         leftFooter={
-          <>
-            <div className="flex items-center gap-2">
-              <span
-                className={`h-1.5 rounded-full transition-all duration-300 ${step === 1 ? 'w-6 bg-tur-dark' : 'w-2 bg-tur-gray-300'}`}
-              />
-              <span
-                className={`h-1.5 rounded-full transition-all duration-300 ${step === 2 ? 'w-6 bg-tur-dark' : 'w-2 bg-tur-gray-300'}`}
-              />
-              <span
-                className={`h-1.5 rounded-full transition-all duration-300 ${step === 3 ? 'w-6 bg-tur-dark' : 'w-2 bg-tur-gray-300'}`}
-              />
+          <div className="flex w-full items-center justify-between">
+            {step > 1 ? (
+              <button
+                type="button"
+                onClick={() => setStep((s) => (s - 1) as 1 | 2)}
+                className="flex items-center gap-1.5 font-sans text-[15px] font-bold text-primary border-b-[1.5px] border-primary pb-[1px] hover:text-secondary hover:border-secondary transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                Voltar
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={onCancel}
+                className="flex items-center gap-1.5 font-sans text-[15px] font-bold text-primary border-b-[1.5px] border-primary pb-[1px] hover:text-secondary hover:border-secondary transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                Cancelar
+              </button>
+            )}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <span className={`h-1.5 rounded-full transition-all duration-300 ${step === 1 ? 'w-6 bg-tur-dark' : 'w-2 bg-tur-gray-300'}`} />
+                <span className={`h-1.5 rounded-full transition-all duration-300 ${step === 2 ? 'w-6 bg-tur-dark' : 'w-2 bg-tur-gray-300'}`} />
+                <span className={`h-1.5 rounded-full transition-all duration-300 ${step === 3 ? 'w-6 bg-tur-dark' : 'w-2 bg-tur-gray-300'}`} />
+              </div>
+              <span className="font-inter text-xs font-medium text-tur-gray-500">
+                Etapa {step} de 3
+              </span>
             </div>
-            <span className="font-inter text-xs font-medium text-tur-gray-500">
-              Etapa {step} de 3
-            </span>
-          </>
+          </div>
         }
         footer={
-          <>
-            {step > 1 ? (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setStep((s) => (s - 1) as 1 | 2)}
-                className="px-4"
-              >
-                Voltar
-              </Button>
-            ) : (
-              <div />
-            )}
-            
+          <div className="flex justify-center w-full">
             {step === 1 && (
               <Button type="button" onClick={handleNextStep1} className="px-8">
                 <span>Próximo</span>
@@ -160,7 +162,7 @@ export function CreateSpotForm({ onSuccess, onCancel }: CreateSpotFormProps) {
                 Cadastrar
               </Button>
             )}
-          </>
+          </div>
         }
       >
         <form

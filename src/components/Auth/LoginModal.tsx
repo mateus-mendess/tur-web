@@ -481,7 +481,7 @@ export function LoginModal({
   }
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} ariaLabel="login-title">
+    <BaseModal isOpen={isOpen} onClose={onClose} ariaLabel="login-title" showCloseButton>
       <div className="w-full bg-white rounded-none overflow-hidden shadow-[0_24px_48px_-12px_rgba(0,0,0,0.3),0_0_0_1px_rgba(0,0,0,0.05)] grid grid-cols-[1fr_1.15fr] max-md:grid-cols-1 min-h-[580px] max-md:max-h-[80vh] max-md:overflow-y-auto">
         {/* COLUNA DA ESQUERDA */}
         <div className="relative bg-white p-[50px_40px] max-md:p-[32px_24px] max-md:min-h-[200px] flex flex-col justify-start after:content-[''] after:absolute after:right-0 after:top-[15%] after:bottom-[15%] after:w-px after:bg-black/30 max-md:after:hidden">
@@ -509,14 +509,22 @@ export function LoginModal({
                 </Button>
               </>
             ) : (
-              <Button
-                  variant="ghost"
-                  type="button"
-                  className="inline font-semibold underline underline-offset-[3px]"
-                  onClick={() => setView('login')}
+              <button
+                type="button"
+                onClick={() => setView('login')}
+                className="flex items-center gap-1.5 font-sans text-[15px] font-bold text-primary border-b-[1.5px] border-primary pb-[1px] hover:text-secondary hover:border-secondary transition-colors"
               >
-                  ← Voltar ao login
-              </Button>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Voltar ao login
+              </button>
             )}
           </div>
         </div>

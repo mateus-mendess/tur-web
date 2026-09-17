@@ -27,7 +27,6 @@ export function useSpotFilters(
       const matchCategory =
         selectedCategory === 'Todas' ||
         spot.categories.some((c) => c.name === selectedCategory)
-      const matchRegion = true // TODO: implement region match logic or remove it if not needed true // TODO: Substituir por lógica de região real quando API suportar
       const matchAccessibility =
         selectedAccessibility === 'Todas' ||
         spot.accessibilityTypes.some((a) => a.name === selectedAccessibility)

@@ -75,6 +75,17 @@ export function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProp
           <div className="z-[3] relative font-sans text-[15px] text-black/80 leading-[1.6] font-normal">
             Atualize sua senha para manter sua conta sempre protegida.
           </div>
+
+          <div className="mt-auto pt-8 z-[3] relative font-sans text-sm text-black/80 leading-normal font-normal">
+            <button
+              type="button"
+              onClick={handleClose}
+              className="flex items-center gap-1.5 font-sans text-[15px] font-bold text-primary border-b-[1.5px] border-primary pb-[1px] hover:text-secondary hover:border-secondary transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+              Cancelar
+            </button>
+          </div>
         </div>
 
         {/* COLUNA DA DIREITA — FORMULÁRIO */}

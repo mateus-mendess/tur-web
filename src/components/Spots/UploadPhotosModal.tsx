@@ -142,21 +142,23 @@ export function UploadPhotosModal({
       <SplitModalLayout
         title="Editar Imagens"
         description="Adicione ou remova fotos do ponto turístico para manter a galeria atualizada."
-        footer={
+        leftFooter={
           <>
-            {progress.length > 0 && !isPending ? (
-              <div />
-            ) : (
-              <Button
+            {progress.length > 0 && !isPending ? null : (
+              <button
                 type="button"
-                variant="secondary"
                 onClick={onClose}
                 disabled={isAnyActionPending}
+                className="flex items-center gap-1.5 font-sans text-[15px] font-bold text-primary border-b-[1.5px] border-primary pb-[1px] hover:text-secondary hover:border-secondary transition-colors disabled:opacity-50"
               >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                 Cancelar
-              </Button>
+              </button>
             )}
-
+          </>
+        }
+        footer={
+          <div className="flex justify-center w-full">
             {progress.length > 0 && !isPending ? (
               <Button type="button" onClick={onClose}>
                 Concluir
@@ -172,7 +174,7 @@ export function UploadPhotosModal({
                 Fazer Upload
               </Button>
             )}
-          </>
+          </div>
         }
       >
         <div className="flex flex-col gap-6 overflow-y-auto pr-2 max-h-[500px]">

@@ -7,6 +7,7 @@ export interface BaseModalProps {
   children: ReactNode
   maxWidthClass?: string
   ariaLabel?: string
+  showCloseButton?: boolean
 }
 
 export function BaseModal({
@@ -15,6 +16,7 @@ export function BaseModal({
   children,
   maxWidthClass = 'max-w-[920px]',
   ariaLabel = 'Modal dialog',
+  showCloseButton = false,
 }: BaseModalProps) {
   return (
     <Dialog.Root
@@ -44,27 +46,28 @@ export function BaseModal({
               }
             }}
           >
-            {/* Close Button padronizado para todos os modais */}
-            <Dialog.Close asChild>
-              <button
-                type="button"
-                className="absolute -right-12 top-0 max-md:right-4 max-md:top-4 bg-transparent border-none p-0 flex items-center justify-center cursor-pointer text-white hover:text-tur-accent max-md:text-tur-dark transition-colors duration-200 z-10"
-                aria-label="Fechar modal"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="w-7 h-7"
+            {showCloseButton && (
+              <Dialog.Close asChild>
+                <button
+                  type="button"
+                  className="absolute -right-12 top-0 max-md:right-4 max-md:top-4 bg-transparent border-none p-0 flex items-center justify-center cursor-pointer text-white hover:text-tur-accent max-md:text-tur-dark transition-colors duration-200 z-10"
+                  aria-label="Fechar modal"
                 >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            </Dialog.Close>
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="w-7 h-7"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </Dialog.Close>
+            )}
 
             {children}
           </Dialog.Content>
