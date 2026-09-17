@@ -16,6 +16,23 @@ import { EditAddressModal } from '#/components/Spots/EditAddressModal'
 import { UploadPhotosModal } from '#/components/Spots/UploadPhotosModal'
 import { DeleteSpotModal } from '#/components/Spots/DeleteSpotModal'
 import { ReviewModal } from '#/components/Spots/ReviewModal'
+import React, { Suspense, useState, useEffect } from 'react'
+
+const SpotMiniMap = React.lazy(() => import('#/components/Spots/SpotMiniMap'))
+
+function ClientOnly({ children, fallback = null }: { children: React.ReactNode; fallback?: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  return mounted ? <>{children}</> : <>{fallback}</>
+}
+
+function MapSkeleton() {
+  return (
+    <div className="w-full h-full min-h-[400px] bg-black/5 flex items-center justify-center border border-black/10 rounded-[6px] animate-pulse">
+      <div className="w-8 h-8 rounded-full border-2 border-black/20 border-t-secondary animate-spin" />
+    </div>
+  )
+}
 
 export const Route = createFileRoute('/pontos/$spotId')({
   component: SpotDetailPage,
@@ -279,10 +296,19 @@ function SpotDetailPage() {
             </div>
           </div>
 
-          {/* Right Column: Map Placeholder */}
-          <div className="lg:w-1/2 min-h-[400px] lg:min-h-0 lg:h-full bg-black/5 relative overflow-hidden group shrink-0">
-            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-1000 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-white/20 backdrop-blur-[2px]" />
+          {/* Right Column: Mini Map */}
+          <div className="lg:w-1/2 min-h-[400px] lg:min-h-0 lg:h-full relative shrink-0">
+            {spot.latitude && spot.longitude ? (
+              <ClientOnly fallback={<MapSkeleton />}>
+                <Suspense fallback={<MapSkeleton />}>
+                  <SpotMiniMap latitude={spot.latitude} longitude={spot.longitude} spotName={spot.name} />
+                </Suspense>
+              </ClientOnly>
+            ) : (
+              <div className="w-full h-full min-h-[400px] bg-black/5 flex items-center justify-center text-black/50 border border-black/10 rounded-[6px]">
+                Localização exata não disponível no momento.
+              </div>
+            )}
           </div>
         </PageContainer>
       </section>

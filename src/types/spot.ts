@@ -35,6 +35,8 @@ export interface Spot {
   gallery?: string[]
   photos?: { id: string; url: string }[]
   reviews?: SpotReview[]
+  latitude?: number
+  longitude?: number
 }
 
 /**
@@ -59,5 +61,7 @@ export function toSpot(tp: TouristPointResponse): Spot {
     address: `${tp.address.street}, ${tp.address.neighborhood} - ${tp.address.city} / ${tp.address.state}`,
     gallery: tp.photos.map((p) => p.url),
     photos: tp.photos.map((p) => ({ id: p.id, url: p.url })),
+    latitude: tp.address.latitude,
+    longitude: tp.address.longitude,
   }
 }

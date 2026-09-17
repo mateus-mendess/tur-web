@@ -79,6 +79,8 @@ export interface AddressResponse {
   /** Nome do estado (string), não o ID numérico */
   state: string
   zipcode: string
+  latitude?: number
+  longitude?: number
 }
 
 // ─── Photos ───────────────────────────────────────────────────────────────────
