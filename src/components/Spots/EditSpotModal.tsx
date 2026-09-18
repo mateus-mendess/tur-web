@@ -39,16 +39,18 @@ export function EditSpotModal({ isOpen, onClose, spot }: EditSpotModalProps) {
   const methods = useForm<SpotFormData>({
     resolver: zodResolver(spotSchema),
     defaultValues: {
-      nome: '',
-      descricao: '',
-      categorias: [],
-      acessibilidades: [],
-      cep: '',
-      rua: '',
-      bairro: '',
-      cidade: '',
-      stateId: 0,
-      complemento: '',
+      name: '',
+      description: '',
+      categoriesIds: [],
+      accessibilityTypesIds: [],
+      addressRequest: {
+        zipcode: '',
+        street: '',
+        neighborhood: '',
+        city: '',
+        stateId: 0,
+        complement: '',
+      }
     },
   })
 
@@ -56,19 +58,21 @@ export function EditSpotModal({ isOpen, onClose, spot }: EditSpotModalProps) {
 
   useEffect(() => {
     if (isOpen && states.length > 0 && rawSpot) {
-      const foundState = states.find(s => s.name === rawSpot.address?.state) || states[0]
+      const foundState = states.find(s => s.name === rawSpot.address.state) || states[0]
       
       reset({
-        nome: rawSpot.name,
-        descricao: rawSpot.description || '',
-        categorias: rawSpot.categories?.map(c => c.id) || [], 
-        acessibilidades: rawSpot.accessibilityTypes?.map(a => a.id) || [], 
-        cep: rawSpot.address?.zipcode || '',
-        rua: rawSpot.address?.street || '',
-        bairro: rawSpot.address?.neighborhood || '',
-        cidade: rawSpot.address?.city || '',
-        stateId: foundState ? foundState.id : 0,
-        complemento: rawSpot.address?.complement || '',
+        name: rawSpot.name,
+        description: rawSpot.description,
+        categoriesIds: rawSpot.categories.map(c => c.id), 
+        accessibilityTypesIds: rawSpot.accessibilityTypes.map(a => a.id), 
+        addressRequest: {
+          zipcode: rawSpot.address.zipcode,
+          street: rawSpot.address.street,
+          neighborhood: rawSpot.address.neighborhood,
+          city: rawSpot.address.city,
+          stateId: foundState.id,
+          complement: rawSpot.address.complement || '',
+        }
       })
       setStep(1)
       setButtonStatus('idle')
@@ -77,17 +81,17 @@ export function EditSpotModal({ isOpen, onClose, spot }: EditSpotModalProps) {
   }, [isOpen, rawSpot, states, reset, clearErrors])
 
   const handleNextStep1 = async () => {
-    const valid = await trigger(['nome', 'descricao'])
+    const valid = await trigger(['name', 'description'])
     if (valid) {
-      clearErrors(['categorias', 'acessibilidades', 'cep', 'rua', 'bairro', 'cidade', 'stateId'])
+      clearErrors(['categoriesIds', 'accessibilityTypesIds', 'addressRequest'])
       setStep(2)
     }
   }
 
   const handleNextStep2 = async () => {
-    const valid = await trigger(['categorias'])
+    const valid = await trigger(['categoriesIds'])
     if (valid) {
-      clearErrors(['cep', 'rua', 'bairro', 'cidade', 'stateId'])
+      clearErrors(['addressRequest'])
       setStep(3)
     }
   }
@@ -98,26 +102,26 @@ export function EditSpotModal({ isOpen, onClose, spot }: EditSpotModalProps) {
     try {
       // 1. Update spot basic info
       await spotsService.updateSpot(spot.id, {
-        name: data.nome,
-        description: data.descricao
+        name: data.name,
+        description: data.description
       })
       
       // 2. Update address
       await addressService.updateAddress(spot.id, {
-        street: data.rua,
-        complement: data.complemento,
-        neighborhood: data.bairro,
-        city: data.cidade,
-        zipcode: data.cep,
-        stateId: data.stateId
+        street: data.addressRequest.street,
+        complement: data.addressRequest.complement,
+        neighborhood: data.addressRequest.neighborhood,
+        city: data.addressRequest.city,
+        zipcode: data.addressRequest.zipcode,
+        stateId: data.addressRequest.stateId
       })
       
       // 3. Update accessibility
-      await accessibilityService.updateAccessibility(spot.id, data.acessibilidades)
+      await accessibilityService.updateAccessibility(spot.id, data.accessibilityTypesIds)
       
       // 4. Update categories (Optimistic endpoint approach)
       try {
-        await categoriesService.updateSpotCategories(spot.id, data.categorias)
+        await categoriesService.updateSpotCategories(spot.id, data.categoriesIds)
       } catch(e) {
         // Ignore if endpoint doesn't exist
       }

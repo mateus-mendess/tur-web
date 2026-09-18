@@ -1,9 +1,8 @@
-import { Suspense } from 'react'
-import React from 'react'
+import React, { Suspense } from 'react'
 import type { CommentResponse } from '#/types/api'
 import type { Spot } from '#/types/spot'
 import { ClientOnly } from '#/components/UI/ClientOnly'
-import { MapSkeleton } from '#/components/Spots/SpotMiniMap'
+import { MapSkeleton } from '#/components/Spots/MapSkeleton'
 import { UserIcon } from '#/components/UI/Icons'
 import { PageContainer } from '#/components/UI/PageContainer'
 

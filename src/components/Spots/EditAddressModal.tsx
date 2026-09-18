@@ -36,11 +36,12 @@ export function EditAddressModal({ isOpen, onClose, spot }: EditAddressModalProp
   } = useForm({
     resolver: zodResolver(editAddressSchema),
     defaultValues: {
-      rua: rawSpot?.address.street || '',
-      complemento: rawSpot?.address.complement || '',
-      bairro: rawSpot?.address.neighborhood || '',
-      cidade: rawSpot?.address.city || '',
-      cep: rawSpot?.address.zipcode || '',
+      street: rawSpot?.address.street || '',
+      complement: rawSpot?.address.complement || '',
+      neighborhood: rawSpot?.address.neighborhood || '',
+      city: rawSpot?.address.city || '',
+      zipcode: rawSpot?.address.zipcode || '',
+      stateId: undefined as number | undefined,
     },
   })
 
@@ -56,11 +57,11 @@ export function EditAddressModal({ isOpen, onClose, spot }: EditAddressModalProp
       const foundState = states.find(s => s.name === rawSpot.address.state)
       
       reset({
-        rua: rawSpot.address.street || '',
-        complemento: rawSpot.address.complement || '',
-        bairro: rawSpot.address.neighborhood || '',
-        cidade: rawSpot.address.city || '',
-        cep: rawSpot.address.zipcode || '',
+        street: rawSpot.address.street,
+        complement: rawSpot.address.complement || '',
+        neighborhood: rawSpot.address.neighborhood,
+        city: rawSpot.address.city,
+        zipcode: rawSpot.address.zipcode,
         stateId: foundState ? foundState.id : undefined,
       })
       setButtonStatus('idle')
@@ -71,11 +72,11 @@ export function EditAddressModal({ isOpen, onClose, spot }: EditAddressModalProp
     if (!rawSpot) return
     try {
       await addressService.updateAddress(rawSpot.id, {
-        street: data.rua,
-        complement: data.complemento,
-        neighborhood: data.bairro,
-        city: data.cidade,
-        zipcode: data.cep,
+        street: data.street,
+        complement: data.complement,
+        neighborhood: data.neighborhood,
+        city: data.city,
+        zipcode: data.zipcode,
         stateId: data.stateId
       })
       await queryClient.invalidateQueries({ queryKey: ['spots'] })
@@ -131,68 +132,68 @@ export function EditAddressModal({ isOpen, onClose, spot }: EditAddressModalProp
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-[1fr_2fr] gap-3">
               <div className="flex flex-col gap-1">
-                <Label htmlFor="cep" required>CEP</Label>
+                <Label htmlFor="zipcode" required>CEP</Label>
                 <Input
-                  id="cep"
+                  id="zipcode"
                   placeholder="00000000"
                   disabled={isSubmitting}
-                  error={!!errors.cep}
-                  {...register('cep')}
+                  error={!!errors.zipcode}
+                  {...register('zipcode')}
                   onChange={(e) => {
-                    setValue('cep', e.target.value.replace(/\D/g, '').slice(0, 8), {
+                    setValue('zipcode', e.target.value.replace(/\D/g, '').slice(0, 8), {
                       shouldValidate: true,
                     })
                   }}
                 />
-                {errors.cep && (
+                {errors.zipcode && (
                   <span className="text-red-500 text-xs mt-1 block">
-                    {errors.cep.message}
+                    {errors.zipcode.message as string}
                   </span>
                 )}
               </div>
               <div className="flex flex-col gap-1">
-                <Label htmlFor="rua" required>Rua / Logradouro</Label>
+                <Label htmlFor="street" required>Rua / Logradouro</Label>
                 <Input
-                  id="rua"
+                  id="street"
                   disabled={isSubmitting}
-                  error={!!errors.rua}
-                  {...register('rua')}
+                  error={!!errors.street}
+                  {...register('street')}
                 />
-                {errors.rua && (
+                {errors.street && (
                   <span className="text-red-500 text-xs mt-1 block">
-                    {errors.rua.message}
+                    {errors.street.message as string}
                   </span>
                 )}
               </div>
             </div>
 
             <div className="flex flex-col gap-1">
-              <Label htmlFor="bairro" required>Bairro</Label>
+              <Label htmlFor="neighborhood" required>Bairro</Label>
               <Input
-                id="bairro"
+                id="neighborhood"
                 disabled={isSubmitting}
-                error={!!errors.bairro}
-                {...register('bairro')}
+                error={!!errors.neighborhood}
+                {...register('neighborhood')}
               />
-              {errors.bairro && (
+              {errors.neighborhood && (
                 <span className="text-red-500 text-xs mt-1 block">
-                  {errors.bairro.message}
+                  {errors.neighborhood.message as string}
                 </span>
               )}
             </div>
 
             <div className="grid grid-cols-[2fr_1fr] gap-3">
               <div className="flex flex-col gap-1">
-                <Label htmlFor="cidade" required>Cidade</Label>
+                <Label htmlFor="city" required>Cidade</Label>
                 <Input
-                  id="cidade"
+                  id="city"
                   disabled={isSubmitting}
-                  error={!!errors.cidade}
-                  {...register('cidade')}
+                  error={!!errors.city}
+                  {...register('city')}
                 />
-                {errors.cidade && (
+                {errors.city && (
                   <span className="text-red-500 text-xs mt-1 block">
-                    {errors.cidade.message}
+                    {errors.city.message as string}
                   </span>
                 )}
               </div>
@@ -274,16 +275,16 @@ export function EditAddressModal({ isOpen, onClose, spot }: EditAddressModalProp
             </div>
 
             <div className="flex flex-col gap-1">
-              <Label htmlFor="complemento">Complemento / Ponto de Referência</Label>
+              <Label htmlFor="complement">Complemento / Ponto de Referência</Label>
               <Input
-                id="complemento"
+                id="complement"
                 disabled={isSubmitting}
-                error={!!errors.complemento}
-                {...register('complemento')}
+                error={!!errors.complement}
+                {...register('complement')}
               />
-              {errors.complemento && (
+              {errors.complement && (
                 <span className="text-red-500 text-xs mt-1 block">
-                  {errors.complemento.message}
+                  {errors.complement.message as string}
                 </span>
               )}
             </div>

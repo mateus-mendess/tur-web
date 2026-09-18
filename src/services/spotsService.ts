@@ -7,27 +7,6 @@ import type {
   TouristPointUpdateRequest,
 } from '#/types/api'
 
-/**
- * Mapeia os campos do formulário (em português) para o formato
- * TouristPointRequest esperado pelo backend.
- */
-function toTouristPointRequest(data: SpotFormData): TouristPointRequest {
-  return {
-    name: data.nome,
-    description: data.descricao,
-    categoriesIds: data.categorias,
-    accessibilityTypesIds: data.acessibilidades,
-    addressRequest: {
-      street: data.rua,
-      complement: data.complemento || undefined,
-      neighborhood: data.bairro,
-      city: data.cidade,
-      zipcode: data.cep,
-      stateId: data.stateId,
-    },
-  }
-}
-
 
 
 export const spotsService = {
@@ -67,9 +46,17 @@ export const spotsService = {
    */
   createSpot: async (data: SpotFormData): Promise<TouristPointResponse> => {
     try {
+      const payload: TouristPointRequest = {
+        ...data,
+        addressRequest: {
+          ...data.addressRequest,
+          complement: data.addressRequest.complement || undefined,
+        },
+      }
+
       const { data: created } = await api.post<TouristPointResponse>(
         '/tourist-points',
-        toTouristPointRequest(data),
+        payload,
       )
       return created
     } catch (err) {

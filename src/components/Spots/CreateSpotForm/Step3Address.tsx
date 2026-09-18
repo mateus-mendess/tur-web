@@ -15,7 +15,7 @@ export function Step3Address() {
 
   const estadoMenu = useDropdown()
   const { data: states = [] } = useStates()
-  const stateIdWatch = watch('stateId')
+  const stateIdWatch = watch('addressRequest.stateId')
   // Exibição: mostra a abreviação do estado selecionado
   const selectedStateLabel = states.find((s) => s.id === stateIdWatch)?.abbreviation ?? ''
 
@@ -29,12 +29,12 @@ export function Step3Address() {
           <Input
             id="spot-cep"
             placeholder="00000-000"
-            error={!!errors.cep}
-            {...register('cep')}
+            error={!!errors.addressRequest?.zipcode}
+            {...register('addressRequest.zipcode')}
           />
-          {errors.cep && (
+          {errors.addressRequest?.zipcode && (
             <span className="font-inter text-xs text-tur-red mt-0.5 block font-medium">
-              {errors.cep.message}
+              {errors.addressRequest.zipcode.message}
             </span>
           )}
         </div>
@@ -45,12 +45,12 @@ export function Step3Address() {
           <Input
             id="spot-rua"
             placeholder="Ex: Av. Beira Mar, nº 100"
-            error={!!errors.rua}
-            {...register('rua')}
+            error={!!errors.addressRequest?.street}
+            {...register('addressRequest.street')}
           />
-          {errors.rua && (
+          {errors.addressRequest?.street && (
             <span className="font-inter text-xs text-tur-red mt-0.5 block font-medium">
-              {errors.rua.message}
+              {errors.addressRequest.street.message}
             </span>
           )}
         </div>
@@ -63,12 +63,12 @@ export function Step3Address() {
         <Input
           id="spot-bairro"
           placeholder="Ex: Centro"
-          error={!!errors.bairro}
-          {...register('bairro')}
+          error={!!errors.addressRequest?.neighborhood}
+          {...register('addressRequest.neighborhood')}
         />
-        {errors.bairro && (
+        {errors.addressRequest?.neighborhood && (
           <span className="font-inter text-xs text-tur-red mt-0.5 block font-medium">
-            {errors.bairro.message}
+            {errors.addressRequest.neighborhood.message}
           </span>
         )}
       </div>
@@ -81,12 +81,12 @@ export function Step3Address() {
           <Input
             id="spot-cidade"
             placeholder="Ex: Maragogi"
-            error={!!errors.cidade}
-            {...register('cidade')}
+            error={!!errors.addressRequest?.city}
+            {...register('addressRequest.city')}
           />
-          {errors.cidade && (
+          {errors.addressRequest?.city && (
             <span className="font-inter text-xs text-tur-red mt-0.5 block font-medium">
-              {errors.cidade.message}
+              {errors.addressRequest.city.message}
             </span>
           )}
         </div>
@@ -97,7 +97,7 @@ export function Step3Address() {
             <button
               type="button"
               onClick={estadoMenu.toggle}
-              className={`w-full h-10 px-0.5 font-inter text-sm bg-transparent border-b rounded-none outline-none transition-colors duration-200 cursor-pointer flex items-center justify-between ${errors.stateId ? 'border-tur-red' : 'border-tur-gray-300'}`}
+              className={`w-full h-10 px-0.5 font-inter text-sm bg-transparent border-b rounded-none outline-none transition-colors duration-200 cursor-pointer flex items-center justify-between ${errors.addressRequest?.stateId ? 'border-tur-red' : 'border-tur-gray-300'}`}
             >
               <span
                 className={
@@ -144,7 +144,7 @@ export function Step3Address() {
                     key={state.id}
                     type="button"
                     onClick={() => {
-                      setValue('stateId', state.id, { shouldValidate: true })
+                      setValue('addressRequest.stateId', state.id, { shouldValidate: true })
                       estadoMenu.close()
                     }}
                     className={`text-center font-inter text-xs py-1 px-2 transition-colors rounded-none cursor-pointer ${
@@ -159,9 +159,9 @@ export function Step3Address() {
               </div>
             </div>
           </div>
-          {errors.stateId && (
+          {errors.addressRequest?.stateId && (
             <span className="font-inter text-xs text-tur-red mt-0.5 block font-medium">
-              {errors.stateId.message}
+              {errors.addressRequest.stateId.message}
             </span>
           )}
         </div>
@@ -174,7 +174,7 @@ export function Step3Address() {
         <Input
           id="spot-complemento"
           placeholder="Ex: Próximo à praça principal"
-          {...register('complemento')}
+          {...register('addressRequest.complement')}
         />
       </div>
 

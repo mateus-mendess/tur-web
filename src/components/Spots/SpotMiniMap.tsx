@@ -21,17 +21,7 @@ export interface SpotMiniMapProps {
   spotName: string
 }
 
-/**
- * Skeleton shown while the map tile/bundle loads.
- * Exported so the parent can use it as a Suspense/ClientOnly fallback.
- */
-export function MapSkeleton() {
-  return (
-    <div className="w-full h-full min-h-[400px] bg-black/5 flex items-center justify-center border border-black/10 rounded-[6px] animate-pulse">
-      <div className="w-8 h-8 rounded-full border-2 border-black/20 border-t-secondary animate-spin" />
-    </div>
-  )
-}
+
 
 /**
  * Renders an interactive Leaflet mini-map centred on the given coordinates.

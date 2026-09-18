@@ -23,16 +23,18 @@ export function CreateSpotForm({ onSuccess, onCancel }: CreateSpotFormProps) {
   const methods = useForm<SpotFormData>({
     resolver: zodResolver(spotSchema),
     defaultValues: {
-      nome: '',
-      descricao: '',
-      categorias: [],
-      acessibilidades: [],
-      cep: '',
-      rua: '',
-      bairro: '',
-      cidade: '',
-      stateId: 0,
-      complemento: '',
+      name: '',
+      description: '',
+      categoriesIds: [],
+      accessibilityTypesIds: [],
+      addressRequest: {
+        zipcode: '',
+        street: '',
+        neighborhood: '',
+        city: '',
+        stateId: 0,
+        complement: '',
+      }
     },
   })
 
@@ -40,20 +42,20 @@ export function CreateSpotForm({ onSuccess, onCancel }: CreateSpotFormProps) {
 
   // Avança para Etapa 2 — valida SOMENTE campos da Etapa 1
   const handleNextStep1 = async () => {
-    const valid = await trigger(['nome', 'descricao'])
+    const valid = await trigger(['name', 'description'])
     if (valid) {
       // Limpa quaisquer erros que o resolver possa ter gerado para etapas futuras
-      clearErrors(['categorias', 'acessibilidades', 'cep', 'rua', 'bairro', 'cidade', 'stateId'])
+      clearErrors(['categoriesIds', 'accessibilityTypesIds', 'addressRequest'])
       setStep(2)
     }
   }
 
   // Avança para Etapa 3 — valida SOMENTE campos da Etapa 2
   const handleNextStep2 = async () => {
-    const valid = await trigger(['categorias'])
+    const valid = await trigger(['categoriesIds'])
     if (valid) {
       // Limpa quaisquer erros que o resolver possa ter gerado para etapa 3
-      clearErrors(['cep', 'rua', 'bairro', 'cidade', 'stateId'])
+      clearErrors(['addressRequest'])
       setStep(3)
     }
   }

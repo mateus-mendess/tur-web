@@ -13,7 +13,7 @@ import { useCreateCategory } from '#/hooks/api/useCreateCategory'
  */
 export function useSpotCategories() {
   const { watch } = useFormContext<SpotFormData>()
-  const categoriasWatch = watch('categorias') // string[] de UUIDs
+  const categoriasWatch = watch('categoriesIds') // string[] de UUIDs
 
   const { data: categoriesData = [], isLoading: isCategoriesLoading } =
     useCategories()

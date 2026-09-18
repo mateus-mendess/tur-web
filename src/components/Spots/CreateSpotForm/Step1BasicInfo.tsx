@@ -18,12 +18,12 @@ export function Step1BasicInfo() {
         <Input
           id="spot-nome"
           placeholder="Ex: Praia de Antunes"
-          error={!!errors.nome}
-          {...register('nome')}
+          error={!!errors.name}
+          {...register('name')}
         />
-        {errors.nome && (
+        {errors.name && (
           <span className="font-inter text-xs text-tur-red mt-0.5 block font-medium">
-            {errors.nome.message}
+            {errors.name.message}
           </span>
         )}
       </div>
@@ -36,14 +36,14 @@ export function Step1BasicInfo() {
           id="spot-descricao"
           rows={3}
           className={`w-full border rounded-none bg-transparent px-3 py-2 font-inter text-sm text-tur-dark placeholder:text-tur-gray-400 outline-none focus:border-black min-h-[120px] resize-y ${
-            errors.descricao ? 'border-tur-red' : 'border-black/20'
+            errors.description ? 'border-tur-red' : 'border-black/20'
           }`}
           placeholder="Descreva as atrações e características do local..."
-          {...register('descricao')}
+          {...register('description')}
         />
-        {errors.descricao && (
+        {errors.description && (
           <span className="font-inter text-xs text-tur-red mt-0.5 block font-medium">
-            {errors.descricao.message}
+            {errors.description.message}
           </span>
         )}
       </div>

@@ -1,10 +1,14 @@
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { BaseModal } from '#/components/UI/BaseModal'
 import { SplitModalLayout } from '#/components/UI/SplitModalLayout'
 import { Input } from '#/components/UI/Input'
 import { Label } from '#/components/UI/Label'
 import { Button } from '#/components/UI/Button'
 import { useCreateComment } from '#/hooks/api/useCreateComment'
+import { reviewSchema } from '#/schemas/reviewSchema'
+import type { ReviewFormData } from '#/schemas/reviewSchema'
 
 interface ReviewModalProps {
   isOpen: boolean
@@ -14,32 +18,41 @@ interface ReviewModalProps {
 }
 
 export function ReviewModal({ isOpen, onClose, spotId, spotName }: ReviewModalProps) {
-  const [authorName, setAuthorName] = useState('')
-  const [content, setContent] = useState('')
-  const [note, setNote] = useState(0)
   const [hoveredNote, setHoveredNote] = useState(0)
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm<ReviewFormData>({
+    resolver: zodResolver(reviewSchema),
+    defaultValues: {
+      authorName: '',
+      content: '',
+      note: 0,
+    },
+  })
+
+  const note = watch('note')
 
   const { mutateAsync: createComment, isPending } = useCreateComment(spotId)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!authorName.trim() || !content.trim() || note === 0) return
-
+  const onReviewSubmit = handleSubmit(async (data) => {
     try {
       await createComment({
-        authorName,
-        content,
-        note,
+        authorName: data.authorName,
+        content: data.content,
+        note: data.note,
       })
-      // Reset form and close
-      setAuthorName('')
-      setContent('')
-      setNote(0)
+      reset()
       onClose()
     } catch {
-      // Error is handled by the hook (toast)
+      // Error handled by hook
     }
-  }
+  })
 
   // Generate 5 stars
   const stars = [1, 2, 3, 4, 5]
@@ -70,13 +83,13 @@ export function ReviewModal({ isOpen, onClose, spotId, spotName }: ReviewModalPr
         }
         footer={
           <div className="flex justify-center w-full">
-            <Button onClick={(e) => { void handleSubmit(e as unknown as React.FormEvent) }} isLoading={isPending} disabled={note === 0 || !authorName.trim() || !content.trim()}>
+            <Button onClick={onReviewSubmit} isLoading={isPending} disabled={note === 0}>
               Comentar
             </Button>
           </div>
         }
       >
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <form onSubmit={onReviewSubmit} className="flex flex-col gap-6">
           <div className="flex flex-col gap-1.5">
             <Label required>Sua Nota</Label>
             <div className="flex items-center gap-2 mt-1">
@@ -89,7 +102,7 @@ export function ReviewModal({ isOpen, onClose, spotId, spotName }: ReviewModalPr
                     className="focus:outline-none transition-transform hover:scale-110"
                     onMouseEnter={() => setHoveredNote(star)}
                     onMouseLeave={() => setHoveredNote(0)}
-                    onClick={() => setNote(star)}
+                    onClick={() => setValue('note', star, { shouldValidate: true })}
                   >
                     <svg
                       className={`w-8 h-8 transition-colors ${
@@ -110,6 +123,11 @@ export function ReviewModal({ isOpen, onClose, spotId, spotName }: ReviewModalPr
                 )
               })}
             </div>
+            {errors.note && (
+              <span className="font-sans text-xs text-error font-medium mt-1">
+                {errors.note.message}
+              </span>
+            )}
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -117,21 +135,30 @@ export function ReviewModal({ isOpen, onClose, spotId, spotName }: ReviewModalPr
             <Input
               type="text"
               placeholder="Digite seu nome..."
-              value={authorName}
-              onChange={(e) => setAuthorName(e.target.value)}
-              required
+              error={!!errors.authorName}
+              {...register('authorName')}
             />
+            {errors.authorName && (
+              <span className="font-sans text-xs text-error font-medium">
+                {errors.authorName.message}
+              </span>
+            )}
           </div>
 
           <div className="flex flex-col gap-1.5">
             <Label required>Sua Avaliação</Label>
             <textarea
-              className="w-full font-inter text-sm px-4 py-3 rounded-none border border-black/30 bg-transparent text-tur-dark placeholder:text-black/40 focus:border-black outline-none transition-colors resize-y min-h-[120px]"
+              className={`w-full font-inter text-sm px-4 py-3 rounded-none border bg-transparent text-tur-dark placeholder:text-black/40 outline-none transition-colors resize-y min-h-[120px] ${
+                errors.content ? 'border-error focus:border-error' : 'border-black/30 focus:border-black'
+              }`}
               placeholder="Descreva o que achou do local..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              required
+              {...register('content')}
             />
+            {errors.content && (
+              <span className="font-sans text-xs text-error font-medium">
+                {errors.content.message}
+              </span>
+            )}
           </div>
         </form>
       </SplitModalLayout>

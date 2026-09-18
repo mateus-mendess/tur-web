@@ -1,60 +1,48 @@
-# Technical Specification: Code Review Ciclo 2 — Correções Críticas e Consistência de Padrões
+# Technical Specification: Code Review Ciclo 3 — Desacoplamento e Padronização de Forms
 
 ## 1. Executive Summary
-Esta especificação detalha o segundo ciclo de refatoração do frontend. O foco principal é a correção de bugs reais de UX (como reload da página desnecessário), violações arquiteturais e a padronização do código. Não haverá NENHUMA alteração de design, layout, textos ou comportamento visual.
+Esta especificação detalha o terceiro ciclo de refatoração do frontend. O objetivo principal é quebrar o último "God Component" remanescente, padronizar o uso de formulários e schemas, e extrair lógicas misturadas, tudo para garantir uma base de código robusta e alinhada ao estado-da-arte em React. Não haverá alterações no design ou na interface visual.
 
-> **REGRA CRÍTICA**: Nenhuma classe Tailwind, texto de UI, layout ou comportamento visual pode ser alterado. O objetivo é apenas corrigir a estrutura interna e a consistência do código.
+> **REGRA CRÍTICA**: Nenhuma classe Tailwind, texto de UI, layout ou comportamento visual será alterado. O foco é exclusivamente estrutural.
 
 ---
 
 ## 2. Requirements
 
-### 2.1 Correções Críticas (Prioridade Alta)
-1. **`useUploadPhotos.ts` (Remoção de Reload):**
-   - **Problema:** A linha que executa `window.location.reload()` após o upload de fotos destrói o estado da SPA de forma desnecessária, causando uma má experiência.
-   - **Solução:** Remover a linha `setTimeout(() => window.location.reload(), 1000)`. A atualização da UI ocorrerá naturalmente por meio do React Query (`queryClient.invalidateQueries`) já presente no código.
+### 2.1 Refatoração Crítica (Desacoplamento)
+1. **Quebra do `LoginModal.tsx`:**
+   - **Problema:** O arquivo possui mais de 550 linhas, misturando login, cadastro e um fluxo complexo em 3 etapas de "Esqueci a Senha".
+   - **Solução:** Extrair a parte de recuperação de senha (views `forgot_email`, `forgot_code`, `forgot_reset` e seus respectivos estados/handlers) para um novo componente isolado `src/components/Auth/ForgotPasswordFlow.tsx`. O `LoginModal.tsx` apenas importará e chamará esse componente passando as props necessárias quando a `view` corresponder ao fluxo de recuperação.
 
-2. **`EditSpotModal.tsx` (Violação Arquitetural):**
-   - **Problema:** O modal importa e utiliza o `api` (`import { api } from '#/lib/axios'`) diretamente. Isso quebra a separação de responsabilidades.
-   - **Solução:** Substituir a chamada direta ao axios pelas funções apropriadas dentro da pasta `services/` (por exemplo, `spotsService`, `categoriesService`, etc.), mantendo a lógica HTTP isolada dos componentes.
+### 2.2 Padronização (Formulários)
+2. **Refatorar `ReviewModal.tsx`:**
+   - **Problema:** O modal de avaliação foi construído manualmente utilizando `useState` puro (`authorName`, `content`, `note`), desviando do padrão do projeto.
+   - **Solução:** Criar um `reviewSchema` utilizando `zod` em um novo arquivo (ex: `src/schemas/reviewSchema.ts`) ou dentro do arquivo, e refatorar o formulário em `ReviewModal.tsx` para utilizar `react-hook-form` e `@hookform/resolvers/zod`.
 
-### 2.2 Consistência de Padrões (Prioridade Média)
-3. **`useFavorites.ts` (Centralização de Query Keys):**
-   - **Problema:** A constante `FAVORITES_QUERY_KEY = 'favorites'` está hardcoded.
-   - **Solução:** Mapear e adicionar essa chave ao arquivo central `#/lib/queryKeys` e utilizá-la em `useFavorites.ts`, mantendo a consistência com o restante do projeto.
+3. **Simplificar `spotSchema.ts` (Remoção da Tradução):**
+   - **Problema:** O schema atual usa chaves em português (ex: `nome`, `rua`, `cep`), forçando a função `toTouristPointRequest` em `spotsService.ts` a mapear manualmente esses campos para as chaves reais da API.
+   - **Solução:** 
+     - Renomear as chaves de `spotSchema.ts` para refletirem o contrato da API (`name`, `description`, `categoriesIds`, `accessibilityTypesIds`, `addressRequest.street`, etc).
+     - Atualizar os formulários (`CreateSpotForm.tsx` ou similar, e `EditSpotModal.tsx`) para usar esses novos nomes no `register` do hook form.
+     - Remover a função `toTouristPointRequest` em `spotsService.ts` e passar a payload diretamente.
 
-4. **`SpotCard.tsx` (Limpeza de Código):**
-   - **Problema 1:** A prop `layout?: 'grid' | 'list'` está declarada na interface `SpotCardProps` mas nunca é utilizada.
-   - **Solução 1:** Remover a prop `layout` da interface e de suas chamadas (onde aplicável sem quebrar).
-   - **Problema 2:** Ícones SVG de navegação inline.
-   - **Solução 2:** Substituir os SVGs inline por `<ChevronLeftIcon />` e `<ChevronRightIcon />` importados de `#/components/UI/Icons`.
-
-5. **`FeaturedSpotsSection.tsx` (Otimização de Render):**
-   - **Problema:** O método `.map(toSpot)` é chamado diretamente no render, causando re-processamento em cada atualização.
-   - **Solução:** Envolver a transformação dos dados (`spots.map(toSpot)`) com `useMemo`.
-
-6. **`types/spot.ts` (Campo Morto):**
-   - **Problema:** O campo `number: string` está presente na interface, mas nunca é exibido ou utilizado.
-   - **Solução:** Remover `number` da interface `Spot` e sua respectiva lógica de transformação em `toSpot()`.
-
-### 2.3 Qualidade de Código (Prioridade Baixa)
-7. **`SpotFilterBar.tsx` (Refatoração de Handlers):**
-   - **Problema:** Existem 3 funções idênticas para controle dos dropdowns (`handleCategoryToggle`, `handleRegionToggle`, `handleAccessToggle`).
-   - **Solução:** Criar uma função fábrica `makeToggleHandler(menuToToggle, ...menusToClose)` que retorna o manipulador de clique adequado, reduzindo a duplicação.
+### 2.3 Qualidade de Código (Hooks)
+4. **Extrair lógica de scroll da `NavBar.tsx`:**
+   - **Problema:** O componente visual possui um bloco longo de lógica no `useEffect` lidando diretamente com `window.addEventListener('scroll')` e checando offsets.
+   - **Solução:** Criar um custom hook `useScrolled` em `src/hooks/useScrolled.ts` (ex: `useScrolled(threshold: number): boolean`) e aplicar na `NavBar.tsx`, deixando a lógica isolada e reutilizável.
 
 ---
 
 ## 3. Escopo Negativo (O que NÃO será feito)
-- **Não** refatorar `LoginModal.tsx` neste ciclo (fluxo incompleto).
-- **Não** migrar `ReviewModal` para `react-hook-form` (baixo risco atual).
-- **Não** extrair lógica de scroll da `NavBar` para um hook separado (melhoria de baixo impacto).
+- **Não** criar endpoints reais para o fluxo de "Esqueci a Senha" (se a API não suportar, a simulação existente de setTimeout continuará operando dentro do componente extraído).
+- **Não** alterar layouts, estilos, textos ou responsividade dos modais/elementos afetados.
 
 ---
 
 ## 4. Verification Plan
-- **Testes de Tipo:** Rodar `npx tsc --noEmit` para garantir zero erros de TypeScript.
-- **Teste Manual:**
-  - Fazer upload de uma imagem e validar que a página **não** recarrega (reload), mas as imagens atualizam.
-  - Editar um spot via `EditSpotModal` garantindo que os dados salvam corretamente via service.
-  - Testar os modais da `SpotFilterBar` para garantir que apenas um fica aberto por vez.
-  - Verificar a renderização de `FeaturedSpotsSection` e `SpotCard`.
+- **Testes de Compilação:** Executar `npx tsc --noEmit` para garantir que as alterações no `spotSchema` e a quebra do Modal não quebraram a tipagem.
+- **Teste Manual (Fluxos Críticos):**
+  - **Login / Esqueci a Senha:** Abrir o modal de login, navegar pelas telas de "Esqueci a senha", inserir dados mockados e chegar até a tela de confirmação de senha redefinida.
+  - **Avaliação:** Adicionar um comentário num Ponto Turístico verificando se a validação (Zod) exige as regras corretas e o formulário limpa corretamente.
+  - **Criação / Edição de Pontos:** Criar ou editar um ponto turístico utilizando o formulário para garantir que os novos `name` da API estão capturando os dados e enviando corretamente para o servidor.
+  - **Navegação (Scroll):** Rolar a página inicial para verificar se o background da NavBar transiciona normalmente usando o novo hook.

@@ -2,32 +2,17 @@ import { Link, useLocation } from '@tanstack/react-router'
 import { useAuth } from '#/contexts/AuthContext'
 import { UserMenu } from './UserMenu'
 import { DestinosDropdown } from './DestinosDropdown'
-import { useState, useEffect } from 'react'
 import { PageContainer } from '#/components/UI/PageContainer'
+import { useScrolled } from '#/hooks/useScrolled'
 
 export function NavBar() {
   const { isAuthenticated, openLogin, openSignUp, openCreateSpot } = useAuth()
-  const [isScrolled, setIsScrolled] = useState(false)
   const location = useLocation()
 
   const isHeroPage = location.pathname === '/'
   const isSpotDetailPage = location.pathname.startsWith('/pontos/')
 
-  useEffect(() => {
-    if (!isHeroPage) {
-      setIsScrolled(true)
-      return
-    }
-
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
-    }
-
-    setIsScrolled(window.scrollY > 20)
-
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [isHeroPage])
+  const isScrolled = useScrolled(20, !isHeroPage)
 
   const positionClass = isHeroPage ? 'fixed top-0 left-0 right-0' : 'sticky top-0'
 

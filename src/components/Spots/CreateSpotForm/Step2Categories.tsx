@@ -26,7 +26,7 @@ export function Step2Categories() {
   } = useSpotCategories()
 
   const { data: accessibilityTypes = [] } = useAccessibilityTypes()
-  const acessibilidadesWatch = watch('acessibilidades') // number[]
+  const acessibilidadesWatch = watch('accessibilityTypesIds') // number[]
 
   const categoryMenu = useDropdown()
 
@@ -50,7 +50,7 @@ export function Step2Categories() {
             const next = categoriasWatch.includes(id)
               ? categoriasWatch.filter((c) => c !== id)
               : [...categoriasWatch, id]
-            setValue('categorias', next, { shouldValidate: true })
+            setValue('categoriesIds', next, { shouldValidate: true })
           }}
           placeholder="Buscar categoria..."
           triggerContent={
@@ -60,7 +60,7 @@ export function Step2Categories() {
                 : 'Selecionar categorias...'}
             </span>
           }
-          triggerClassName={`w-full font-inter text-xs px-3.5 py-2.5 rounded-none border bg-transparent text-tur-dark hover:border-black font-medium cursor-pointer transition-all flex items-center justify-between gap-2 ${errors.categorias ? 'border-tur-red' : 'border-black/30'}`}
+          triggerClassName={`w-full font-inter text-xs px-3.5 py-2.5 rounded-none border bg-transparent text-tur-dark hover:border-black font-medium cursor-pointer transition-all flex items-center justify-between gap-2 ${errors.categoriesIds ? 'border-tur-red' : 'border-black/30'}`}
           popoverWidthClass="w-full"
           emptyMessage="Nenhuma categoria encontrada"
           footerContent={
@@ -105,9 +105,9 @@ export function Step2Categories() {
             </div>
           }
         />
-        {errors.categorias && (
+        {errors.categoriesIds && (
           <span className="font-inter text-xs text-tur-red mt-0.5 block font-medium">
-            {errors.categorias.message}
+            {errors.categoriesIds.message}
           </span>
         )}
         {categoriasWatch.length > 0 && (
@@ -127,7 +127,7 @@ export function Step2Categories() {
                   type="button"
                   onClick={() => {
                     setValue(
-                      'categorias',
+                      'categoriesIds',
                       categoriasWatch.filter((c) => c !== cat),
                       { shouldValidate: true },
                     )
@@ -183,7 +183,7 @@ export function Step2Categories() {
                     const next = isSelected
                       ? acessibilidadesWatch.filter((id) => id !== type.id)
                       : [...acessibilidadesWatch, type.id]
-                    setValue('acessibilidades', next)
+                    setValue('accessibilityTypesIds', next)
                   }}
                 />
               </label>
