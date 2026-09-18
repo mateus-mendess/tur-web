@@ -42,6 +42,12 @@ function SpotDetailPage() {
     isReviewModalOpen, setIsReviewModalOpen,
   } = useSpotDetailModals()
 
+  const descriptionParagraphs = useMemo(() => {
+    if (!spot) return []
+    const text = spot.description ?? 'O local oferece uma experiência visual memorável e contato direto com a história e cultura da região.'
+    return text.split('\n\n').map((p, idx) => <p key={idx}>{p}</p>)
+  }, [spot?.description])
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -71,11 +77,6 @@ function SpotDetailPage() {
     if (!user) { openLogin(); return }
     toggleFavorite()
   }
-
-  const descriptionParagraphs = useMemo(() => {
-    const text = spot.description ?? 'O local oferece uma experiência visual memorável e contato direto com a história e cultura da região.'
-    return text.split('\n\n').map((p, idx) => <p key={idx}>{p}</p>)
-  }, [spot.description])
 
   return (
     <main className="min-h-screen bg-background text-primary">
