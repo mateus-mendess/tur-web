@@ -7,9 +7,9 @@ import { BaseModal } from '#/components/UI/BaseModal'
 import { Button } from '#/components/UI/Button'
 import { SplitModalLayout } from '#/components/UI/SplitModalLayout'
 
-import { Step1BasicInfo } from './CreateSpotForm/Step1BasicInfo'
-import { Step2Categories } from './CreateSpotForm/Step2Categories'
-import { Step3Address } from './CreateSpotForm/Step3Address'
+import { Step1BasicInfo } from './CreateSpot/Step1BasicInfo'
+import { Step2Categories } from './CreateSpot/Step2Categories'
+import { Step3Address } from './CreateSpot/Step3Address'
 
 import { spotsService } from '#/services/spotsService'
 import { addressService } from '#/services/addressService'

@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (decoded && decoded.sub) {
           setUser({
             id: decoded.sub,
-            nome: decoded.nome || 'Usuário',
+            name: decoded.nome || 'Usuário',
             email: decoded.email || '',
           })
         }

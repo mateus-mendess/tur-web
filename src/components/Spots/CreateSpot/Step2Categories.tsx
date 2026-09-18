@@ -3,7 +3,7 @@ import type { SpotFormData } from '#/schemas/spotSchema'
 import { Label } from '#/components/UI/Label'
 import { SearchableDropdown } from '#/components/UI/SearchableDropdown'
 import { useDropdown } from '#/hooks/useDropdown'
-import { useSpotCategories } from './useSpotCategories'
+import { useSpotCategories } from '#/hooks/ui/useSpotCategories'
 import { useAccessibilityTypes } from '#/hooks/api/useAccessibilityTypes'
 
 export function Step2Categories() {

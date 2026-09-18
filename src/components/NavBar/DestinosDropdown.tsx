@@ -60,7 +60,7 @@ export function DestinosDropdown() {
             {REGIONS.map((region) => (
               <Link 
                 key={region}
-                to="/search" 
+                to="/busca" 
                 search={{ regiao: region }}
                 className="px-5 py-2.5 flex items-center gap-2 text-sm font-normal hover:bg-black/5 transition-colors duration-200"
               >

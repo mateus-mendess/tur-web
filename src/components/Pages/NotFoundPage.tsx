@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { ArrowRightIcon } from '#/components/UI/Icons'
 
 export function NotFoundPage() {
   return (
@@ -32,10 +33,7 @@ export function NotFoundPage() {
           className="inline-flex items-center gap-2 bg-primary text-surface px-8 py-3.5 rounded-md font-sans font-medium text-sm transition-transform hover:-translate-y-0.5 shadow-sm"
         >
           <span>Voltar para o início</span>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-            <polyline points="12 5 19 12 12 19"></polyline>
-          </svg>
+          <ArrowRightIcon className="w-4 h-4" />
         </Link>
       </div>
     </div>

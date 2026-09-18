@@ -37,7 +37,7 @@ export function CreateCommentModal({ isOpen, onClose, touristPointId }: CreateCo
   useEffect(() => {
     if (isOpen) {
       reset({
-        authorName: user?.nome || '',
+        authorName: user?.name || '',
         note: 5,
         content: '',
       })

@@ -1,5 +1,5 @@
-import axios from 'axios'
 import { api } from '#/lib/axios'
+import { handleApiError } from '#/lib/apiError'
 import type { SpotFormData } from '#/schemas/spotSchema'
 import type {
   TouristPointResponse,
@@ -31,10 +31,9 @@ export const spotsService = {
       )
       return data
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.status === 404) {
-        throw new Error('Ponto turístico não encontrado.')
-      }
-      throw new Error('Erro ao carregar detalhes do ponto turístico.')
+      handleApiError(err, {
+        404: 'Ponto turístico não encontrado.',
+      }, 'Erro ao carregar detalhes do ponto turístico.')
     }
   },
 
@@ -60,27 +59,12 @@ export const spotsService = {
       )
       return created
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const status = err.response?.status
-        if (status === 401) {
-          throw new Error('Você precisa estar logado para cadastrar um ponto.')
-        }
-        if (status === 404) {
-          throw new Error('Estado selecionado não encontrado.')
-        }
-        if (status === 503) {
-          throw new Error(
-            'Não conseguimos localizar esse endereço. Verifique o CEP e tente novamente.',
-          )
-        }
-        if (status === 400) {
-          const message =
-            (err.response?.data as { message?: string } | undefined)
-              ?.message ?? 'Dados inválidos. Verifique o formulário.'
-          throw new Error(message)
-        }
-      }
-      throw new Error('Erro ao cadastrar o ponto. Tente novamente.')
+      handleApiError(err, {
+        400: 'Dados inválidos. Verifique o formulário.',
+        401: 'Você precisa estar logado para cadastrar um ponto.',
+        404: 'Estado selecionado não encontrado.',
+        503: 'Não conseguimos localizar esse endereço. Verifique o CEP e tente novamente.',
+      }, 'Erro ao cadastrar o ponto. Tente novamente.')
     }
   },
 
@@ -97,22 +81,12 @@ export const spotsService = {
     try {
       await api.patch(`/tourist-points/${id}`, data)
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const status = err.response?.status
-        if (status === 401) {
-          throw new Error('Você precisa estar logado para editar este ponto.')
-        }
-        if (status === 403) {
-          throw new Error('Você não tem permissão para editar este ponto.')
-        }
-        if (status === 404) {
-          throw new Error('Ponto turístico não encontrado.')
-        }
-        if (status === 400) {
-          throw new Error('Dados inválidos. Verifique os campos.')
-        }
-      }
-      throw new Error('Erro ao atualizar o ponto. Tente novamente.')
+      handleApiError(err, {
+        400: 'Dados inválidos. Verifique os campos.',
+        401: 'Você precisa estar logado para editar este ponto.',
+        403: 'Você não tem permissão para editar este ponto.',
+        404: 'Ponto turístico não encontrado.',
+      }, 'Erro ao atualizar o ponto. Tente novamente.')
     }
   },
 
@@ -125,19 +99,11 @@ export const spotsService = {
     try {
       await api.delete(`/tourist-points/${id}`)
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const status = err.response?.status
-        if (status === 401) {
-          throw new Error('Você precisa estar logado para remover este ponto.')
-        }
-        if (status === 403) {
-          throw new Error('Você não tem permissão para remover este ponto.')
-        }
-        if (status === 404) {
-          throw new Error('Ponto turístico não encontrado.')
-        }
-      }
-      throw new Error('Erro ao remover o ponto. Tente novamente.')
+      handleApiError(err, {
+        401: 'Você precisa estar logado para remover este ponto.',
+        403: 'Você não tem permissão para remover este ponto.',
+        404: 'Ponto turístico não encontrado.',
+      }, 'Erro ao remover o ponto. Tente novamente.')
     }
   },
 }

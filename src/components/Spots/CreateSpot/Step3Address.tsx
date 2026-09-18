@@ -4,6 +4,7 @@ import { Input } from '#/components/UI/Input'
 import { Label } from '#/components/UI/Label'
 import { useDropdown } from '#/hooks/useDropdown'
 import { useStates } from '#/hooks/api/useStates'
+import { ChevronDownIcon } from '#/components/UI/Icons'
 
 export function Step3Address() {
   const {
@@ -108,20 +109,10 @@ export function Step3Address() {
               >
                 {selectedStateLabel || 'UF'}
               </span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
+              <ChevronDownIcon
+                className={`w-3 h-3 transition-transform duration-200 shrink-0 text-tur-gray-500 ${estadoMenu.isOpen ? 'rotate-180' : ''}`}
                 strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className={`transition-transform duration-200 shrink-0 text-tur-gray-500 ${estadoMenu.isOpen ? 'rotate-180' : ''}`}
-              >
-                <path d="m6 9 6 6 6-6" />
-              </svg>
+              />
             </button>
 
             {estadoMenu.isOpen && (

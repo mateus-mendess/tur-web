@@ -1,5 +1,5 @@
-import axios from 'axios'
 import { api } from '#/lib/axios'
+import { handleApiError } from '#/lib/apiError'
 import type { PhotoResponse } from '#/types/api'
 
 /** Formatos de imagem aceitos pela API */
@@ -63,33 +63,13 @@ export const photosService = {
       )
       return data
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const status = err.response?.status
-        if (status === 400) {
-          const message =
-            (err.response?.data as { message?: string } | undefined)
-              ?.message ??
-            'Arquivo inválido, tamanho excedido ou limite de fotos atingido.'
-          throw new Error(message)
-        }
-        if (status === 401) {
-          throw new Error('Você precisa estar logado para enviar fotos.')
-        }
-        if (status === 403) {
-          throw new Error(
-            'Você não tem permissão para adicionar fotos a este ponto.',
-          )
-        }
-        if (status === 404) {
-          throw new Error('Ponto turístico não encontrado.')
-        }
-        if (status === 500) {
-          throw new Error(
-            'Falha ao salvar a foto no servidor. Tente novamente.',
-          )
-        }
-      }
-      throw new Error('Erro ao enviar a foto. Tente novamente.')
+      handleApiError(err, {
+        400: 'Arquivo inválido, tamanho excedido ou limite de fotos atingido.',
+        401: 'Você precisa estar logado para enviar fotos.',
+        403: 'Você não tem permissão para adicionar fotos a este ponto.',
+        404: 'Ponto turístico não encontrado.',
+        500: 'Falha ao salvar a foto no servidor. Tente novamente.',
+      }, 'Erro ao enviar a foto. Tente novamente.')
     }
   },
 
@@ -108,24 +88,12 @@ export const photosService = {
         validateStatus: (status) => status === 201 || status === 204,
       })
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const status = err.response?.status
-        if (status === 401) {
-          throw new Error('Você precisa estar logado para remover fotos.')
-        }
-        if (status === 403) {
-          throw new Error('Você não tem permissão para remover esta foto.')
-        }
-        if (status === 404) {
-          throw new Error('Foto ou ponto turístico não encontrado.')
-        }
-        if (status === 500) {
-          throw new Error(
-            'Falha ao remover a foto do servidor. Tente novamente.',
-          )
-        }
-      }
-      throw new Error('Erro ao remover a foto. Tente novamente.')
+      handleApiError(err, {
+        401: 'Você precisa estar logado para remover fotos.',
+        403: 'Você não tem permissão para remover esta foto.',
+        404: 'Foto ou ponto turístico não encontrado.',
+        500: 'Falha ao remover a foto do servidor. Tente novamente.',
+      }, 'Erro ao remover a foto. Tente novamente.')
     }
   },
 }

@@ -1,5 +1,6 @@
 import { SearchableDropdown } from '#/components/UI/SearchableDropdown'
 import { useDropdown } from '#/hooks/useDropdown'
+import { SearchIcon, CloseIcon, ListIcon, GridIcon } from '#/components/UI/Icons'
 
 interface SpotFilterBarProps {
   categoriesList: string[]
@@ -55,7 +56,7 @@ export function SpotFilterBar({
       {/* Search Input */}
       <div className="relative flex-1 w-full min-w-[200px]">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary/40"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <SearchIcon className="w-4 h-4 text-primary/40" />
         </div>
         <input
           type="text"
@@ -140,7 +141,7 @@ export function SpotFilterBar({
             : 'text-primary/20 cursor-not-allowed'
         }`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        <CloseIcon className="w-3.5 h-3.5" />
         Limpar filtros
       </button>
 
@@ -152,7 +153,7 @@ export function SpotFilterBar({
           className={`w-[34px] h-[34px] flex items-center justify-center rounded-sm transition-colors cursor-pointer border-none ${viewMode === 'list' ? 'bg-primary text-surface' : 'bg-transparent text-primary/40 hover:text-primary'}`}
           aria-label="List view"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          <ListIcon className="w-4 h-4" />
         </button>
         <button
           type="button"
@@ -160,7 +161,7 @@ export function SpotFilterBar({
           className={`w-[34px] h-[34px] flex items-center justify-center rounded-sm transition-colors cursor-pointer border-none ${viewMode === 'grid' ? 'bg-primary text-surface' : 'bg-transparent text-primary/40 hover:text-primary'}`}
           aria-label="Grid view"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <GridIcon className="w-4 h-4" />
         </button>
       </div>
 

@@ -1,4 +1,4 @@
-
+import { storage } from '#/lib/storage'
 /**
  * Serviço mockado para favoritos, já que a API real não possui endpoints.
  * Simula um delay de rede usando localStorage para persistência local do estado.
@@ -9,7 +9,7 @@ const getFavoritesKey = (userId: string) => `tur_favorites_${userId}`
 
 export const getStoredFavorites = (userId: string): string[] => {
   try {
-    const data = localStorage.getItem(getFavoritesKey(userId))
+    const data = storage.getItem(getFavoritesKey(userId))
     return data ? JSON.parse(data) : []
   } catch {
     return []
@@ -17,7 +17,7 @@ export const getStoredFavorites = (userId: string): string[] => {
 }
 
 const saveStoredFavorites = (userId: string, favorites: string[]) => {
-  localStorage.setItem(getFavoritesKey(userId), JSON.stringify(favorites))
+  storage.setItem(getFavoritesKey(userId), JSON.stringify(favorites))
 }
 
 export const favoritesService = {

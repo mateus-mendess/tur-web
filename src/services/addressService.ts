@@ -1,5 +1,5 @@
-import axios from 'axios'
 import { api } from '#/lib/axios'
+import { handleApiError } from '#/lib/apiError'
 import type { AddressRequest } from '#/types/api'
 
 export const addressService = {
@@ -18,18 +18,10 @@ export const addressService = {
     try {
       await api.put(`/addresses/tourist-point/${touristPointId}`, address)
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const status = err.response?.status
-        if (status === 404) {
-          throw new Error('Ponto turístico ou estado não encontrado.')
-        }
-        if (status === 503) {
-          throw new Error(
-            'Não conseguimos localizar esse endereço. Verifique o CEP e tente novamente.',
-          )
-        }
-      }
-      throw new Error('Erro ao atualizar o endereço. Tente novamente.')
+      handleApiError(err, {
+        404: 'Ponto turístico ou estado não encontrado.',
+        503: 'Não conseguimos localizar esse endereço. Verifique o CEP e tente novamente.',
+      }, 'Erro ao atualizar o endereço. Tente novamente.')
     }
   },
 }

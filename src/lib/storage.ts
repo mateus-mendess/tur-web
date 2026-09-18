@@ -1,4 +1,5 @@
 export const TOKEN_STORAGE_KEY = 'tur_token'
+export const USER_STORAGE_KEY = 'tur_user'
 
 export const storage = {
   getItem: (key: string): string | null => {
@@ -15,6 +16,12 @@ export const storage = {
   removeItem: (key: string): void => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem(key)
+    }
+  },
+  removeAuthData: (): void => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(TOKEN_STORAGE_KEY)
+      localStorage.removeItem(USER_STORAGE_KEY)
     }
   },
 }

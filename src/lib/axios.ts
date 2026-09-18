@@ -29,9 +29,10 @@ api.interceptors.response.use(
     if (axios.isAxiosError(error)) {
       const status = error.response?.status
       if (status === 401) {
-        // Token expirado ou inválido — limpar sessão
-        storage.removeItem(TOKEN_STORAGE_KEY)
-        // Redirecionar para home se necessário (implementar quando tiver auth real)
+        storage.removeAuthData()
+        if (typeof window !== 'undefined' && window.location.pathname !== '/') {
+          window.location.href = '/'
+        }
       }
     }
     return Promise.reject(error)

@@ -1,5 +1,5 @@
-import axios from 'axios'
 import { api } from '#/lib/axios'
+import { handleApiError } from '#/lib/apiError'
 import type { CategoryResponse } from '#/types/api'
 
 export const categoriesService = {
@@ -24,22 +24,11 @@ export const categoriesService = {
       const { data } = await api.post<CategoryResponse>('/categories', { name })
       return data
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const status = err.response?.status
-        if (status === 400) {
-          const message =
-            (err.response?.data as { message?: string } | undefined)
-              ?.message ?? 'Categoria inválida ou já existe.'
-          throw new Error(message)
-        }
-        if (status === 401) {
-          throw new Error('Você precisa estar logado para criar uma categoria.')
-        }
-        if (status === 404) {
-          throw new Error('Usuário autenticado não encontrado.')
-        }
-      }
-      throw new Error('Erro ao criar a categoria. Tente novamente.')
+      handleApiError(err, {
+        400: 'Categoria inválida ou já existe.',
+        401: 'Você precisa estar logado para criar uma categoria.',
+        404: 'Usuário autenticado não encontrado.',
+      }, 'Erro ao criar a categoria. Tente novamente.')
     }
   },
 

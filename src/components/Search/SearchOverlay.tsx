@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { SearchIcon, CloseIcon } from '#/components/UI/Icons'
 
 interface SearchOverlayProps {
   isOpen: boolean
@@ -82,7 +83,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     if (!term) return
     onClose()
     setSearchTerm('')
-    void navigate({ to: '/search', search: { busca: term } })
+    void navigate({ to: '/busca', search: { busca: term } })
   }
 
   const handlePopularSearch = (tag: string) => {
@@ -90,10 +91,9 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
     setSearchTerm('')
     if (CATEGORY_TAGS.has(tag)) {
       // É uma categoria — filtra por categoria na página explorar
-      void navigate({ to: '/search', search: { categoria: tag } })
+      void navigate({ to: '/busca', search: { categoria: tag } })
     } else {
-      // Busca de texto genérica
-      void navigate({ to: '/search', search: { busca: tag } })
+      void navigate({ to: '/busca', search: { busca: tag } })
     }
   }
 
@@ -126,18 +126,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
             className="absolute -right-12 top-0 max-md:right-4 max-md:top-4 bg-transparent border-none p-0 flex items-center justify-center cursor-pointer text-white hover:text-tur-accent max-md:text-tur-dark transition-colors duration-200 z-10"
             aria-label="Fechar busca"
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="w-7 h-7"
-            >
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
+            <CloseIcon className="w-7 h-7" strokeWidth="2.5" />
           </button>
 
           {/* Overlay Panel Container */}
@@ -156,21 +145,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                 }}
                 className="relative w-full"
               >
-                <svg
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-tur-gray-500"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="m21 21-4.3-4.3" />
-                </svg>
+                <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-tur-gray-500 w-6 h-6" />
                 <input
                   type="text"
                   value={searchTerm}

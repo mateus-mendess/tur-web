@@ -30,7 +30,7 @@ export function NavBar() {
         </Link>
 
         <nav className="flex items-center gap-8 font-normal text-lg">
-          <Link to="/search" className="hover:opacity-80 transition-opacity">Buscar</Link>
+          <Link to="/busca" className="hover:opacity-80 transition-opacity">Buscar</Link>
           <DestinosDropdown />
           
           {isAuthenticated ? (

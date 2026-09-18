@@ -5,8 +5,10 @@ import type { Spot } from '#/types/spot'
 import { useUploadPhotos } from '#/hooks/api/useUploadPhotos'
 import { useDeletePhoto } from '#/hooks/api/useDeletePhoto'
 import { toast } from 'sonner'
-import { TrashIcon, SpinnerIcon } from '#/components/UI/Icons'
 import { SplitModalLayout } from '#/components/UI/SplitModalLayout'
+import { UploadPhotosDropzone } from './UploadPhotos/UploadPhotosDropzone'
+import { UploadPhotosList } from './UploadPhotos/UploadPhotosList'
+import type { UnifiedItem } from './UploadPhotos/UploadPhotosList'
 
 interface UploadPhotosModalProps {
   isOpen: boolean
@@ -105,9 +107,6 @@ export function UploadPhotosModal({
 
   const isAnyActionPending = isPending || deletingPhotoId !== null
 
-  type UnifiedItem = 
-    | { type: 'existing'; id: string; url: string; name: string; status: string }
-    | { type: 'new'; index: number; file: File; status: string; error?: string }
 
   const unifiedItems: UnifiedItem[] = []
   
@@ -178,141 +177,28 @@ export function UploadPhotosModal({
         }
       >
         <div className="flex flex-col gap-6 overflow-y-auto pr-2 max-h-[500px]">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="font-dm-sans font-bold text-sm uppercase text-tur-dark">
-                Adicionar Novas Fotos
-              </h4>
-              <span className="text-tur-gray-700 font-inter text-xs font-medium">
-                Atuais: {currentPhotoCount}/4
-              </span>
-            </div>
+          <UploadPhotosDropzone
+            onDragOver={onDragOver}
+            onDrop={onDrop}
+            onClick={() => {
+              if (!(isAnyActionPending || remainingSlots === 0 || progress.length > 0)) {
+                fileInputRef.current?.click()
+              }
+            }}
+            onFileSelect={handleFileSelect}
+            fileInputRef={fileInputRef}
+            isDisabled={isAnyActionPending || remainingSlots === 0 || progress.length > 0}
+            currentPhotoCount={currentPhotoCount}
+          />
 
-            <div
-              onDragOver={onDragOver}
-              onDrop={onDrop}
-              onClick={() => {
-                if (!(isAnyActionPending || remainingSlots === 0 || progress.length > 0)) {
-                  fileInputRef.current?.click()
-                }
-              }}
-              className={`mt-2 border-2 border-dashed rounded-md flex flex-col items-center justify-center p-8 transition-colors ${isAnyActionPending || remainingSlots === 0 || progress.length > 0 ? 'opacity-50 cursor-not-allowed border-black/20 bg-black/5' : 'border-black/30 bg-transparent hover:bg-black/5 hover:border-black/50 cursor-pointer'}`}
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-tur-dark mb-4">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="17 8 12 3 7 8" />
-                <line x1="12" y1="3" x2="12" y2="15" />
-              </svg>
-              <p className="font-sans text-sm text-tur-dark font-medium mb-1 text-center">
-                Solte seus arquivos aqui ou clique para buscar
-              </p>
-              <p className="font-inter text-xs text-tur-gray-500 text-center">
-                Tamanho máximo por arquivo: 2 MB
-              </p>
-            </div>
-            
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept="image/jpeg,image/png,image/webp"
-              onChange={(e) => handleFileSelect(Array.from(e.target.files || []))}
-              className="hidden"
-            />
-          </div>
-
-          {unifiedItems.length > 0 && (
-            <div className="mt-2 space-y-3">
-              <h4 className="font-dm-sans font-bold text-sm uppercase text-tur-dark">
-                Uploads
-              </h4>
-              <ul className="space-y-3">
-                {unifiedItems.map((item) => {
-                  const isExisting = item.type === 'existing'
-                  const file = isExisting ? null : item.file
-                  const status = isExisting ? 'success' : item.status
-                  const error = isExisting ? null : item.error
-                  
-                  const objectUrl = isExisting ? item.url : (file ? URL.createObjectURL(file) : '')
-                  const name = isExisting ? item.name : (file ? file.name : '')
-
-                  return (
-                    <li key={isExisting ? item.id : `new-${item.index}`} className="flex flex-col border border-black/10 rounded-sm p-3 bg-white">
-                      <div className="flex items-center gap-4">
-                        {/* Thumbnail */}
-                        <div className="w-12 h-12 shrink-0 bg-tur-gray-100 border border-black/10 flex items-center justify-center overflow-hidden rounded-sm">
-                          <img 
-                            src={objectUrl} 
-                            alt="preview" 
-                            className="w-full h-full object-cover" 
-                            onLoad={(e) => {
-                              if (!isExisting && (e.target as HTMLImageElement).src.startsWith('blob:')) {
-                                URL.revokeObjectURL((e.target as HTMLImageElement).src)
-                              }
-                            }} 
-                          />
-                        </div>
-                        
-                        {/* File Info */}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-sans text-sm text-tur-dark font-medium truncate">
-                            {name}
-                          </p>
-                          <p className="font-inter text-xs text-tur-gray-500 mt-0.5">
-                            {isExisting || !file ? '—' : `${(file.size / (1024 * 1024)).toFixed(2)} MB`}
-                          </p>
-                        </div>
-                        
-                        {/* Actions / Status */}
-                        <div className="shrink-0 pl-2">
-                          {isExisting && (
-                             <button 
-                                type="button" 
-                                onClick={() => handleDeletePhoto(item.id)} 
-                                disabled={isAnyActionPending && deletingPhotoId !== item.id}
-                                className="p-2 text-tur-gray-500 hover:text-red-600 transition-colors bg-tur-gray-100 hover:bg-red-50 border border-transparent hover:border-red-100 rounded-sm cursor-pointer disabled:opacity-50" 
-                                aria-label="Excluir foto"
-                             >
-                                {deletingPhotoId === item.id ? <SpinnerIcon className="w-4 h-4" /> : <TrashIcon className="w-4 h-4" />}
-                             </button>
-                          )}
-
-                          {!isExisting && status === 'waiting' && progress.length === 0 && (
-                             <button type="button" onClick={() => handleRemoveSelectedFile(item.index)} className="p-2 text-tur-gray-500 hover:text-red-600 transition-colors bg-tur-gray-100 hover:bg-red-50 border border-transparent hover:border-red-100 rounded-sm cursor-pointer" aria-label="Remover">
-                                <TrashIcon className="w-4 h-4" />
-                             </button>
-                          )}
-                          {!isExisting && status === 'waiting' && progress.length > 0 && (
-                            <span className="font-inter text-xs text-tur-gray-500 font-semibold uppercase tracking-wider">Aguardando</span>
-                          )}
-                          {!isExisting && status === 'success' && (
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-green-600"><polyline points="20 6 9 17 4 12" /></svg>
-                          )}
-                          {!isExisting && status === 'error' && (
-                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-red-600"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Progress Bar */}
-                      {!isExisting && status === 'uploading' && (
-                        <div className="w-full h-1 bg-tur-gray-200 mt-4 rounded-full overflow-hidden">
-                           <div className="h-full bg-tur-accent animate-[pulse_1s_ease-in-out_infinite]" style={{ width: '80%' }}></div>
-                        </div>
-                      )}
-                      
-                      {/* Error Message */}
-                      {!isExisting && error && (
-                        <p className="font-inter text-xs text-red-600 mt-3 border-t border-red-100 pt-2">
-                          <strong className="font-semibold">Erro:</strong> {error}
-                        </p>
-                      )}
-                    </li>
-                  )
-                })}
-              </ul>
-            </div>
-          )}
+          <UploadPhotosList
+            unifiedItems={unifiedItems}
+            progressLength={progress.length}
+            isAnyActionPending={isAnyActionPending}
+            deletingPhotoId={deletingPhotoId}
+            onDeletePhoto={handleDeletePhoto}
+            onRemoveSelectedFile={handleRemoveSelectedFile}
+          />
         </div>
       </SplitModalLayout>
     </BaseModal>

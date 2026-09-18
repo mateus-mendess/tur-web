@@ -1,5 +1,5 @@
-import axios from 'axios'
 import { api } from '#/lib/axios'
+import { handleApiError } from '#/lib/apiError'
 import type { CommentResponse, CommentRequest } from '#/types/api'
 import { storage, TOKEN_STORAGE_KEY } from '#/lib/storage'
 
@@ -46,24 +46,11 @@ export const commentsService = {
         { headers },
       )
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const status = err.response?.status
-        if (status === 400) {
-          const message =
-            (err.response?.data as { message?: string } | undefined)
-              ?.message ?? 'Dados do comentário inválidos.'
-          throw new Error(message)
-        }
-        if (status === 401) {
-          throw new Error(
-            'Você precisa estar logado para comentar.',
-          )
-        }
-        if (status === 404) {
-          throw new Error('Ponto turístico não encontrado.')
-        }
-      }
-      throw new Error('Erro ao enviar o comentário. Tente novamente.')
+      handleApiError(err, {
+        400: 'Dados do comentário inválidos.',
+        401: 'Você precisa estar logado para comentar.',
+        404: 'Ponto turístico não encontrado.',
+      }, 'Erro ao enviar o comentário. Tente novamente.')
     }
   },
 }

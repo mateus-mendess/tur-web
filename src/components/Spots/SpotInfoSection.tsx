@@ -100,8 +100,10 @@ export function SpotInfoSection({ spot }: SpotInfoSectionProps) {
           </div>
         </div>
 
-        <div className="relative aspect-[4/3] w-full bg-tur-dark/10 group cursor-pointer overflow-hidden border border-tur-dark rounded-none">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"></div>
+        <div className="relative aspect-[4/3] w-full bg-tur-gray-200 group cursor-pointer overflow-hidden border border-tur-dark rounded-none">
+          <div className="absolute inset-0 flex items-center justify-center text-tur-gray-400">
+             <MapPinIcon className="w-12 h-12" />
+          </div>
 
           <div className="absolute inset-0 bg-tur-dark/40 group-hover:bg-tur-dark/20 transition-colors flex items-center justify-center">
             <div className="bg-tur-dark text-white border border-white px-4 py-2 font-inter text-xs font-bold uppercase tracking-widest rounded-none">

@@ -1,5 +1,5 @@
-import axios from 'axios'
 import { api } from '#/lib/axios'
+import { handleApiError } from '#/lib/apiError'
 import type { AccessibilityTypeResponse } from '#/types/api'
 
 export const accessibilityService = {
@@ -28,25 +28,11 @@ export const accessibilityService = {
         accessibilityTypesIds,
       })
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        const status = err.response?.status
-        if (status === 401) {
-          throw new Error(
-            'Você precisa estar logado para atualizar a acessibilidade.',
-          )
-        }
-        if (status === 403) {
-          throw new Error(
-            'Você não tem permissão para atualizar a acessibilidade deste ponto.',
-          )
-        }
-        if (status === 404) {
-          throw new Error(
-            'Ponto turístico ou tipo de acessibilidade não encontrado.',
-          )
-        }
-      }
-      throw new Error('Erro ao atualizar a acessibilidade. Tente novamente.')
+      handleApiError(err, {
+        401: 'Você precisa estar logado para atualizar a acessibilidade.',
+        403: 'Você não tem permissão para atualizar a acessibilidade deste ponto.',
+        404: 'Ponto turístico ou tipo de acessibilidade não encontrado.',
+      }, 'Erro ao atualizar a acessibilidade. Tente novamente.')
     }
   },
 }

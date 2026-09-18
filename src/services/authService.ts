@@ -1,12 +1,12 @@
-import axios from 'axios'
 import { api } from '#/lib/axios'
+import { handleApiError } from '#/lib/apiError'
 import { decodeJwt } from '#/lib/jwt'
 import type { LoginFormData, SignUpFormData } from '#/schemas/authSchema'
 import { storage, TOKEN_STORAGE_KEY } from '#/lib/storage'
 
 export interface AuthUser {
   id: string
-  nome: string
+  name: string
   email: string
 }
 
@@ -48,16 +48,15 @@ export const authService = {
 
       const user: AuthUser = {
         id: userId,
-        nome: nameFromEmail(data.email),
+        name: nameFromEmail(data.email),
         email: data.email,
       }
 
       return { token: response.token, user }
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.status === 401) {
-        throw new Error('E-mail ou senha inválidos.')
-      }
-      throw new Error('Não foi possível fazer login. Tente novamente.')
+      handleApiError(err, {
+        401: 'E-mail ou senha inválidos.',
+      }, 'Não foi possível fazer login. Tente novamente.')
     }
   },
 
@@ -75,14 +74,9 @@ export const authService = {
         confirmPassword: data.confirmarSenha,
       })
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.status === 400) {
-        // Backend pode rejeitar por email já em uso ou dados inválidos
-        const message =
-          (err.response.data as { message?: string } | undefined)?.message ??
-          'E-mail já cadastrado ou dados inválidos.'
-        throw new Error(message)
-      }
-      throw new Error('Não foi possível criar a conta. Tente novamente.')
+      handleApiError(err, {
+        400: 'E-mail já cadastrado ou dados inválidos.',
+      }, 'Não foi possível criar a conta. Tente novamente.')
     }
 
     // Auto-login após registro bem-sucedido
@@ -100,7 +94,7 @@ export const authService = {
 
       const user: AuthUser = {
         id: userId,
-        nome: data.nome,
+        name: data.nome,
         email: data.email,
       }
 

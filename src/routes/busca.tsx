@@ -11,6 +11,7 @@ import { useSpotFilters } from '#/hooks/useSpotFilters'
 import { SpotCardSkeleton } from '#/components/UI/Skeleton'
 import { PageContainer } from '#/components/UI/PageContainer'
 import { toSpot } from '#/types/spot'
+import { SearchIcon } from '#/components/UI/Icons'
 
 const searchSchema = z.object({
   busca: z.string().optional().default(''),
@@ -19,7 +20,7 @@ const searchSchema = z.object({
   acessibilidade: z.string().optional().default('Todas'),
 })
 
-export const Route = createFileRoute('/search')({
+export const Route = createFileRoute('/busca')({
   validateSearch: searchSchema,
   component: SearchPage,
   head: () => ({
@@ -131,21 +132,7 @@ function SearchPage() {
               </div>
             ) : (
               <div className="w-full py-20 flex flex-col items-center justify-center text-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="48"
-                  height="48"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-tur-gray-400 mb-4"
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <path d="m21 21-4.3-4.3" />
-                </svg>
+                <SearchIcon className="text-tur-gray-400 mb-4 w-12 h-12" strokeWidth="1.5" />
                 <h3 className="font-dm-sans text-2xl font-bold text-tur-dark mb-2">
                   Nenhum destino encontrado
                 </h3>
