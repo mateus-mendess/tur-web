@@ -40,23 +40,14 @@ export function SpotFilterBar({
   const regionMenu = useDropdown()
   const accessMenu = useDropdown()
 
-  const handleCategoryToggle = () => {
-    categoryMenu.toggle()
-    regionMenu.close()
-    accessMenu.close()
+  const makeToggleHandler = (own: { toggle: () => void }, ...others: { close: () => void }[]) => () => {
+    own.toggle()
+    others.forEach(menu => menu.close())
   }
 
-  const handleRegionToggle = () => {
-    regionMenu.toggle()
-    categoryMenu.close()
-    accessMenu.close()
-  }
-
-  const handleAccessToggle = () => {
-    accessMenu.toggle()
-    categoryMenu.close()
-    regionMenu.close()
-  }
+  const handleCategoryToggle = makeToggleHandler(categoryMenu, regionMenu, accessMenu)
+  const handleRegionToggle = makeToggleHandler(regionMenu, categoryMenu, accessMenu)
+  const handleAccessToggle = makeToggleHandler(accessMenu, categoryMenu, regionMenu)
 
   return (
     <div className="flex flex-col md:flex-row items-center gap-3 w-full font-sans">

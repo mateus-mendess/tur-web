@@ -14,7 +14,7 @@ import { Step3Address } from './CreateSpotForm/Step3Address'
 import { spotsService } from '#/services/spotsService'
 import { addressService } from '#/services/addressService'
 import { accessibilityService } from '#/services/accessibilityService'
-import { api } from '#/lib/axios'
+import { categoriesService } from '#/services/categoriesService'
 
 import { spotSchema } from '#/schemas/spotSchema'
 import type { SpotFormData } from '#/schemas/spotSchema'
@@ -117,7 +117,7 @@ export function EditSpotModal({ isOpen, onClose, spot }: EditSpotModalProps) {
       
       // 4. Update categories (Optimistic endpoint approach)
       try {
-        await api.patch(`/categories/tourist-point/${spot.id}`, { categoriesIds: data.categorias })
+        await categoriesService.updateSpotCategories(spot.id, data.categorias)
       } catch(e) {
         // Ignore if endpoint doesn't exist
       }

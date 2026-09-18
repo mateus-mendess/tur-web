@@ -7,4 +7,5 @@ export const queryKeys = {
   accessibilityTypes: ['accessibility-types'] as const,
   states: ['states'] as const,
   comments: (touristPointId: string) => ['comments', touristPointId] as const,
+  favorites: (spotId: string, userId?: string) => ['favorites', spotId, userId] as const,
 }

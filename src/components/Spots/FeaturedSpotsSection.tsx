@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import { toSpot  } from '#/types/spot'
 import { useSpots } from '#/hooks/api/useSpots'
 import { FeaturedSpotSkeleton } from '#/components/UI/Skeleton'
@@ -8,6 +8,7 @@ import { ImagePlaceholder } from '#/components/UI/ImagePlaceholder'
 
 export function FeaturedSpotsSection() {
   const { data: spots = [], isLoading } = useSpots()
+  const mappedSpots = useMemo(() => spots.map(toSpot), [spots])
   const sectionRef = useRef<HTMLDivElement>(null)
   const trackContainerRef = useRef<HTMLDivElement>(null)
   const trackContentRef = useRef<HTMLDivElement>(null)
@@ -141,8 +142,7 @@ export function FeaturedSpotsSection() {
           </div>
 
           {/* 6 Destination Cards */}
-          {spots.map((rawSpot) => {
-            const spot = toSpot(rawSpot)
+          {mappedSpots.map((spot) => {
             return (
               <Link
                 key={spot.id}

@@ -1,12 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { favoritesService } from '#/services/favoritesService'
-
-const FAVORITES_QUERY_KEY = 'favorites'
+import { queryKeys } from '#/lib/queryKeys'
 
 export function useSpotFavoriteStatus(spotId: string, userId?: string) {
   const queryClient = useQueryClient()
 
-  const queryKey = [FAVORITES_QUERY_KEY, spotId, userId]
+  const queryKey = queryKeys.favorites(spotId, userId)
 
   const query = useQuery({
     queryKey,

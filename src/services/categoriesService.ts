@@ -42,4 +42,12 @@ export const categoriesService = {
       throw new Error('Erro ao criar a categoria. Tente novamente.')
     }
   },
+
+  /**
+   * PATCH /categories/tourist-point/:id
+   * Atualiza as categorias de um ponto turístico.
+   */
+  updateSpotCategories: async (spotId: string, categoriesIds: string[]): Promise<void> => {
+    await api.patch(`/categories/tourist-point/${spotId}`, { categoriesIds })
+  },
 }

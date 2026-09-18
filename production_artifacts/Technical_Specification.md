@@ -1,72 +1,60 @@
-# Technical Specification: Refatoração de Código — Organização e Qualidade
+# Technical Specification: Code Review Ciclo 2 — Correções Críticas e Consistência de Padrões
 
 ## 1. Executive Summary
-Esta especificação descreve uma refatoração interna do frontend, sem nenhuma alteração de design, layout, textos ou comportamento de UX. O objetivo é elevar a qualidade do código ao padrão de um desenvolvedor front-end sênior, corrigindo bugs de lógica silenciosos, quebrando "God Components", movendo arquivos para seus locais semânticos corretos e otimizando renders desnecessários.
+Esta especificação detalha o segundo ciclo de refatoração do frontend. O foco principal é a correção de bugs reais de UX (como reload da página desnecessário), violações arquiteturais e a padronização do código. Não haverá NENHUMA alteração de design, layout, textos ou comportamento visual.
 
-> **REGRA CRÍTICA**: Nenhuma classe Tailwind, texto de UI, layout ou comportamento visual pode ser alterado. Apenas código interno.
+> **REGRA CRÍTICA**: Nenhuma classe Tailwind, texto de UI, layout ou comportamento visual pode ser alterado. O objetivo é apenas corrigir a estrutura interna e a consistência do código.
 
 ---
 
 ## 2. Requirements
 
-### 2.1 Extração de Utilitários (Organização de Arquivos)
-| Ação | De | Para |
-|------|----|------|
-| Mover/criar `ClientOnly` | `routes/pontos.$spotId.tsx` (inline) | `src/components/UI/ClientOnly.tsx` |
-| Mover `MapSkeleton` | `routes/pontos.$spotId.tsx` (inline) | `src/components/Spots/SpotMiniMap.tsx` (colocado junto ao mapa) |
-| Mover `useSpotDetailModals` | `src/components/Spots/useSpotDetailModals.ts` | `src/hooks/useSpotDetailModals.ts` |
+### 2.1 Correções Críticas (Prioridade Alta)
+1. **`useUploadPhotos.ts` (Remoção de Reload):**
+   - **Problema:** A linha que executa `window.location.reload()` após o upload de fotos destrói o estado da SPA de forma desnecessária, causando uma má experiência.
+   - **Solução:** Remover a linha `setTimeout(() => window.location.reload(), 1000)`. A atualização da UI ocorrerá naturalmente por meio do React Query (`queryClient.invalidateQueries`) já presente no código.
 
-### 2.2 Decomposição do God Component (`pontos.$spotId.tsx`)
-A rota atual tem 350 linhas. Extrair seções para componentes dedicados em `src/components/Spots/`:
+2. **`EditSpotModal.tsx` (Violação Arquitetural):**
+   - **Problema:** O modal importa e utiliza o `api` (`import { api } from '#/lib/axios'`) diretamente. Isso quebra a separação de responsabilidades.
+   - **Solução:** Substituir a chamada direta ao axios pelas funções apropriadas dentro da pasta `services/` (por exemplo, `spotsService`, `categoriesService`, etc.), mantendo a lógica HTTP isolada dos componentes.
 
-| Componente a criar | Conteúdo |
-|--------------------|----------|
-| `SpotHeroSection.tsx` | Título, localização e botões (Favoritar, Editar, Excluir) |
-| `SpotInfoBar.tsx` | Barra de 5 colunas (localização, nota, categoria, acessibilidade, autor) |
-| `SpotCommentsSection.tsx` | Lista de comentários + botão "Avaliar" + mini mapa |
+### 2.2 Consistência de Padrões (Prioridade Média)
+3. **`useFavorites.ts` (Centralização de Query Keys):**
+   - **Problema:** A constante `FAVORITES_QUERY_KEY = 'favorites'` está hardcoded.
+   - **Solução:** Mapear e adicionar essa chave ao arquivo central `#/lib/queryKeys` e utilizá-la em `useFavorites.ts`, mantendo a consistência com o restante do projeto.
 
-Após a extração, o arquivo `pontos.$spotId.tsx` deve ter no máximo ~80 linhas, atuando apenas como orquestrador de dados e modais.
+4. **`SpotCard.tsx` (Limpeza de Código):**
+   - **Problema 1:** A prop `layout?: 'grid' | 'list'` está declarada na interface `SpotCardProps` mas nunca é utilizada.
+   - **Solução 1:** Remover a prop `layout` da interface e de suas chamadas (onde aplicável sem quebrar).
+   - **Problema 2:** Ícones SVG de navegação inline.
+   - **Solução 2:** Substituir os SVGs inline por `<ChevronLeftIcon />` e `<ChevronRightIcon />` importados de `#/components/UI/Icons`.
 
-### 2.3 Correções de Bugs de Lógica
-1. **`SpotMiniMap.tsx`**: Remover o estado `mounted` e o `useEffect` interno — são código morto, pois o componente já é protegido pelo `ClientOnly` externo.
-2. **`useSpotFilters.ts`**: Remover `selectedRegion` do array de dependências do `useMemo` de `filteredSpots` (dead dependency — região não é usada no `.filter()`).
-3. **`useSpotFilters.ts`**: Converter `isFilterActive` de variável calculada no render para `useMemo`, eliminando o cálculo duplicado já existente em `activeFilterNames`.
-4. **`pontos.$spotId.tsx`**: Remover o fallback hardcoded `'4.8'` da nota média. Exibir `'–'` quando `spot.rating` for nulo/ausente.
-5. **`AuthContext.tsx`**: Remover o listener de `keydown` para `Escape` — o Radix UI `Dialog` já gerencia isso nativamente, resultando em comportamento duplicado.
+5. **`FeaturedSpotsSection.tsx` (Otimização de Render):**
+   - **Problema:** O método `.map(toSpot)` é chamado diretamente no render, causando re-processamento em cada atualização.
+   - **Solução:** Envolver a transformação dos dados (`spots.map(toSpot)`) com `useMemo`.
 
-### 2.4 Otimizações de Render
-1. **`renderDescription`** em `pontos.$spotId.tsx`: Converter de função inline (`const renderDescription = () => ...`) para `useMemo`.
-2. **Páginas de listagem** (`meus-pontos.tsx`, `meus-favoritos.tsx`, `search.tsx`): Envolver o `spots.map(toSpot)` em `useMemo` para evitar reconversão a cada re-render.
+6. **`types/spot.ts` (Campo Morto):**
+   - **Problema:** O campo `number: string` está presente na interface, mas nunca é exibido ou utilizado.
+   - **Solução:** Remover `number` da interface `Spot` e sua respectiva lógica de transformação em `toSpot()`.
 
-### 2.5 Higienização de Código
-1. **`key={idx}`**: Substituir por IDs estáveis onde disponíveis (ex: `key={cat}` nas categorias, `key={review.authorName + idx}` nos comentários).
-2. **Avatar inline**: Substituir o SVG inline de avatar nos comentários pelo `UserIcon` já existente em `components/UI/Icons.tsx`.
-3. **Caracteres especiais**: Extrair `★`, `☆` para uma constante ou componente `StarRating` colocado em `components/UI/`.
-
----
-
-## 3. Architecture & Tech Stack
-- Sem novas dependências.
-- Toda a refatoração utiliza React, TypeScript e os padrões já estabelecidos no projeto (hooks customizados, `useMemo`, componentes funcionais).
+### 2.3 Qualidade de Código (Prioridade Baixa)
+7. **`SpotFilterBar.tsx` (Refatoração de Handlers):**
+   - **Problema:** Existem 3 funções idênticas para controle dos dropdowns (`handleCategoryToggle`, `handleRegionToggle`, `handleAccessToggle`).
+   - **Solução:** Criar uma função fábrica `makeToggleHandler(menuToToggle, ...menusToClose)` que retorna o manipulador de clique adequado, reduzindo a duplicação.
 
 ---
 
-## 4. State Management
-- Nenhuma mudança de estado global.
-- Os novos componentes filhos receberão props estritamente tipadas derivadas do estado já existente na rota pai.
-- O `useSpotDetailModals` continuará sendo consumido da mesma forma, apenas importado de um novo caminho.
+## 3. Escopo Negativo (O que NÃO será feito)
+- **Não** refatorar `LoginModal.tsx` neste ciclo (fluxo incompleto).
+- **Não** migrar `ReviewModal` para `react-hook-form` (baixo risco atual).
+- **Não** extrair lógica de scroll da `NavBar` para um hook separado (melhoria de baixo impacto).
 
 ---
 
-## 5. Verification Plan
-
-### Automated Tests
-```bash
-npx tsc --noEmit
-```
-Zero erros de TypeScript após a refatoração.
-
-### Manual Verification
-- Navegar pela página de detalhes de um ponto turístico e confirmar que o layout, mapa, comentários e modais funcionam identicamente ao estado anterior.
-- Confirmar que o login/logout ainda funciona e que fechar modais via Escape ainda funciona (agora gerenciado exclusivamente pelo Radix).
-- Confirmar que as páginas `meus-pontos`, `meus-favoritos` e `search` ainda filtram corretamente.
+## 4. Verification Plan
+- **Testes de Tipo:** Rodar `npx tsc --noEmit` para garantir zero erros de TypeScript.
+- **Teste Manual:**
+  - Fazer upload de uma imagem e validar que a página **não** recarrega (reload), mas as imagens atualizam.
+  - Editar um spot via `EditSpotModal` garantindo que os dados salvam corretamente via service.
+  - Testar os modais da `SpotFilterBar` para garantir que apenas um fica aberto por vez.
+  - Verificar a renderização de `FeaturedSpotsSection` e `SpotCard`.

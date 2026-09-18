@@ -14,7 +14,6 @@ export interface SpotReview {
 export interface Spot {
   id: string
   userId?: string
-  number: string
   name: string
   location: string
   category: string
@@ -49,7 +48,6 @@ export function toSpot(tp: TouristPointResponse): Spot {
   return {
     id: tp.id,
     userId: tp.userId,
-    number: tp.id.slice(0, 2).toUpperCase(),
     name: tp.name,
     location: `${tp.address.city}, ${tp.address.state}`,
     category: tp.categories.length > 0 ? tp.categories[0].name : '',

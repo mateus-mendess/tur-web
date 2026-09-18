@@ -1,12 +1,12 @@
 import type { Spot } from '#/types/spot'
 import { useState } from 'react'
 import { ImagePlaceholder } from '#/components/UI/ImagePlaceholder'
+import { ChevronLeftIcon, ChevronRightIcon } from '#/components/UI/Icons'
 
 
 interface SpotCardProps {
   spot: Spot
   onClick?: () => void
-  layout?: 'grid' | 'list'
 }
 
 export function SpotCard({ spot, onClick }: SpotCardProps) {
@@ -57,14 +57,14 @@ export function SpotCard({ spot, onClick }: SpotCardProps) {
               className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-10"
               aria-label="Imagem anterior"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              <ChevronLeftIcon className="w-4 h-4" />
             </button>
             <button
               onClick={handleNextImage}
               className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all z-10"
               aria-label="Próxima imagem"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              <ChevronRightIcon className="w-4 h-4" />
             </button>
 
             {/* Pagination Dots */}

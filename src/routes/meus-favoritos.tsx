@@ -134,9 +134,8 @@ function MeusFavoritosPage() {
           }>
             {mappedSpots.map((spot) => (
               <SpotCard
-                key={spot.id}
-                spot={spot}
-                layout={viewMode}
+                key={spot.id} 
+                spot={spot} 
                 onClick={() => navigate({ to: '/pontos/$spotId', params: { spotId: spot.id } })}
               />
             ))}
